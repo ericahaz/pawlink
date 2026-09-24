@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "85061079051",
+    "project_id": "pawlink-pet-2026",
+    "storage_bucket": "pawlink-pet-2026.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:85061079051:android:494c225671431a7503370e",
+        "android_client_info": {
+          "package_name": "com.example.pawlink"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNPMytT1JjRe4oZUoV8YWOzENU7OuoA54"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
