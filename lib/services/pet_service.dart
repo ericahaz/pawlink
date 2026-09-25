@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -11,7 +13,7 @@ class PetService {
       _firestore.collection('pets');
 
   // ============================================================
-  // CURRENT USER PETS
+  // CURRENT USER'S PETS
   // ============================================================
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getMyPetsStream() {
@@ -24,26 +26,37 @@ class PetService {
     return _pets.where('ownerIds', arrayContains: user.uid).snapshots();
   }
 
+  // ============================================================
+  // PET COUNT
+  // ============================================================
+
   Stream<int> getMyPetsCountStream() {
     return getMyPetsStream().map((snapshot) => snapshot.docs.length);
   }
 
+  // ============================================================
+  // QR PROFILES COUNT
+  // ============================================================
+
   Stream<int> getQrProfilesCountStream() {
     return getMyPetsStream().map((snapshot) {
       return snapshot.docs.where((doc) {
-        final data = doc.data();
-        return data['qrEnabled'] == true;
+        return doc.data()['qrEnabled'] == true;
       }).length;
     });
   }
 
   // ============================================================
-  // GET SINGLE PET
+  // GET PET
   // ============================================================
 
   Future<DocumentSnapshot<Map<String, dynamic>>> getPet(String petId) async {
     return _pets.doc(petId).get();
   }
+
+  // ============================================================
+  // GET PET REAL-TIME STREAM
+  // ============================================================
 
   Stream<DocumentSnapshot<Map<String, dynamic>>> getPetStream(String petId) {
     return _pets.doc(petId).snapshots();
@@ -52,16 +65,19 @@ class PetService {
   // ============================================================
   // UPLOAD PET PHOTO
   // ============================================================
+  //
+  // Uses Uint8List because this is a Flutter Web project.
+  //
 
-  Future<String> uploadPetPhoto({
+  Future<String> uploadPetPhotoBytes({
     required String petId,
-    required dynamic imageFile,
+    required Uint8List bytes,
   }) async {
     final reference = _storage.ref().child('pet_images').child('$petId.jpg');
 
-    await reference.putFile(imageFile);
+    await reference.putData(bytes, SettableMetadata(contentType: 'image/jpeg'));
 
-    return await reference.getDownloadURL();
+    return reference.getDownloadURL();
   }
 
   // ============================================================
@@ -76,6 +92,7 @@ class PetService {
     required String ownerName,
     required String ownerContact,
     String? photoUrl,
+    String safetyTag = 'safe',
   }) async {
     final user = _auth.currentUser;
 
@@ -85,6 +102,8 @@ class PetService {
 
     final petRef = _pets.doc();
 
+    final normalizedSafetyTag = _normalizeSafetyTag(safetyTag);
+
     await petRef.set({
       'petId': petRef.id,
       'petName': petName.trim(),
@@ -92,12 +111,37 @@ class PetService {
       'color': color.trim(),
       'age': age.trim(),
       'photoUrl': photoUrl ?? '',
+
+      // ========================================================
+      // OWNER
+      // ========================================================
       'ownerIds': [user.uid],
       'primaryOwnerId': user.uid,
       'ownerName': ownerName.trim(),
       'ownerContact': ownerContact.trim(),
+
+      // ========================================================
+      // STATUS
+      // ========================================================
       'status': 'alive',
+
+      // ========================================================
+      // SAFETY
+      // ========================================================
+      'safetyTag': normalizedSafetyTag,
+
+      // ========================================================
+      // QR
+      // ========================================================
+      //
+      // Every newly registered pet receives one QR profile.
+      // The QR belongs to the pet, not to the owner.
+      //
       'qrEnabled': true,
+
+      // ========================================================
+      // TIMESTAMPS
+      // ========================================================
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
@@ -118,40 +162,74 @@ class PetService {
     required String ownerName,
     required String ownerContact,
     String? photoUrl,
+    String? safetyTag,
   }) async {
-    await _pets.doc(petId).update({
+    final Map<String, dynamic> updates = {
       'petName': petName.trim(),
       'breed': breed.trim(),
       'color': color.trim(),
       'age': age.trim(),
       'ownerName': ownerName.trim(),
       'ownerContact': ownerContact.trim(),
-      if (photoUrl != null) 'photoUrl': photoUrl,
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+
+    if (photoUrl != null) {
+      updates['photoUrl'] = photoUrl;
+    }
+
+    if (safetyTag != null) {
+      updates['safetyTag'] = _normalizeSafetyTag(safetyTag);
+    }
+
+    await _pets.doc(petId).update(updates);
+  }
+
+  // ============================================================
+  // UPDATE SAFETY TAG
+  // ============================================================
+
+  Future<void> updatePetSafetyTag({
+    required String petId,
+    required String safetyTag,
+  }) async {
+    await _pets.doc(petId).update({
+      'safetyTag': _normalizeSafetyTag(safetyTag),
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
 
   // ============================================================
-  // PET STATUS
+  // UPDATE PET STATUS
   // ============================================================
+  //
+  // alive = keep the pet
+  // dead  = permanently delete pet + photo
+  //
 
   Future<void> updatePetStatus({
     required String petId,
     required String status,
   }) async {
-    if (status.toLowerCase() == 'dead') {
+    final normalizedStatus = status.toLowerCase().trim();
+
+    if (normalizedStatus == 'dead') {
       await deletePet(petId);
       return;
     }
 
+    if (normalizedStatus != 'alive') {
+      throw Exception('Invalid pet status.');
+    }
+
     await _pets.doc(petId).update({
-      'status': status.toLowerCase(),
+      'status': 'alive',
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
 
   // ============================================================
-  // JOINT OWNERS
+  // ADD CO-OWNER
   // ============================================================
 
   Future<void> addCoOwner({
@@ -163,6 +241,10 @@ class PetService {
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
+
+  // ============================================================
+  // REMOVE CO-OWNER
+  // ============================================================
 
   Future<void> removeCoOwner({
     required String petId,
@@ -177,6 +259,13 @@ class PetService {
   // ============================================================
   // DELETE PET
   // ============================================================
+  //
+  // Deletes:
+  // 1. Firestore pet document
+  // 2. Firebase Storage pet photo
+  //
+  // This is also used when a pet is marked as deceased.
+  //
 
   Future<void> deletePet(String petId) async {
     await _pets.doc(petId).delete();
@@ -184,7 +273,32 @@ class PetService {
     try {
       await _storage.ref().child('pet_images').child('$petId.jpg').delete();
     } catch (_) {
-      // Photo may not exist.
+      // The photo may not exist.
+    }
+  }
+
+  // ============================================================
+  // NORMALIZE SAFETY TAG
+  // ============================================================
+
+  String _normalizeSafetyTag(String safetyTag) {
+    final tag = safetyTag.toLowerCase().trim();
+
+    switch (tag) {
+      case 'safe':
+      case 'green':
+        return 'safe';
+
+      case 'caution':
+      case 'yellow':
+        return 'caution';
+
+      case 'aggressive':
+      case 'red':
+        return 'aggressive';
+
+      default:
+        return 'safe';
     }
   }
 }

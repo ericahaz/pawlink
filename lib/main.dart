@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -5,6 +6,10 @@ import 'firebase_options.dart';
 import 'screens/landing/landing_page.dart';
 import 'screens/public/public_pet_page.dart';
 import 'screens/pets/accept_invitation_page.dart';
+
+// Import your dashboard page here.
+// Change this import only if your actual dashboard file is located elsewhere.
+import 'screens/home/home_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,6 +62,8 @@ class PawLink extends StatelessWidget {
         // PUBLIC PET PROFILE
         //
         // /p/PET-ID
+        //
+        // This page remains publicly accessible even without login.
         // ------------------------------------------------------
 
         if (segments.length == 2 && segments[0].toLowerCase() == 'p') {
@@ -89,7 +96,72 @@ class PawLink extends StatelessWidget {
         return null;
       },
 
-      home: const LandingPage(),
+      // ========================================================
+      // AUTHENTICATION GATE
+      // ========================================================
+      //
+      // Firebase decides which page the user should see:
+      //
+      // Logged in  -> Dashboard
+      // Logged out -> Landing Page
+      //
+      // This also handles refreshing the browser.
+      // ========================================================
+      home: const AuthGate(),
+    );
+  }
+}
+
+// ================================================================
+// AUTH GATE
+// ================================================================
+//
+// This listens to Firebase Authentication.
+//
+// If the user is logged in:
+//     show Dashboard
+//
+// If the user is logged out:
+//     show Landing Page
+//
+// ================================================================
+
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+
+      builder: (context, snapshot) {
+        // ------------------------------------------------------
+        // Firebase is still checking the authentication state.
+        // ------------------------------------------------------
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            backgroundColor: Color(0xFFFFFBF5),
+            body: Center(
+              child: CircularProgressIndicator(color: Color(0xFF0F766E)),
+            ),
+          );
+        }
+
+        // ------------------------------------------------------
+        // User is logged in.
+        // ------------------------------------------------------
+
+        if (snapshot.hasData && snapshot.data != null) {
+          return const HomePage();
+        }
+
+        // ------------------------------------------------------
+        // User is logged out.
+        // ------------------------------------------------------
+
+        return const LandingPage();
+      },
     );
   }
 }

@@ -3,10 +3,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class ReportService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   CollectionReference<Map<String, dynamic>> get _reports =>
       _firestore.collection('reports');
+
+  // ============================================================
+  // CURRENT USER
+  // ============================================================
+
+  User? get currentUser => _auth.currentUser;
+
+  String? get currentUserId => _auth.currentUser?.uid;
 
   // ============================================================
   // CREATE LOST PET REPORT
@@ -16,8 +25,9 @@ class ReportService {
     required String petId,
     required String petName,
     required String lastSeenLocation,
-    required String description,
-    String? photoUrl,
+    required String details,
+    double? latitude,
+    double? longitude,
   }) async {
     final user = _auth.currentUser;
 
@@ -25,40 +35,49 @@ class ReportService {
       throw Exception('You must be logged in to report a lost pet.');
     }
 
-    final reportRef = _reports.doc();
+    final document = _reports.doc();
 
-    await reportRef.set({
-      'reportId': reportRef.id,
+    final now = FieldValue.serverTimestamp();
+
+    await document.set({
+      'reportId': document.id,
       'type': 'lost',
 
-      'petId': petId.trim(),
-      'petName': petName.trim(),
+      'petId': petId.isEmpty ? null : petId,
+      'petName': petName,
+
+      'title': 'Lost Pet',
+      'name': petName,
+
+      'location': lastSeenLocation,
+      'lastSeenLocation': lastSeenLocation,
+
+      'details': details,
+
+      'foundLocation': null,
+      'locationName': null,
+
+      'foundDate': null,
+      'message': null,
+      'photoUrl': '',
 
       'reportedBy': user.uid,
-
-      'lastSeenLocation': lastSeenLocation.trim(),
-      'description': description.trim(),
-
-      'photoUrl': photoUrl?.trim() ?? '',
+      'reporterEmail': user.email,
 
       'status': 'active',
 
-      'createdAt': FieldValue.serverTimestamp(),
-      'updatedAt': FieldValue.serverTimestamp(),
+      'latitude': latitude,
+      'longitude': longitude,
+
+      'createdAt': now,
+      'updatedAt': now,
     });
 
-    return reportRef.id;
+    return document.id;
   }
 
   // ============================================================
   // CREATE FOUND PET REPORT
-  // ============================================================
-  //
-  // This can be submitted by:
-  // - Logged-in users
-  // - Guests/finder without an account
-  //
-  // If the finder is not logged in, reportedBy will be null.
   // ============================================================
 
   Future<String> createFoundPetReport({
@@ -66,53 +85,123 @@ class ReportService {
     required String petName,
     required String foundLocation,
     required String foundDate,
-    String? message,
+    required String message,
+    double? latitude,
+    double? longitude,
     String? photoUrl,
   }) async {
     final user = _auth.currentUser;
 
-    final reportRef = _reports.doc();
+    final document = _reports.doc();
 
-    await reportRef.set({
-      'reportId': reportRef.id,
+    final now = FieldValue.serverTimestamp();
+
+    await document.set({
+      'reportId': document.id,
       'type': 'found',
 
-      'petId': petId.trim(),
-      'petName': petName.trim(),
+      'petId': petId.isEmpty ? null : petId,
+      'petName': petName,
+
+      'title': 'Found Pet',
+      'name': petName,
+
+      'location': foundLocation,
+      'foundLocation': foundLocation,
+
+      'lastSeenLocation': null,
+      'locationName': null,
+
+      'details': message,
+
+      'foundDate': foundDate,
+      'message': message,
+
+      'photoUrl': photoUrl ?? '',
 
       'reportedBy': user?.uid,
-
-      'foundLocation': foundLocation.trim(),
-      'foundDate': foundDate.trim(),
-
-      'message': message?.trim() ?? '',
-      'photoUrl': photoUrl?.trim() ?? '',
+      'reporterEmail': user?.email,
 
       'status': 'active',
 
-      'createdAt': FieldValue.serverTimestamp(),
-      'updatedAt': FieldValue.serverTimestamp(),
+      'latitude': latitude,
+      'longitude': longitude,
+
+      'createdAt': now,
+      'updatedAt': now,
     });
 
-    return reportRef.id;
+    return document.id;
+  }
+
+  // ============================================================
+  // CREATE PET SIGHTING REPORT
+  // ============================================================
+
+  Future<String> createSightingReport({
+    required String petName,
+    required String locationName,
+    required String details,
+    double? latitude,
+    double? longitude,
+  }) async {
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception('You must be logged in to report a pet sighting.');
+    }
+
+    final document = _reports.doc();
+
+    final now = FieldValue.serverTimestamp();
+
+    await document.set({
+      'reportId': document.id,
+      'type': 'sighting',
+
+      'petId': null,
+      'petName': petName,
+
+      'title': 'Pet Sighting',
+      'name': petName,
+
+      'location': locationName,
+      'locationName': locationName,
+
+      'lastSeenLocation': null,
+      'foundLocation': null,
+
+      'details': details,
+
+      'foundDate': null,
+      'message': null,
+      'photoUrl': '',
+
+      'reportedBy': user.uid,
+      'reporterEmail': user.email,
+
+      'status': 'active',
+
+      'latitude': latitude,
+      'longitude': longitude,
+
+      'createdAt': now,
+      'updatedAt': now,
+    });
+
+    return document.id;
   }
 
   // ============================================================
   // CREATE BARANGAY REPORT
   // ============================================================
-  //
-  // Used for reports such as:
-  // - Lost stray
-  // - Stray animal concern
-  // - Aggressive animal
-  // - Animal needing assistance
-  // ============================================================
 
   Future<String> createBarangayReport({
     required String title,
-    required String description,
     required String location,
-    String? photoUrl,
+    required String details,
+    double? latitude,
+    double? longitude,
   }) async {
     final user = _auth.currentUser;
 
@@ -120,31 +209,49 @@ class ReportService {
       throw Exception('You must be logged in to submit a barangay report.');
     }
 
-    final reportRef = _reports.doc();
+    final document = _reports.doc();
 
-    await reportRef.set({
-      'reportId': reportRef.id,
+    final now = FieldValue.serverTimestamp();
+
+    await document.set({
+      'reportId': document.id,
       'type': 'barangay',
 
-      'title': title.trim(),
-      'description': description.trim(),
-      'location': location.trim(),
+      'petId': null,
+      'petName': null,
+
+      'title': title,
+      'name': title,
+
+      'location': location,
+
+      'lastSeenLocation': null,
+      'foundLocation': null,
+      'locationName': null,
+
+      'details': details,
+
+      'foundDate': null,
+      'message': details,
+      'photoUrl': '',
 
       'reportedBy': user.uid,
-
-      'photoUrl': photoUrl?.trim() ?? '',
+      'reporterEmail': user.email,
 
       'status': 'active',
 
-      'createdAt': FieldValue.serverTimestamp(),
-      'updatedAt': FieldValue.serverTimestamp(),
+      'latitude': latitude,
+      'longitude': longitude,
+
+      'createdAt': now,
+      'updatedAt': now,
     });
 
-    return reportRef.id;
+    return document.id;
   }
 
   // ============================================================
-  // GET MY REPORTS
+  // MY REPORTS
   // ============================================================
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getMyReportsStream() {
@@ -158,7 +265,7 @@ class ReportService {
   }
 
   // ============================================================
-  // GET MY REPORT COUNT
+  // MY REPORT COUNT
   // ============================================================
 
   Stream<int> getMyReportsCountStream() {
@@ -166,13 +273,23 @@ class ReportService {
   }
 
   // ============================================================
-  // GET FOUND REPORTS FOR MY PETS
+  // COMMUNITY SIGHTINGS
   // ============================================================
-  //
-  // petIds = IDs of pets owned by the current user.
-  //
-  // Firestore whereIn supports a maximum of 10 values in this
-  // type of query, so we only use the first 10 here.
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getCommunitySightingsStream() {
+    return _reports.where('type', isEqualTo: 'sighting').snapshots();
+  }
+
+  // ============================================================
+  // COMMUNITY REPORTS
+  // ============================================================
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getCommunityReportsStream() {
+    return _reports.snapshots();
+  }
+
+  // ============================================================
+  // FOUND REPORTS FOR USER'S PETS
   // ============================================================
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getFoundReportsStream(
@@ -191,32 +308,19 @@ class ReportService {
   }
 
   // ============================================================
-  // GET ALL LOST PET REPORTS
-  // ============================================================
-  //
-  // This can be used on a community/lost pets page.
+  // LOST REPORTS
   // ============================================================
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getLostReportsStream() {
-    return _reports
-        .where('type', isEqualTo: 'lost')
-        .where('status', isEqualTo: 'active')
-        .snapshots();
+    return _reports.where('type', isEqualTo: 'lost').snapshots();
   }
 
   // ============================================================
-  // GET ALL BARANGAY REPORTS
-  // ============================================================
-  //
-  // This can later be restricted to barangay/admin users
-  // using Firestore Security Rules.
+  // BARANGAY REPORTS
   // ============================================================
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getBarangayReportsStream() {
-    return _reports
-        .where('type', isEqualTo: 'barangay')
-        .where('status', isEqualTo: 'active')
-        .snapshots();
+    return _reports.where('type', isEqualTo: 'barangay').snapshots();
   }
 
   // ============================================================
@@ -230,7 +334,7 @@ class ReportService {
   }
 
   // ============================================================
-  // GET ONE REPORT AS A STREAM
+  // GET ONE REPORT STREAM
   // ============================================================
 
   Stream<DocumentSnapshot<Map<String, dynamic>>> getReportStream(
@@ -240,12 +344,126 @@ class ReportService {
   }
 
   // ============================================================
+  // UPDATE REPORT
+  // ============================================================
+
+  Future<void> updateReport({
+    required String reportId,
+    required String location,
+    required String details,
+    double? latitude,
+    double? longitude,
+  }) async {
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception('You must be logged in.');
+    }
+
+    final document = await _reports.doc(reportId).get();
+
+    if (!document.exists) {
+      throw Exception('Report not found.');
+    }
+
+    final data = document.data() ?? {};
+
+    final reportedBy = data['reportedBy']?.toString();
+
+    if (reportedBy != user.uid) {
+      throw Exception('You can only edit your own reports.');
+    }
+
+    final type = data['type']?.toString().toLowerCase();
+
+    final updateData = <String, dynamic>{
+      'location': location,
+      'details': details,
+      'latitude': latitude,
+      'longitude': longitude,
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+
+    switch (type) {
+      case 'lost':
+        updateData['lastSeenLocation'] = location;
+        break;
+
+      case 'found':
+        updateData['foundLocation'] = location;
+        updateData['message'] = details;
+        break;
+
+      case 'sighting':
+        updateData['locationName'] = location;
+        break;
+
+      case 'barangay':
+        updateData['message'] = details;
+        break;
+    }
+
+    await _reports.doc(reportId).update(updateData);
+  }
+
+  // ============================================================
   // RESOLVE REPORT
   // ============================================================
 
   Future<void> resolveReport(String reportId) async {
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception('You must be logged in.');
+    }
+
+    final document = await _reports.doc(reportId).get();
+
+    if (!document.exists) {
+      throw Exception('Report not found.');
+    }
+
+    final data = document.data() ?? {};
+
+    final reportedBy = data['reportedBy']?.toString();
+
+    if (reportedBy != user.uid) {
+      throw Exception('You can only resolve your own reports.');
+    }
+
     await _reports.doc(reportId).update({
       'status': 'resolved',
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  // ============================================================
+  // REOPEN REPORT
+  // ============================================================
+
+  Future<void> reopenReport(String reportId) async {
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception('You must be logged in.');
+    }
+
+    final document = await _reports.doc(reportId).get();
+
+    if (!document.exists) {
+      throw Exception('Report not found.');
+    }
+
+    final data = document.data() ?? {};
+
+    final reportedBy = data['reportedBy']?.toString();
+
+    if (reportedBy != user.uid) {
+      throw Exception('You can only reopen your own reports.');
+    }
+
+    await _reports.doc(reportId).update({
+      'status': 'active',
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
@@ -255,6 +473,26 @@ class ReportService {
   // ============================================================
 
   Future<void> deleteReport(String reportId) async {
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception('You must be logged in.');
+    }
+
+    final document = await _reports.doc(reportId).get();
+
+    if (!document.exists) {
+      throw Exception('Report not found.');
+    }
+
+    final data = document.data() ?? {};
+
+    final reportedBy = data['reportedBy']?.toString();
+
+    if (reportedBy != user.uid) {
+      throw Exception('You can only delete your own reports.');
+    }
+
     await _reports.doc(reportId).delete();
   }
 }

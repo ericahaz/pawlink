@@ -13,25 +13,29 @@ class LandingPage extends StatefulWidget {
 
 class _LandingPageState extends State<LandingPage> {
   // ============================================================
-  // PAWLINK COLORS
+  // COLORS
   // ============================================================
 
   static const Color primaryTeal = Color(0xFF0F766E);
   static const Color darkTeal = Color(0xFF115E59);
-  static const Color lightTeal = Color(0xFFE7F5F2);
+  static const Color deepTeal = Color(0xFF103B38);
+
+  static const Color lightTeal = Color(0xFFE5F3EF);
 
   static const Color alertRed = Color(0xFFDC2626);
-  static const Color lightRed = Color(0xFFFEECEC);
+  static const Color lightRed = Color(0xFFFDECEC);
+  static const Color darkRed = Color(0xFF7F1D1D);
 
-  static const Color warmBackground = Color(0xFFFFFBF5);
-  static const Color cardBackground = Color(0xFFFFFEFA);
+  static const Color warmBackground = Color(0xFFF7F1E8);
+  static const Color cream = Color(0xFFFFFBF5);
+  static const Color white = Color(0xFFFFFEFC);
 
   static const Color darkText = Color(0xFF243333);
   static const Color grayText = Color(0xFF667373);
-  static const Color borderColor = Color(0xFFE8E3D9);
+  static const Color softGray = Color(0xFF929C9A);
 
   // ============================================================
-  // SCROLL + KEYBOARD
+  // SCROLL
   // ============================================================
 
   final ScrollController _scrollController = ScrollController();
@@ -42,7 +46,7 @@ class _LandingPageState extends State<LandingPage> {
   final GlobalKey _featuresKey = GlobalKey();
 
   // ============================================================
-  // INIT / DISPOSE
+  // INIT
   // ============================================================
 
   @override
@@ -64,7 +68,7 @@ class _LandingPageState extends State<LandingPage> {
   }
 
   // ============================================================
-  // KEYBOARD SCROLLING
+  // KEYBOARD SCROLL
   // ============================================================
 
   KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
@@ -76,53 +80,25 @@ class _LandingPageState extends State<LandingPage> {
       return KeyEventResult.ignored;
     }
 
-    const double scrollAmount = 120;
+    const double amount = 120;
 
     if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-      _scrollController.animateTo(
-        (_scrollController.offset + scrollAmount).clamp(
-          0.0,
-          _scrollController.position.maxScrollExtent,
-        ),
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOut,
-      );
-
+      _scrollBy(amount);
       return KeyEventResult.handled;
     }
 
     if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-      _scrollController.animateTo(
-        (_scrollController.offset - scrollAmount).clamp(
-          0.0,
-          _scrollController.position.maxScrollExtent,
-        ),
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOut,
-      );
-
+      _scrollBy(-amount);
       return KeyEventResult.handled;
     }
 
     if (event.logicalKey == LogicalKeyboardKey.pageDown) {
-      _scrollController.animateTo(
-        (_scrollController.offset + MediaQuery.of(context).size.height * 0.8)
-            .clamp(0.0, _scrollController.position.maxScrollExtent),
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOut,
-      );
-
+      _scrollBy(MediaQuery.of(context).size.height * 0.8);
       return KeyEventResult.handled;
     }
 
     if (event.logicalKey == LogicalKeyboardKey.pageUp) {
-      _scrollController.animateTo(
-        (_scrollController.offset - MediaQuery.of(context).size.height * 0.8)
-            .clamp(0.0, _scrollController.position.maxScrollExtent),
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOut,
-      );
-
+      _scrollBy(-MediaQuery.of(context).size.height * 0.8);
       return KeyEventResult.handled;
     }
 
@@ -149,6 +125,18 @@ class _LandingPageState extends State<LandingPage> {
     return KeyEventResult.ignored;
   }
 
+  void _scrollBy(double amount) {
+    final target = (_scrollController.offset + amount)
+        .clamp(0.0, _scrollController.position.maxScrollExtent)
+        .toDouble();
+
+    _scrollController.animateTo(
+      target,
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+    );
+  }
+
   // ============================================================
   // MAIN BUILD
   // ============================================================
@@ -170,13 +158,68 @@ class _LandingPageState extends State<LandingPage> {
               child: Column(
                 children: [
                   _buildNavigation(context),
+
+                  // HERO
                   _buildHeroSection(context),
-                  _buildAboutSection(context),
-                  _buildPurposeSection(),
+
+                  // Soft transition into cream section.
+                  const _WaveDivider(
+                    topColor: warmBackground,
+                    bottomColor: cream,
+                    height: 58,
+                    curveHeight: 22,
+                  ),
+
+                  _buildAboutSection(),
+
+                  // Soft transition into warm section.
+                  const _WaveDivider(
+                    topColor: cream,
+                    bottomColor: warmBackground,
+                    height: 58,
+                    curveHeight: 22,
+                  ),
+
                   _buildHowItWorks(),
+
+                  // Soft transition into cream section.
+                  const _WaveDivider(
+                    topColor: warmBackground,
+                    bottomColor: cream,
+                    height: 58,
+                    curveHeight: 22,
+                  ),
+
                   _buildFeatures(),
-                  _buildLostPetSection(),
+
+                  // Soft transition into safety section.
+                  const _WaveDivider(
+                    topColor: cream,
+                    bottomColor: lightRed,
+                    height: 58,
+                    curveHeight: 20,
+                  ),
+
+                  _buildSafetySection(),
+
+                  // Return from red to warm neutral.
+                  const _WaveDivider(
+                    topColor: lightRed,
+                    bottomColor: warmBackground,
+                    height: 58,
+                    curveHeight: 20,
+                  ),
+
                   _buildCommunitySection(),
+
+                  // Deep teal CTA transition.
+                  const _WaveDivider(
+                    topColor: warmBackground,
+                    bottomColor: deepTeal,
+                    height: 58,
+                    curveHeight: 18,
+                  ),
+
                   _buildGetStarted(context),
                   _buildFooter(),
                 ],
@@ -189,7 +232,7 @@ class _LandingPageState extends State<LandingPage> {
   }
 
   // ============================================================
-  // RESPONSIVE CONTENT WIDTH
+  // CONTENT WIDTH
   // ============================================================
 
   Widget _content({
@@ -198,172 +241,227 @@ class _LandingPageState extends State<LandingPage> {
   }) {
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1150),
-        child: Padding(padding: padding, child: child),
-      ),
-    );
-  }
-
-  // ============================================================
-  // NAVIGATION BAR
-  // ============================================================
-
-  Widget _buildNavigation(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: warmBackground,
-        border: Border(bottom: BorderSide(color: borderColor, width: 1)),
-      ),
-      child: _content(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final isMobile = constraints.maxWidth < 700;
-
-            return Row(
-              children: [
-                // LOGO
-                Container(
-                  width: 45,
-                  height: 45,
-                  decoration: BoxDecoration(
-                    color: primaryTeal,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(Icons.pets, color: Colors.white, size: 25),
-                ),
-
-                const SizedBox(width: 12),
-
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'PawLink',
-                      style: TextStyle(
-                        color: darkText,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    Text(
-                      'Pet & Stray Management',
-                      style: TextStyle(color: grayText, fontSize: 10),
-                    ),
-                  ],
-                ),
-
-                const Spacer(),
-
-                if (!isMobile) ...[
-                  TextButton(
-                    onPressed: () {
-                      _scrollToSection(_aboutKey);
-                    },
-                    child: const Text(
-                      'About',
-                      style: TextStyle(
-                        color: darkText,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-
-                  TextButton(
-                    onPressed: () {
-                      _scrollToSection(_howItWorksKey);
-                    },
-                    child: const Text(
-                      'How It Works',
-                      style: TextStyle(
-                        color: darkText,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-
-                  TextButton(
-                    onPressed: () {
-                      _scrollToSection(_featuresKey);
-                    },
-                    child: const Text(
-                      'Features',
-                      style: TextStyle(
-                        color: darkText,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(width: 10),
-                ],
-
-                OutlinedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginPage()),
-                    );
-                  },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: primaryTeal,
-                    side: const BorderSide(color: primaryTeal),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    'Login',
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                ),
-
-                if (!isMobile) ...[
-                  const SizedBox(width: 10),
-
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const RegisterPage()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryTeal,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 15,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Create Account',
-                      style: TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ],
-              ],
-            );
-          },
+        constraints: const BoxConstraints(maxWidth: 1180),
+        child: Padding(
+          padding: padding,
+          child: child,
         ),
       ),
     );
   }
 
   // ============================================================
-  // HERO SECTION
+  // CLAY CARD
+  // ============================================================
+
+  Widget _clayCard({
+    required Widget child,
+    Color color = white,
+    double radius = 24,
+    EdgeInsetsGeometry padding = const EdgeInsets.all(22),
+  }) {
+    return Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.7),
+          width: 1,
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.white,
+            blurRadius: 0,
+            offset: Offset(-4, -4),
+          ),
+          BoxShadow(
+            color: Color(0x22000000),
+            blurRadius: 18,
+            offset: Offset(7, 9),
+          ),
+        ],
+      ),
+      child: child,
+    );
+  }
+
+  // ============================================================
+  // NAVIGATION
+  // ============================================================
+
+  Widget _buildNavigation(BuildContext context) {
+    return _content(
+      padding: const EdgeInsets.fromLTRB(24, 18, 24, 14),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isMobile = constraints.maxWidth < 760;
+
+          return Row(
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: primaryTeal,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x26000000),
+                      blurRadius: 10,
+                      offset: Offset(3, 5),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.pets_rounded,
+                  color: Colors.white,
+                  size: 25,
+                ),
+              ),
+
+              const SizedBox(width: 12),
+
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'PawLink',
+                    style: TextStyle(
+                      color: darkText,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  Text(
+                    'PET & STRAY MANAGEMENT',
+                    style: TextStyle(
+                      color: softGray,
+                      fontSize: 8,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ],
+              ),
+
+              const Spacer(),
+
+              if (!isMobile) ...[
+                _navButton(
+                  'About',
+                  () => _scrollToSection(_aboutKey),
+                ),
+                _navButton(
+                  'How It Works',
+                  () => _scrollToSection(_howItWorksKey),
+                ),
+                _navButton(
+                  'Features',
+                  () => _scrollToSection(_featuresKey),
+                ),
+                const SizedBox(width: 8),
+              ],
+
+              OutlinedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const LoginPage(),
+                    ),
+                  );
+                },
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: primaryTeal,
+                  side: const BorderSide(
+                    color: primaryTeal,
+                    width: 1.3,
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 17,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                child: const Text(
+                  'Login',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+
+              if (!isMobile) ...[
+                const SizedBox(width: 9),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const RegisterPage(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryTeal,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 19,
+                      vertical: 15,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: const Text(
+                    'Create Account',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _navButton(String text, VoidCallback onPressed) {
+    return TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        foregroundColor: darkText,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 12,
+        ),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // HERO
   // ============================================================
 
   Widget _buildHeroSection(BuildContext context) {
     return _content(
-      padding: const EdgeInsets.fromLTRB(24, 70, 24, 80),
+      padding: const EdgeInsets.fromLTRB(24, 45, 24, 45),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final isMobile = constraints.maxWidth < 800;
+          final isMobile = constraints.maxWidth < 850;
 
           if (isMobile) {
             return Column(
@@ -377,9 +475,15 @@ class _LandingPageState extends State<LandingPage> {
 
           return Row(
             children: [
-              Expanded(flex: 6, child: _heroText(context)),
-              const SizedBox(width: 50),
-              Expanded(flex: 4, child: _heroVisual()),
+              Expanded(
+                flex: 55,
+                child: _heroText(context),
+              ),
+              const SizedBox(width: 45),
+              Expanded(
+                flex: 45,
+                child: _heroVisual(),
+              ),
             ],
           );
         },
@@ -392,95 +496,161 @@ class _LandingPageState extends State<LandingPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 13,
+            vertical: 8,
+          ),
           decoration: BoxDecoration(
             color: lightTeal,
             borderRadius: BorderRadius.circular(30),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x18000000),
+                blurRadius: 7,
+                offset: Offset(2, 3),
+              ),
+            ],
           ),
           child: const Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.waving_hand_outlined, color: primaryTeal, size: 17),
+              Icon(
+                Icons.waving_hand_rounded,
+                color: primaryTeal,
+                size: 16,
+              ),
               SizedBox(width: 7),
               Text(
                 'Kumusta, ka-PawLink!',
                 style: TextStyle(
                   color: darkTeal,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
             ],
           ),
         ),
 
-        const SizedBox(height: 22),
+        const SizedBox(height: 23),
 
         const Text(
-          'A community that\nlooks out for every paw.',
+          'A safer way to',
           style: TextStyle(
             color: darkText,
-            fontSize: 48,
-            height: 1.12,
-            fontWeight: FontWeight.w800,
+            fontSize: 46,
+            height: 1.08,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -1.2,
           ),
         ),
 
-        const SizedBox(height: 18),
-
         const Text(
-          'PawLink is a community platform that connects '
-          'pet owners, residents, and barangays to help '
-          'manage, report, locate, and reunite lost and '
-          'found pets.',
-          style: TextStyle(color: grayText, fontSize: 17, height: 1.6),
+          'look out for every paw.',
+          style: TextStyle(
+            color: primaryTeal,
+            fontSize: 46,
+            height: 1.08,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -1.2,
+          ),
         ),
 
-        const SizedBox(height: 28),
+        const SizedBox(height: 20),
+
+        const Text(
+          'PawLink brings pet owners, residents, and barangays '
+          'together in one place to register pets, share reports, '
+          'and help lost animals find their way home.',
+          style: TextStyle(
+            color: grayText,
+            fontSize: 16,
+            height: 1.65,
+          ),
+        ),
+
+        const SizedBox(height: 27),
 
         Wrap(
-          spacing: 12,
-          runSpacing: 12,
+          spacing: 11,
+          runSpacing: 11,
           children: [
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const RegisterPage()),
+                  MaterialPageRoute(
+                    builder: (_) => const RegisterPage(),
+                  ),
                 );
               },
-              icon: const Icon(Icons.arrow_forward_rounded),
-              label: const Text('Get Started'),
+              icon: const Icon(
+                Icons.arrow_forward_rounded,
+                size: 19,
+              ),
+              label: const Text(
+                'Get Started',
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryTeal,
                 foregroundColor: Colors.white,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 17,
+                  horizontal: 23,
+                  vertical: 16,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(15),
                 ),
               ),
             ),
-
             OutlinedButton(
               onPressed: () {
                 _showLearnMore(context);
               },
               style: OutlinedButton.styleFrom(
-                foregroundColor: primaryTeal,
-                side: const BorderSide(color: primaryTeal),
+                foregroundColor: darkTeal,
+                side: const BorderSide(
+                  color: Color(0xFF9BCBC5),
+                ),
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 17,
+                  horizontal: 23,
+                  vertical: 16,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(15),
                 ),
               ),
-              child: const Text('Learn More'),
+              child: const Text(
+                'Learn More',
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 25),
+
+        const Row(
+          children: [
+            Icon(
+              Icons.verified_rounded,
+              color: primaryTeal,
+              size: 18,
+            ),
+            SizedBox(width: 7),
+            Text(
+              'Built around local community support',
+              style: TextStyle(
+                color: grayText,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),
@@ -493,63 +663,297 @@ class _LandingPageState extends State<LandingPage> {
   // ============================================================
 
   Widget _heroVisual() {
-    return Container(
-      constraints: const BoxConstraints(minHeight: 350),
-      decoration: BoxDecoration(
-        color: lightTeal,
-        borderRadius: BorderRadius.circular(24),
-      ),
+    return SizedBox(
+      height: 455,
       child: Stack(
-        alignment: Alignment.center,
+        clipBehavior: Clip.none,
         children: [
           Positioned(
+            left: 22,
+            right: 5,
             top: 25,
-            right: 25,
-            child: _circle(80, Colors.white.withAlpha(100)),
+            bottom: 10,
+            child: Container(
+              decoration: BoxDecoration(
+                color: lightTeal,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(55),
+                  topRight: Radius.circular(30),
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(65),
+                ),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.white,
+                    blurRadius: 0,
+                    offset: Offset(-5, -5),
+                  ),
+                  BoxShadow(
+                    color: Color(0x22000000),
+                    blurRadius: 25,
+                    offset: Offset(8, 12),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Small organic teal shape.
+          Positioned(
+            left: 0,
+            top: 35,
+            child: Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: primaryTeal.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+            ),
           ),
 
           Positioned(
-            bottom: 30,
-            left: 25,
-            child: _circle(55, Colors.white.withAlpha(100)),
+            top: 0,
+            right: 35,
+            child: _circle(
+              85,
+              Colors.white.withValues(alpha: 0.55),
+            ),
           ),
 
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 125,
-                height: 125,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(15),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
+          Positioned(
+            bottom: 12,
+            left: 2,
+            child: _circle(
+              60,
+              Colors.white.withValues(alpha: 0.5),
+            ),
+          ),
+
+          Positioned(
+            left: 40,
+            top: 80,
+            child: Transform.rotate(
+              angle: -0.045,
+              child: _petCard(),
+            ),
+          ),
+
+          Positioned(
+            right: 16,
+            top: 155,
+            child: Transform.rotate(
+              angle: 0.06,
+              child: _qrCard(),
+            ),
+          ),
+
+          Positioned(
+            left: 20,
+            bottom: 35,
+            child: _reportBadge(),
+          ),
+
+          Positioned(
+            right: 8,
+            bottom: 40,
+            child: Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: primaryTeal,
+                shape: BoxShape.circle,
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x30000000),
+                    blurRadius: 15,
+                    offset: Offset(4, 7),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.people_alt_rounded,
+                color: Colors.white,
+                size: 22,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _petCard() {
+    return _clayCard(
+      color: cream,
+      radius: 25,
+      padding: const EdgeInsets.all(18),
+      child: SizedBox(
+        width: 225,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 43,
+                  height: 43,
+                  decoration: BoxDecoration(
+                    color: lightTeal,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(
+                    Icons.pets_rounded,
+                    color: primaryTeal,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 11),
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'PET PROFILE',
+                      style: TextStyle(
+                        color: softGray,
+                        fontSize: 8,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      'Max',
+                      style: TextStyle(
+                        color: darkText,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                   ],
                 ),
-                child: const Icon(Icons.pets, color: primaryTeal, size: 70),
+              ],
+            ),
+            const SizedBox(height: 17),
+            Container(
+              height: 1,
+              color: const Color(0xFFE4E7E3),
+            ),
+            const SizedBox(height: 13),
+            const Row(
+              children: [
+                Icon(
+                  Icons.pets,
+                  color: primaryTeal,
+                  size: 14,
+                ),
+                SizedBox(width: 6),
+                Text(
+                  'Shih Tzu',
+                  style: TextStyle(
+                    color: grayText,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Spacer(),
+                Icon(
+                  Icons.circle,
+                  color: primaryTeal,
+                  size: 8,
+                ),
+                SizedBox(width: 5),
+                Text(
+                  'Registered',
+                  style: TextStyle(
+                    color: primaryTeal,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _qrCard() {
+    return _clayCard(
+      color: white,
+      radius: 20,
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        children: [
+          Container(
+            width: 105,
+            height: 105,
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(13),
+              border: Border.all(
+                color: const Color(0xFFE2E7E4),
               ),
+            ),
+            child: CustomPaint(
+              painter: _FakeQrPainter(),
+              child: const SizedBox.expand(),
+            ),
+          ),
+          const SizedBox(height: 9),
+          const Text(
+            'SCAN TO IDENTIFY',
+            style: TextStyle(
+              color: grayText,
+              fontSize: 8,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.8,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-              const SizedBox(height: 20),
-
-              const Text(
-                'Every pet matters.',
+  Widget _reportBadge() {
+    return _clayCard(
+      color: white,
+      radius: 18,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 11,
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.location_on_rounded,
+            color: alertRed,
+            size: 20,
+          ),
+          SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'FOUND REPORT',
                 style: TextStyle(
-                  color: darkTeal,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
+                  color: alertRed,
+                  fontSize: 8,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.7,
                 ),
               ),
-
-              const SizedBox(height: 7),
-
-              const Text(
-                'Every community can help.',
-                style: TextStyle(color: grayText, fontSize: 14),
+              SizedBox(height: 2),
+              Text(
+                'Location shared',
+                style: TextStyle(
+                  color: darkText,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ],
           ),
@@ -562,32 +966,35 @@ class _LandingPageState extends State<LandingPage> {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+      ),
     );
   }
 
   // ============================================================
-  // ABOUT SECTION
+  // ABOUT
   // ============================================================
 
-  Widget _buildAboutSection(BuildContext context) {
+  Widget _buildAboutSection() {
     return Container(
       key: _aboutKey,
       width: double.infinity,
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: 75),
+      color: cream,
+      padding: const EdgeInsets.symmetric(vertical: 80),
       child: _content(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final isMobile = constraints.maxWidth < 750;
+            final isMobile = constraints.maxWidth < 800;
 
             if (isMobile) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _aboutTitle(),
-                  const SizedBox(height: 30),
-                  _aboutCard(),
+                  _aboutIntro(),
+                  const SizedBox(height: 35),
+                  _aboutPanel(),
                 ],
               );
             }
@@ -595,9 +1002,15 @@ class _LandingPageState extends State<LandingPage> {
             return Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Expanded(child: _aboutTitle()),
+                Expanded(
+                  flex: 43,
+                  child: _aboutIntro(),
+                ),
                 const SizedBox(width: 60),
-                Expanded(child: _aboutCard()),
+                Expanded(
+                  flex: 57,
+                  child: _aboutPanel(),
+                ),
               ],
             );
           },
@@ -606,202 +1019,125 @@ class _LandingPageState extends State<LandingPage> {
     );
   }
 
-  Widget _aboutTitle() {
+  Widget _aboutIntro() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionLabel('ABOUT PAWLINK'),
-        const SizedBox(height: 12),
+        _sectionLabel('WHY PAWLINK'),
+        const SizedBox(height: 13),
         const Text(
-          'What is PawLink?',
+          'One place for\npet information\nand community help.',
           style: TextStyle(
             color: darkText,
             fontSize: 36,
-            fontWeight: FontWeight.w800,
+            height: 1.12,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -0.7,
           ),
         ),
-        const SizedBox(height: 15),
+        const SizedBox(height: 18),
         const Text(
-          'A digital community for responsible pet '
-          'ownership and better stray animal management.',
-          style: TextStyle(color: grayText, fontSize: 16, height: 1.6),
+          'PawLink gives the community a shared digital '
+          'space for pet profiles, lost-and-found reports, '
+          'and local assistance.',
+          style: TextStyle(
+            color: grayText,
+            fontSize: 15,
+            height: 1.65,
+          ),
         ),
       ],
     );
   }
 
-  Widget _aboutCard() {
-    return Container(
-      padding: const EdgeInsets.all(25),
-      decoration: BoxDecoration(
-        color: warmBackground,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor),
-      ),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Built for the community',
-            style: TextStyle(
-              color: darkText,
-              fontSize: 19,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-
-          SizedBox(height: 12),
-
-          Text(
-            'PawLink provides one place where pet owners '
-            'and community members can share information '
-            'about lost, found, and stray pets.',
-            style: TextStyle(color: grayText, fontSize: 14, height: 1.6),
-          ),
-
-          SizedBox(height: 15),
-
-          Text(
-            'From an Aspin or Puspin to any beloved '
-            'companion, the goal is simple: make it easier '
-            'for people to help pets and their owners.',
-            style: TextStyle(color: grayText, fontSize: 14, height: 1.6),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ============================================================
-  // PURPOSE SECTION
-  // ============================================================
-
-  Widget _buildPurposeSection() {
-    return _content(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 75),
+  Widget _aboutPanel() {
+    return _clayCard(
+      color: warmBackground,
+      radius: 30,
+      padding: const EdgeInsets.all(28),
       child: Column(
         children: [
-          _sectionLabel('WHAT IS IT FOR?'),
-
-          const SizedBox(height: 10),
-
-          const Text(
-            'Helping people help pets.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: darkText,
-              fontSize: 36,
-              fontWeight: FontWeight.w800,
-            ),
+          _aboutItem(
+            Icons.badge_outlined,
+            'Register',
+            'Keep important pet details in one profile.',
           ),
-
-          const SizedBox(height: 15),
-
-          const SizedBox(
-            width: 700,
-            child: Text(
-              'PawLink makes it easier for the community to '
-              'respond when a pet is lost, found, or needs help.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: grayText, fontSize: 15, height: 1.6),
-            ),
+          const SizedBox(height: 18),
+          _aboutItem(
+            Icons.qr_code_2_rounded,
+            'Identify',
+            'Give each registered pet a unique QR identity.',
           ),
-
-          const SizedBox(height: 35),
-
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final columns = constraints.maxWidth < 650 ? 1 : 3;
-
-              return GridView.count(
-                crossAxisCount: columns,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 15,
-                crossAxisSpacing: 15,
-                childAspectRatio: columns == 1 ? 4.2 : 1.05,
-                children: [
-                  _purposeCard(
-                    icon: Icons.pets,
-                    title: 'Pet Management',
-                    description:
-                        'Register and manage important pet information.',
-                  ),
-                  _purposeCard(
-                    icon: Icons.location_on_outlined,
-                    title: 'Lost & Found',
-                    description:
-                        'Report pets and share their current location.',
-                  ),
-                  _purposeCard(
-                    icon: Icons.account_balance_outlined,
-                    title: 'Barangay Support',
-                    description: 'Connect community reports with the barangay.',
-                  ),
-                ],
-              );
-            },
+          const SizedBox(height: 18),
+          _aboutItem(
+            Icons.share_location_rounded,
+            'Reconnect',
+            'Share reports and locations when help is needed.',
           ),
         ],
       ),
     );
   }
 
-  Widget _purposeCard({
-    required IconData icon,
-    required String title,
-    required String description,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: cardBackground,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: lightTeal,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: primaryTeal, size: 23),
+  Widget _aboutItem(
+    IconData icon,
+    String title,
+    String description,
+  ) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 49,
+          height: 49,
+          decoration: BoxDecoration(
+            color: lightTeal,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.white,
+                blurRadius: 0,
+                offset: Offset(-2, -2),
+              ),
+              BoxShadow(
+                color: Color(0x15000000),
+                blurRadius: 8,
+                offset: Offset(2, 3),
+              ),
+            ],
           ),
-
-          const SizedBox(width: 14),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: darkText,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-
-                const SizedBox(height: 6),
-
-                Text(
-                  description,
-                  style: const TextStyle(
-                    color: grayText,
-                    fontSize: 13,
-                    height: 1.45,
-                  ),
-                ),
-              ],
-            ),
+          child: Icon(
+            icon,
+            color: primaryTeal,
+            size: 23,
           ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 15),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: darkText,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                description,
+                style: const TextStyle(
+                  color: grayText,
+                  fontSize: 13,
+                  height: 1.45,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -812,58 +1148,72 @@ class _LandingPageState extends State<LandingPage> {
   Widget _buildHowItWorks() {
     return Container(
       key: _howItWorksKey,
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: 75),
+      width: double.infinity,
+      color: warmBackground,
+      padding: const EdgeInsets.symmetric(vertical: 82),
       child: _content(
         child: Column(
           children: [
             _sectionLabel('HOW IT WORKS'),
-
             const SizedBox(height: 12),
-
             const Text(
-              'Simple steps. Real community help.',
+              'From registration to reunion.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: darkText,
-                fontSize: 36,
-                fontWeight: FontWeight.w800,
+                fontSize: 37,
+                fontWeight: FontWeight.w900,
+                letterSpacing: -0.7,
               ),
             ),
-
-            const SizedBox(height: 40),
-
+            const SizedBox(height: 12),
+            const Text(
+              'A simple flow designed around real community situations.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: grayText,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 42),
             LayoutBuilder(
               builder: (context, constraints) {
-                final isMobile = constraints.maxWidth < 700;
+                final mobile = constraints.maxWidth < 720;
 
-                if (isMobile) {
+                final steps = [
+                  _processStep(
+                    '01',
+                    Icons.person_add_alt_1_rounded,
+                    'Join',
+                    'Create your PawLink account.',
+                  ),
+                  _processStep(
+                    '02',
+                    Icons.pets_rounded,
+                    'Register',
+                    'Add your pet and important details.',
+                  ),
+                  _processStep(
+                    '03',
+                    Icons.qr_code_2_rounded,
+                    'Identify',
+                    'Use the pet QR profile when needed.',
+                  ),
+                  _processStep(
+                    '04',
+                    Icons.location_on_rounded,
+                    'Reconnect',
+                    'Send a report when a pet is found.',
+                  ),
+                ];
+
+                if (mobile) {
                   return Column(
                     children: [
-                      _step(
-                        '01',
-                        Icons.person_add_alt_1,
-                        'Create an account',
-                        'Join PawLink and set up your profile.',
-                      ),
-                      _step(
-                        '02',
-                        Icons.pets,
-                        'Register your pet',
-                        'Add your pet information and photo.',
-                      ),
-                      _step(
-                        '03',
-                        Icons.qr_code_2,
-                        'Get a QR code',
-                        'Generate a unique QR code for your pet.',
-                      ),
-                      _step(
-                        '04',
-                        Icons.location_on_outlined,
-                        'Report & reconnect',
-                        'Finders can submit a location or report.',
-                      ),
+                      for (final step in steps) ...[
+                        step,
+                        const SizedBox(height: 14),
+                      ],
                     ],
                   );
                 }
@@ -871,38 +1221,15 @@ class _LandingPageState extends State<LandingPage> {
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: _step(
-                        '01',
-                        Icons.person_add_alt_1,
-                        'Create an account',
-                        'Join PawLink and set up your profile.',
+                    for (int i = 0; i < steps.length; i++)
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            right: i == steps.length - 1 ? 0 : 12,
+                          ),
+                          child: steps[i],
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: _step(
-                        '02',
-                        Icons.pets,
-                        'Register your pet',
-                        'Add your pet information and photo.',
-                      ),
-                    ),
-                    Expanded(
-                      child: _step(
-                        '03',
-                        Icons.qr_code_2,
-                        'Get a QR code',
-                        'Generate a unique QR code for your pet.',
-                      ),
-                    ),
-                    Expanded(
-                      child: _step(
-                        '04',
-                        Icons.location_on_outlined,
-                        'Report & reconnect',
-                        'Finders can submit a location or report.',
-                      ),
-                    ),
                   ],
                 );
               },
@@ -913,15 +1240,16 @@ class _LandingPageState extends State<LandingPage> {
     );
   }
 
-  Widget _step(String number, IconData icon, String title, String description) {
-    return Container(
-      margin: const EdgeInsets.all(8),
+  Widget _processStep(
+    String number,
+    IconData icon,
+    String title,
+    String description,
+  ) {
+    return _clayCard(
+      color: cream,
+      radius: 23,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: warmBackground,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -932,42 +1260,44 @@ class _LandingPageState extends State<LandingPage> {
                 height: 40,
                 decoration: BoxDecoration(
                   color: primaryTeal,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(13),
                 ),
                 child: Center(
                   child: Text(
                     number,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
                     ),
                   ),
                 ),
               ),
-
               const Spacer(),
-
-              Icon(icon, color: primaryTeal, size: 25),
+              Icon(
+                icon,
+                color: primaryTeal,
+                size: 23,
+              ),
             ],
           ),
-
-          const SizedBox(height: 20),
-
+          const SizedBox(height: 21),
           Text(
             title,
             style: const TextStyle(
               color: darkText,
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
+              fontSize: 17,
+              fontWeight: FontWeight.w900,
             ),
           ),
-
-          const SizedBox(height: 7),
-
+          const SizedBox(height: 6),
           Text(
             description,
-            style: const TextStyle(color: grayText, fontSize: 13, height: 1.5),
+            style: const TextStyle(
+              color: grayText,
+              fontSize: 12,
+              height: 1.5,
+            ),
           ),
         ],
       ),
@@ -981,67 +1311,104 @@ class _LandingPageState extends State<LandingPage> {
   Widget _buildFeatures() {
     return Container(
       key: _featuresKey,
+      width: double.infinity,
+      color: cream,
+      padding: const EdgeInsets.symmetric(vertical: 82),
       child: _content(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 75),
         child: Column(
           children: [
-            _sectionLabel('PAWLINK FEATURES'),
-
+            _sectionLabel('WHAT YOU CAN DO'),
             const SizedBox(height: 12),
-
             const Text(
-              'One platform for the community.',
+              'Useful tools, without the clutter.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: darkText,
-                fontSize: 36,
-                fontWeight: FontWeight.w800,
+                fontSize: 37,
+                fontWeight: FontWeight.w900,
+                letterSpacing: -0.7,
               ),
             ),
-
-            const SizedBox(height: 40),
-
+            const SizedBox(height: 42),
             LayoutBuilder(
               builder: (context, constraints) {
-                final columns = constraints.maxWidth < 600 ? 1 : 3;
+                final mobile = constraints.maxWidth < 750;
 
-                return GridView.count(
-                  crossAxisCount: columns,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: 15,
-                  crossAxisSpacing: 15,
-                  childAspectRatio: columns == 1 ? 3.2 : 1.15,
+                if (mobile) {
+                  return Column(
+                    children: [
+                      _largeFeature(
+                        Icons.qr_code_2_rounded,
+                        'Every pet gets an identity.',
+                        'Registered pets can have a QR profile that helps a finder access useful information.',
+                        lightTeal,
+                      ),
+                      const SizedBox(height: 14),
+                      _largeFeature(
+                        Icons.groups_rounded,
+                        'More than one owner?',
+                        'Joint ownership keeps multiple people connected to the same pet profile.',
+                        const Color(0xFFF3EEDF),
+                      ),
+                      const SizedBox(height: 14),
+                      _largeFeature(
+                        Icons.notifications_active_outlined,
+                        'Stay informed.',
+                        'Owners can receive reports when a community member submits information about their pet.',
+                        const Color(0xFFF1F4F1),
+                      ),
+                    ],
+                  );
+                }
+
+                return Column(
                   children: [
-                    _feature(
-                      Icons.qr_code_2,
-                      'Instant QR Code Pet ID',
-                      'Every registered pet can have a unique QR code linked to its public pet page.',
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 6,
+                          child: _largeFeature(
+                            Icons.qr_code_2_rounded,
+                            'Every pet gets an identity.',
+                            'Registered pets can have a QR profile that helps a finder access useful information.',
+                            lightTeal,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          flex: 4,
+                          child: _smallFeature(
+                            Icons.groups_rounded,
+                            'Joint ownership',
+                            'Keep multiple owners connected to one pet profile.',
+                          ),
+                        ),
+                      ],
                     ),
-                    _feature(
-                      Icons.group_outlined,
-                      'Joint Accounts for Multiple',
-                      'Multiple owners can be connected to the same registered pet.',
-                    ),
-                    _feature(
-                      Icons.location_on_outlined,
-                      'Location Reports',
-                      'Share where a lost, found, or sighted pet was seen.',
-                    ),
-                    _feature(
-                      Icons.notifications_none,
-                      'Notifications',
-                      'Keep owners informed when there is a report about their pet.',
-                    ),
-                    _feature(
-                      Icons.account_balance_outlined,
-                      'Barangay Reports',
-                      'Provide a way for the community to report concerns to the barangay.',
-                    ),
-                    _feature(
-                      Icons.favorite_border,
-                      'Community Help',
-                      'Encourage residents to work together to help animals in need.',
+                    const SizedBox(height: 14),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 4,
+                          child: _smallFeature(
+                            Icons.location_on_rounded,
+                            'Location reports',
+                            'Share where a lost or found pet was seen.',
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          flex: 6,
+                          child: _largeFeature(
+                            Icons.notifications_active_outlined,
+                            'Stay informed.',
+                            'Owners can receive reports when a community member submits information about their pet.',
+                            const Color(0xFFF1F4F1),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 );
@@ -1053,79 +1420,143 @@ class _LandingPageState extends State<LandingPage> {
     );
   }
 
-  Widget _feature(IconData icon, String title, String description) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: cardBackground,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor),
-      ),
+  Widget _largeFeature(
+    IconData icon,
+    String title,
+    String description,
+    Color color,
+  ) {
+    return _clayCard(
+      color: color,
+      radius: 27,
+      padding: const EdgeInsets.all(26),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 45,
-            height: 45,
-            decoration: BoxDecoration(
-              color: lightTeal,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: primaryTeal, size: 23),
-          ),
-
-          const Spacer(),
-
+          _featureIcon(icon),
+          const SizedBox(height: 23),
           Text(
             title,
             style: const TextStyle(
               color: darkText,
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
             ),
           ),
-
-          const SizedBox(height: 6),
-
+          const SizedBox(height: 8),
           Text(
             description,
-            style: const TextStyle(color: grayText, fontSize: 12, height: 1.45),
+            style: const TextStyle(
+              color: grayText,
+              fontSize: 13,
+              height: 1.55,
+            ),
           ),
         ],
       ),
     );
   }
 
+  Widget _smallFeature(
+    IconData icon,
+    String title,
+    String description,
+  ) {
+    return _clayCard(
+      color: warmBackground,
+      radius: 27,
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _featureIcon(icon),
+          const SizedBox(height: 25),
+          Text(
+            title,
+            style: const TextStyle(
+              color: darkText,
+              fontSize: 17,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 7),
+          Text(
+            description,
+            style: const TextStyle(
+              color: grayText,
+              fontSize: 12,
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _featureIcon(IconData icon) {
+    return Container(
+      width: 52,
+      height: 52,
+      decoration: BoxDecoration(
+        color: white,
+        borderRadius: BorderRadius.circular(17),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.white,
+            blurRadius: 0,
+            offset: Offset(-2, -2),
+          ),
+          BoxShadow(
+            color: Color(0x18000000),
+            blurRadius: 9,
+            offset: Offset(3, 4),
+          ),
+        ],
+      ),
+      child: Icon(
+        icon,
+        color: primaryTeal,
+        size: 25,
+      ),
+    );
+  }
+
   // ============================================================
-  // LOST PET / EMERGENCY
+  // SAFETY
   // ============================================================
 
-  Widget _buildLostPetSection() {
+  Widget _buildSafetySection() {
     return Container(
       width: double.infinity,
       color: lightRed,
-      padding: const EdgeInsets.symmetric(vertical: 65),
+      padding: const EdgeInsets.symmetric(vertical: 75),
       child: _content(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final isMobile = constraints.maxWidth < 750;
+            final mobile = constraints.maxWidth < 800;
 
-            if (isMobile) {
+            if (mobile) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _lostText(),
-                  const SizedBox(height: 25),
-                  _lostAction(),
+                  _safetyText(),
+                  const SizedBox(height: 28),
+                  _safetyCard(),
                 ],
               );
             }
 
             return Row(
               children: [
-                Expanded(flex: 7, child: _lostText()),
-                const SizedBox(width: 50),
-                Expanded(flex: 3, child: _lostAction()),
+                Expanded(
+                  flex: 56,
+                  child: _safetyText(),
+                ),
+                const SizedBox(width: 55),
+                Expanded(
+                  flex: 44,
+                  child: _safetyCard(),
+                ),
               ],
             );
           },
@@ -1134,95 +1565,178 @@ class _LandingPageState extends State<LandingPage> {
     );
   }
 
-  Widget _lostText() {
+  Widget _safetyText() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
             Container(
-              width: 45,
-              height: 45,
+              width: 46,
+              height: 46,
               decoration: BoxDecoration(
                 color: alertRed,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x25000000),
+                    blurRadius: 9,
+                    offset: Offset(3, 4),
+                  ),
+                ],
               ),
               child: const Icon(
-                Icons.warning_amber_rounded,
+                Icons.shield_outlined,
                 color: Colors.white,
+                size: 24,
               ),
             ),
-
             const SizedBox(width: 12),
-
             const Text(
-              'LOST OR STRAY PET?',
+              'SAFETY FIRST',
               style: TextStyle(
                 color: alertRed,
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1,
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.2,
               ),
             ),
           ],
         ),
-
-        const SizedBox(height: 15),
-
+        const SizedBox(height: 17),
         const Text(
-          'The community can help.',
+          'Not every pet\nshould be approached.',
           style: TextStyle(
-            color: Color(0xFF7F1D1D),
-            fontSize: 32,
-            fontWeight: FontWeight.w800,
+            color: darkRed,
+            fontSize: 34,
+            height: 1.12,
+            fontWeight: FontWeight.w900,
           ),
         ),
-
-        const SizedBox(height: 12),
-
+        const SizedBox(height: 15),
         const Text(
-          'If you find or see a lost pet, you can report '
-          'its location through PawLink. If the animal '
-          'appears aggressive or unsafe to approach, '
-          'do not put yourself at risk. Submit a report '
-          'instead and let the appropriate people respond.',
-          style: TextStyle(color: Color(0xFF7F1D1D), fontSize: 14, height: 1.6),
+          'If a lost or stray animal appears aggressive or '
+          'unsafe, do not attempt to scan, catch, or approach '
+          'the animal. Submit a report instead and share the '
+          'location with the appropriate people.',
+          style: TextStyle(
+            color: darkRed,
+            fontSize: 14,
+            height: 1.65,
+          ),
         ),
       ],
     );
   }
 
-  Widget _lostAction() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF5CACA)),
-      ),
-      child: const Column(
+  Widget _safetyCard() {
+    return _clayCard(
+      color: white,
+      radius: 28,
+      padding: const EdgeInsets.all(24),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.account_balance_outlined, color: alertRed, size: 28),
+          Row(
+            children: [
+              Container(
+                width: 43,
+                height: 43,
+                decoration: BoxDecoration(
+                  color: lightRed,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Icon(
+                  Icons.report_problem_outlined,
+                  color: alertRed,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'See a pet that needs help?',
+                  style: TextStyle(
+                    color: darkText,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _safetyItem(
+            '01',
+            'Keep a safe distance',
+            'Do not approach an aggressive animal.',
+          ),
+          _safetyItem(
+            '02',
+            'Report the situation',
+            'Share the location and useful details.',
+          ),
+          _safetyItem(
+            '03',
+            'Contact the right people',
+            'Use available owner or barangay contact information.',
+          ),
+        ],
+      ),
+    );
+  }
 
-          SizedBox(height: 12),
-
-          Text(
-            'Barangay Assistance',
-            style: TextStyle(
-              color: darkText,
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
+  Widget _safetyItem(
+    String number,
+    String title,
+    String description,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              color: lightRed,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Center(
+              child: Text(
+                number,
+                style: const TextStyle(
+                  color: alertRed,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
             ),
           ),
-
-          SizedBox(height: 7),
-
-          Text(
-            'PawLink can provide a place for community '
-            'reports and barangay contact information, '
-            'including the appropriate hotline.',
-            style: TextStyle(color: grayText, fontSize: 12, height: 1.5),
+          const SizedBox(width: 11),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: darkText,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    color: grayText,
+                    fontSize: 11,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -1230,126 +1744,169 @@ class _LandingPageState extends State<LandingPage> {
   }
 
   // ============================================================
-  // COMMUNITY SECTION
+  // COMMUNITY
   // ============================================================
 
   Widget _buildCommunitySection() {
-    return _content(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 70),
-      child: Column(
-        children: [
-          _sectionLabel('FOR OUR COMMUNITY'),
-
-          const SizedBox(height: 12),
-
-          const Text(
-            'For pet owners and\ncommunity members.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: darkText,
-              fontSize: 34,
-              height: 1.2,
-              fontWeight: FontWeight.w800,
+    return Container(
+      width: double.infinity,
+      color: warmBackground,
+      padding: const EdgeInsets.symmetric(vertical: 82),
+      child: _content(
+        child: Column(
+          children: [
+            _sectionLabel('ONE COMMUNITY'),
+            const SizedBox(height: 12),
+            const Text(
+              'Everyone has a role.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: darkText,
+                fontSize: 37,
+                fontWeight: FontWeight.w900,
+              ),
             ),
-          ),
+            const SizedBox(height: 13),
+            const SizedBox(
+              width: 650,
+              child: Text(
+                'PawLink is built around the people who care for, '
+                'find, report, and help protect animals in the community.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: grayText,
+                  fontSize: 14,
+                  height: 1.55,
+                ),
+              ),
+            ),
+            const SizedBox(height: 40),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final mobile = constraints.maxWidth < 720;
 
-          const SizedBox(height: 35),
+                final cards = [
+                  _roleCard(
+                    Icons.person_outline_rounded,
+                    'Pet Owners',
+                    'MANAGE',
+                    'Register pets, maintain their information, connect joint owners, and receive reports.',
+                    lightTeal,
+                  ),
+                  _roleCard(
+                    Icons.people_outline_rounded,
+                    'Residents',
+                    'HELP',
+                    'Report lost, found, or stray pets and share useful location information.',
+                    cream,
+                  ),
+                  _roleCard(
+                    Icons.account_balance_outlined,
+                    'Barangays',
+                    'RESPOND',
+                    'Provide local contact information and receive appropriate community reports.',
+                    const Color(0xFFF1ECE2),
+                  ),
+                ];
 
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final isMobile = constraints.maxWidth < 700;
+                if (mobile) {
+                  return Column(
+                    children: [
+                      cards[0],
+                      const SizedBox(height: 14),
+                      cards[1],
+                      const SizedBox(height: 14),
+                      cards[2],
+                    ],
+                  );
+                }
 
-              if (isMobile) {
-                return Column(
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _communityCard(
-                      icon: Icons.person_outline,
-                      title: 'Pet Owners',
-                      text: 'Register your pets, manage their information, receive reports, and connect with joint owners.',
-                    ),
-                    const SizedBox(height: 15),
-                    _communityCard(
-                      icon: Icons.people_outline,
-                      title: 'Residents',
-                      text: 'Help report lost, found, or stray pets and share useful location information.',
-                    ),
-                    const SizedBox(height: 15),
-                    _communityCard(
-                      icon: Icons.account_balance_outlined,
-                      title: 'Barangay',
-                      text: 'Receive appropriate community reports and provide local assistance when needed.',
-                    ),
+                    Expanded(child: cards[0]),
+                    const SizedBox(width: 14),
+                    Expanded(child: cards[1]),
+                    const SizedBox(width: 14),
+                    Expanded(child: cards[2]),
                   ],
                 );
-              }
-
-              return Row(
-                children: [
-                  Expanded(
-                    child: _communityCard(
-                      icon: Icons.person_outline,
-                      title: 'Pet Owners',
-                      text: 'Register your pets, manage their information, receive reports, and connect with joint owners.',
-                    ),
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: _communityCard(
-                      icon: Icons.people_outline,
-                      title: 'Residents',
-                      text: 'Help report lost, found, or stray pets and share useful location information.',
-                    ),
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: _communityCard(
-                      icon: Icons.account_balance_outlined,
-                      title: 'Barangay',
-                      text: 'Receive appropriate community reports and provide local assistance when needed.',
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _communityCard({
-    required IconData icon,
-    required String title,
-    required String text,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: cardBackground,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor),
-      ),
+  Widget _roleCard(
+    IconData icon,
+    String title,
+    String label,
+    String description,
+    Color color,
+  ) {
+    return _clayCard(
+      color: color,
+      radius: 27,
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: primaryTeal, size: 30),
-
-          const SizedBox(height: 18),
-
+          Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  icon,
+                  color: primaryTeal,
+                  size: 25,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 9,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  color: white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    color: primaryTeal,
+                    fontSize: 8,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 22),
           Text(
             title,
             style: const TextStyle(
               color: darkText,
-              fontSize: 17,
-              fontWeight: FontWeight.w800,
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
             ),
           ),
-
-          const SizedBox(height: 8),
-
+          const SizedBox(height: 7),
           Text(
-            text,
-            style: const TextStyle(color: grayText, fontSize: 13, height: 1.55),
+            description,
+            style: const TextStyle(
+              color: grayText,
+              fontSize: 12,
+              height: 1.55,
+            ),
           ),
         ],
       ),
@@ -1363,107 +1920,168 @@ class _LandingPageState extends State<LandingPage> {
   Widget _buildGetStarted(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: primaryTeal,
-      padding: const EdgeInsets.symmetric(vertical: 70, horizontal: 24),
+      color: deepTeal,
+      padding: const EdgeInsets.symmetric(
+        vertical: 75,
+        horizontal: 24,
+      ),
       child: _content(
-        child: Column(
-          children: [
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                color: Colors.white.withAlpha(30),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Icon(Icons.pets, color: Colors.white, size: 32),
-            ),
+        child: _clayCard(
+          color: primaryTeal,
+          radius: 34,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 35,
+            vertical: 38,
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final mobile = constraints.maxWidth < 700;
 
-            const SizedBox(height: 20),
+              if (mobile) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _ctaIcon(),
+                    const SizedBox(height: 20),
+                    _ctaText(),
+                    const SizedBox(height: 25),
+                    _ctaButtons(context),
+                  ],
+                );
+              }
 
-            const Text(
-              'Be part of PawLink.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 36,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            const Text(
-              'Together, we can help protect pets, '
-              'support responsible ownership, and '
-              'help lost animals find their way home.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Color(0xFFD7F5F1),
-                fontSize: 15,
-                height: 1.6,
-              ),
-            ),
-
-            const SizedBox(height: 25),
-
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const RegisterPage()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: primaryTeal,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 28,
-                      vertical: 17,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+              return Row(
+                children: [
+                  _ctaIcon(),
+                  const SizedBox(width: 25),
+                  Expanded(
+                    child: _ctaText(left: true),
                   ),
-                  child: const Text(
-                    'Create Account',
-                    style: TextStyle(fontWeight: FontWeight.w800),
-                  ),
-                ),
-
-                OutlinedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginPage()),
-                    );
-                  },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: const BorderSide(color: Colors.white),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 28,
-                      vertical: 17,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    'Login',
-                    style: TextStyle(fontWeight: FontWeight.w800),
-                  ),
-                ),
-              ],
-            ),
-          ],
+                  const SizedBox(width: 25),
+                  _ctaButtons(context),
+                ],
+              );
+            },
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _ctaIcon() {
+    return Container(
+      width: 65,
+      height: 65,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: const Icon(
+        Icons.pets_rounded,
+        color: Colors.white,
+        size: 34,
+      ),
+    );
+  }
+
+  Widget _ctaText({bool left = false}) {
+    return Column(
+      crossAxisAlignment: left
+          ? CrossAxisAlignment.start
+          : CrossAxisAlignment.center,
+      children: [
+        Text(
+          'Be part of PawLink.',
+          textAlign: left
+              ? TextAlign.left
+              : TextAlign.center,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 30,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'One small action can make it easier for a pet '
+          'to get the help it needs.',
+          textAlign: left
+              ? TextAlign.left
+              : TextAlign.center,
+          style: const TextStyle(
+            color: Color(0xFFD7F5F1),
+            fontSize: 13,
+            height: 1.5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _ctaButtons(BuildContext context) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 10,
+      runSpacing: 10,
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const RegisterPage(),
+              ),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: primaryTeal,
+            elevation: 0,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 22,
+              vertical: 15,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+          child: const Text(
+            'Create Account',
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ),
+        OutlinedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const LoginPage(),
+              ),
+            );
+          },
+          style: OutlinedButton.styleFrom(
+            foregroundColor: Colors.white,
+            side: const BorderSide(
+              color: Colors.white,
+            ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 22,
+              vertical: 15,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+          child: const Text(
+            'Login',
+            style: TextStyle(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -1474,45 +2092,60 @@ class _LandingPageState extends State<LandingPage> {
   Widget _buildFooter() {
     return Container(
       width: double.infinity,
-      color: const Color(0xFF103B38),
-      padding: const EdgeInsets.symmetric(vertical: 35, horizontal: 24),
+      color: deepTeal,
+      padding: const EdgeInsets.fromLTRB(
+        24,
+        5,
+        24,
+        35,
+      ),
       child: _content(
         child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.pets, color: Colors.white, size: 25),
-                const SizedBox(width: 8),
-                const Text(
-                  'PawLink',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
+            Container(
+              width: 55,
+              height: 55,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(17),
+              ),
+              child: const Icon(
+                Icons.pets_rounded,
+                color: Colors.white,
+                size: 27,
+              ),
             ),
-
-            const SizedBox(height: 8),
-
+            const SizedBox(height: 12),
+            const Text(
+              'PawLink',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 19,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 5),
             const Text(
               'A Community for Pet and Stray Management',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Color(0xFFB9D9D5), fontSize: 12),
+              style: TextStyle(
+                color: Color(0xFFB9D9D5),
+                fontSize: 11,
+              ),
             ),
-
-            const SizedBox(height: 18),
-
-            const Divider(color: Color(0xFF3D6663)),
-
+            const SizedBox(height: 20),
+            Container(
+              height: 1,
+              color: const Color(0xFF315D59),
+            ),
             const SizedBox(height: 15),
-
             const Text(
               'Made for the community, one paw at a time. 🐾',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Color(0xFFB9D9D5), fontSize: 11),
+              style: TextStyle(
+                color: Color(0xFFB9D9D5),
+                fontSize: 10,
+              ),
             ),
           ],
         ),
@@ -1529,15 +2162,15 @@ class _LandingPageState extends State<LandingPage> {
       text,
       style: const TextStyle(
         color: primaryTeal,
-        fontSize: 11,
-        fontWeight: FontWeight.w800,
-        letterSpacing: 1.2,
+        fontSize: 10,
+        fontWeight: FontWeight.w900,
+        letterSpacing: 1.4,
       ),
     );
   }
 
   // ============================================================
-  // LEARN MORE DIALOG
+  // LEARN MORE
   // ============================================================
 
   void _showLearnMore(BuildContext context) {
@@ -1545,27 +2178,36 @@ class _LandingPageState extends State<LandingPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: warmBackground,
+          backgroundColor: cream,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(24),
           ),
           title: const Row(
             children: [
-              Icon(Icons.pets, color: primaryTeal),
+              Icon(
+                Icons.pets_rounded,
+                color: primaryTeal,
+              ),
               SizedBox(width: 10),
               Text(
                 'About PawLink',
-                style: TextStyle(color: darkText, fontWeight: FontWeight.w800),
+                style: TextStyle(
+                  color: darkText,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ],
           ),
           content: const Text(
-            'PawLink is designed to connect pet owners, '
-            'residents, and barangays in managing lost, '
-            'found, and stray pets. It provides tools for '
-            'pet registration, QR identification, reports, '
+            'PawLink connects pet owners, residents, and '
+            'barangays in managing lost, found, and stray '
+            'pets. It provides tools for pet registration, '
+            'QR identification, joint ownership, reports, '
             'location sharing, and community assistance.',
-            style: TextStyle(color: grayText, height: 1.6),
+            style: TextStyle(
+              color: grayText,
+              height: 1.6,
+            ),
           ),
           actions: [
             TextButton(
@@ -1576,7 +2218,7 @@ class _LandingPageState extends State<LandingPage> {
                 'Close',
                 style: TextStyle(
                   color: primaryTeal,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
             ),
@@ -1591,7 +2233,7 @@ class _LandingPageState extends State<LandingPage> {
   // ============================================================
 
   void _scrollToSection(GlobalKey key) {
-    final BuildContext? targetContext = key.currentContext;
+    final targetContext = key.currentContext;
 
     if (targetContext == null) {
       return;
@@ -1603,5 +2245,228 @@ class _LandingPageState extends State<LandingPage> {
       curve: Curves.easeInOut,
       alignment: 0.05,
     );
+  }
+}
+
+// ================================================================
+// SOFT WAVY SECTION DIVIDER
+//
+// Keeps the existing section colors but removes the hard,
+// rectangular transitions between them.
+// ================================================================
+
+class _WaveDivider extends StatelessWidget {
+  final Color topColor;
+  final Color bottomColor;
+  final double height;
+  final double curveHeight;
+
+  const _WaveDivider({
+    required this.topColor,
+    required this.bottomColor,
+    this.height = 58,
+    this.curveHeight = 20,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: height,
+      child: CustomPaint(
+        painter: _WaveDividerPainter(
+          topColor: topColor,
+          bottomColor: bottomColor,
+          curveHeight: curveHeight,
+        ),
+      ),
+    );
+  }
+}
+
+class _WaveDividerPainter extends CustomPainter {
+  final Color topColor;
+  final Color bottomColor;
+  final double curveHeight;
+
+  _WaveDividerPainter({
+    required this.topColor,
+    required this.bottomColor,
+    required this.curveHeight,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final topPaint = Paint()
+      ..color = topColor
+      ..style = PaintingStyle.fill;
+
+    final bottomPaint = Paint()
+      ..color = bottomColor
+      ..style = PaintingStyle.fill;
+
+    // Fill the entire area with the bottom color first.
+    canvas.drawRect(
+      Rect.fromLTWH(
+        0,
+        0,
+        size.width,
+        size.height,
+      ),
+      bottomPaint,
+    );
+
+    // Soft hand-drawn-looking wave.
+    final path = Path();
+
+    path.moveTo(0, 0);
+
+    path.cubicTo(
+      size.width * 0.16,
+      curveHeight,
+      size.width * 0.30,
+      curveHeight,
+      size.width * 0.45,
+      curveHeight * 0.45,
+    );
+
+    path.cubicTo(
+      size.width * 0.60,
+      -curveHeight * 0.15,
+      size.width * 0.77,
+      -curveHeight * 0.15,
+      size.width,
+      curveHeight * 0.55,
+    );
+
+    path.lineTo(size.width, 0);
+    path.close();
+
+    canvas.drawPath(path, topPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _WaveDividerPainter oldDelegate) {
+    return oldDelegate.topColor != topColor ||
+        oldDelegate.bottomColor != bottomColor ||
+        oldDelegate.curveHeight != curveHeight;
+  }
+}
+
+// ================================================================
+// DECORATIVE QR CODE
+//
+// This is only a visual illustration on the landing page.
+// It is NOT the real QR code used by PawLink.
+// ================================================================
+
+class _FakeQrPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF243333)
+      ..style = PaintingStyle.fill;
+
+    final cell = size.width / 21;
+
+    void square(
+      int x,
+      int y,
+      int width,
+      int height,
+    ) {
+      canvas.drawRect(
+        Rect.fromLTWH(
+          x * cell,
+          y * cell,
+          width * cell,
+          height * cell,
+        ),
+        paint,
+      );
+    }
+
+    void finder(int x, int y) {
+      square(x, y, 7, 7);
+
+      final innerPaint = Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.fill;
+
+      canvas.drawRect(
+        Rect.fromLTWH(
+          (x + 2) * cell,
+          (y + 2) * cell,
+          3 * cell,
+          3 * cell,
+        ),
+        innerPaint,
+      );
+
+      square(
+        x + 2,
+        y + 2,
+        3,
+        3,
+      );
+    }
+
+    finder(0, 0);
+    finder(14, 0);
+    finder(0, 14);
+
+    final modules = <List<int>>[
+      [8, 1],
+      [10, 1],
+      [12, 1],
+      [8, 3],
+      [9, 4],
+      [11, 3],
+      [12, 5],
+      [8, 7],
+      [10, 6],
+      [12, 8],
+      [14, 8],
+      [16, 8],
+      [18, 8],
+      [7, 10],
+      [9, 9],
+      [11, 10],
+      [13, 11],
+      [15, 10],
+      [17, 11],
+      [19, 10],
+      [8, 13],
+      [10, 14],
+      [12, 13],
+      [14, 13],
+      [16, 14],
+      [18, 13],
+      [20, 15],
+      [7, 16],
+      [9, 17],
+      [11, 16],
+      [13, 18],
+      [15, 17],
+      [17, 19],
+      [19, 17],
+      [8, 20],
+      [10, 19],
+      [12, 20],
+    ];
+
+    for (final module in modules) {
+      square(
+        module[0],
+        module[1],
+        1,
+        1,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
   }
 }

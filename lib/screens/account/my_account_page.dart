@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../services/pet_service.dart';
 import '../../services/report_service.dart';
-import '../pets/my_pets_page.dart';
+import '../landing/landing_page.dart';
 import 'settings_page.dart';
 
 class MyAccountPage extends StatelessWidget {
@@ -27,7 +27,13 @@ class MyAccountPage extends StatelessWidget {
 
     if (user == null) {
       return const Scaffold(
-        body: Center(child: Text('Please sign in to view your account.')),
+        backgroundColor: warmBackground,
+        body: Center(
+          child: Text(
+            'Please sign in to view your account.',
+            style: TextStyle(color: darkText, fontSize: 15),
+          ),
+        ),
       );
     }
 
@@ -68,9 +74,12 @@ class MyAccountPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildHeader(context),
+
                           const SizedBox(height: 28),
 
-                          // Profile card
+                          // ==================================================
+                          // PROFILE CARD
+                          // ==================================================
                           _buildProfileCard(
                             context,
                             name: name,
@@ -82,7 +91,9 @@ class MyAccountPage extends StatelessWidget {
 
                           const SizedBox(height: 24),
 
-                          // Stats
+                          // ==================================================
+                          // STATS
+                          // ==================================================
                           _buildStats(
                             petService: petService,
                             reportService: reportService,
@@ -91,7 +102,9 @@ class MyAccountPage extends StatelessWidget {
 
                           const SizedBox(height: 24),
 
-                          // Personal information
+                          // ==================================================
+                          // PERSONAL INFORMATION
+                          // ==================================================
                           _buildInformationCard(
                             name: name,
                             email: email,
@@ -101,13 +114,24 @@ class MyAccountPage extends StatelessWidget {
 
                           const SizedBox(height: 24),
 
-                          // Account status
+                          // ==================================================
+                          // ACCOUNT STATUS
+                          // ==================================================
                           _buildAccountStatus(user),
 
                           const SizedBox(height: 24),
 
-                          // Settings shortcut
+                          // ==================================================
+                          // SETTINGS
+                          // ==================================================
                           _buildSettingsCard(context),
+
+                          const SizedBox(height: 24),
+
+                          // ==================================================
+                          // LOG OUT
+                          // ==================================================
+                          _buildLogoutCard(context),
 
                           const SizedBox(height: 32),
                         ],
@@ -122,6 +146,10 @@ class MyAccountPage extends StatelessWidget {
       ),
     );
   }
+
+  // ================================================================
+  // HEADER
+  // ================================================================
 
   Widget _buildHeader(BuildContext context) {
     return Row(
@@ -149,6 +177,10 @@ class MyAccountPage extends StatelessWidget {
       ],
     );
   }
+
+  // ================================================================
+  // PROFILE CARD
+  // ================================================================
 
   Widget _buildProfileCard(
     BuildContext context, {
@@ -214,6 +246,10 @@ class MyAccountPage extends StatelessWidget {
     );
   }
 
+  // ================================================================
+  // AVATAR
+  // ================================================================
+
   Widget _buildAvatar(String name) {
     final initial = name.trim().isNotEmpty ? name.trim()[0].toUpperCase() : 'P';
 
@@ -241,6 +277,10 @@ class MyAccountPage extends StatelessWidget {
     );
   }
 
+  // ================================================================
+  // PROFILE TEXT
+  // ================================================================
+
   Widget _buildProfileText({
     required String name,
     required String email,
@@ -267,10 +307,19 @@ class MyAccountPage extends StatelessWidget {
           style: const TextStyle(fontSize: 14, color: grayText),
         ),
         const SizedBox(height: 3),
-        Text(phone, style: const TextStyle(fontSize: 14, color: grayText)),
+        Text(
+          phone,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontSize: 14, color: grayText),
+        ),
       ],
     );
   }
+
+  // ================================================================
+  // EDIT PROFILE BUTTON
+  // ================================================================
 
   Widget _buildEditButton(BuildContext context) {
     return ElevatedButton.icon(
@@ -291,6 +340,10 @@ class MyAccountPage extends StatelessWidget {
       ),
     );
   }
+
+  // ================================================================
+  // STATISTICS
+  // ================================================================
 
   Widget _buildStats({
     required PetService petService,
@@ -366,6 +419,10 @@ class MyAccountPage extends StatelessWidget {
     );
   }
 
+  // ================================================================
+  // PERSONAL INFORMATION
+  // ================================================================
+
   Widget _buildInformationCard({
     required String name,
     required String email,
@@ -381,18 +438,23 @@ class MyAccountPage extends StatelessWidget {
       child: Column(
         children: [
           _InfoRow(icon: Icons.badge_outlined, label: 'Full Name', value: name),
+
           const Divider(height: 24),
+
           _InfoRow(
             icon: Icons.email_outlined,
             label: 'Email Address',
             value: email,
           ),
+
           const Divider(height: 24),
+
           _InfoRow(
             icon: Icons.phone_outlined,
             label: 'Phone Number',
             value: phone,
           ),
+
           if (createdAt != null) ...[
             const Divider(height: 24),
             _InfoRow(
@@ -405,6 +467,10 @@ class MyAccountPage extends StatelessWidget {
       ),
     );
   }
+
+  // ================================================================
+  // ACCOUNT STATUS
+  // ================================================================
 
   Widget _buildAccountStatus(User user) {
     return _SectionCard(
@@ -419,7 +485,9 @@ class MyAccountPage extends StatelessWidget {
             icon: Icons.check_circle_outline,
             color: primaryTeal,
           ),
+
           const Divider(height: 24),
+
           _StatusRow(
             title: 'Email',
             value: user.emailVerified ? 'Verified' : 'Not verified',
@@ -428,7 +496,9 @@ class MyAccountPage extends StatelessWidget {
                 : Icons.mark_email_unread_outlined,
             color: user.emailVerified ? primaryTeal : alertRed,
           ),
+
           const Divider(height: 24),
+
           const _StatusRow(
             title: 'Authentication',
             value: 'Firebase Authentication',
@@ -439,6 +509,10 @@ class MyAccountPage extends StatelessWidget {
       ),
     );
   }
+
+  // ================================================================
+  // SETTINGS CARD
+  // ================================================================
 
   Widget _buildSettingsCard(BuildContext context) {
     return Container(
@@ -460,7 +534,9 @@ class MyAccountPage extends StatelessWidget {
             ),
             child: const Icon(Icons.settings_outlined, color: primaryTeal),
           ),
+
           const SizedBox(width: 14),
+
           const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -481,6 +557,7 @@ class MyAccountPage extends StatelessWidget {
               ],
             ),
           ),
+
           IconButton(
             onPressed: () {
               Navigator.push(
@@ -498,6 +575,182 @@ class MyAccountPage extends StatelessWidget {
       ),
     );
   }
+
+  // ================================================================
+  // LOGOUT CARD
+  // ================================================================
+
+  Widget _buildLogoutCard(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: alertRed.withValues(alpha: 0.18)),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmall = constraints.maxWidth < 500;
+
+          final iconBox = Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: alertRed.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(13),
+            ),
+            child: const Icon(Icons.logout_rounded, color: alertRed),
+          );
+
+          final text = const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Log Out',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: darkText,
+                  ),
+                ),
+                SizedBox(height: 3),
+                Text(
+                  'Sign out of your PawLink account on this device.',
+                  style: TextStyle(fontSize: 13, color: grayText),
+                ),
+              ],
+            ),
+          );
+
+          final button = OutlinedButton.icon(
+            onPressed: () {
+              _showLogoutConfirmation(context);
+            },
+            icon: const Icon(Icons.logout_rounded, size: 18),
+            label: const Text('Log Out'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: alertRed,
+              side: const BorderSide(color: alertRed),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          );
+
+          if (isSmall) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [iconBox, const SizedBox(width: 14), text]),
+                const SizedBox(height: 16),
+                SizedBox(width: double.infinity, child: button),
+              ],
+            );
+          }
+
+          return Row(
+            children: [
+              iconBox,
+              const SizedBox(width: 14),
+              text,
+              const SizedBox(width: 14),
+              button,
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  // ================================================================
+  // LOGOUT CONFIRMATION
+  // ================================================================
+
+  void _showLogoutConfirmation(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: const Text(
+            'Log out of PawLink?',
+            style: TextStyle(color: darkText, fontWeight: FontWeight.w800),
+          ),
+          content: const Text(
+            'You will be returned to the PawLink landing page. '
+            'You can sign in again anytime.',
+            style: TextStyle(color: grayText, height: 1.4),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+              },
+              child: const Text('Cancel', style: TextStyle(color: grayText)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(dialogContext);
+
+                await _logout(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: alertRed,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text('Log Out'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // ================================================================
+  // LOGOUT
+  // ================================================================
+
+  Future<void> _logout(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut();
+
+      if (!context.mounted) {
+        return;
+      }
+
+      // Remove every dashboard/account route from the navigation stack.
+      //
+      // This prevents the user from pressing the browser/app Back button
+      // and returning to the dashboard after logging out.
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LandingPage()),
+        (route) => false,
+      );
+    } catch (e) {
+      if (!context.mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unable to log out. Please try again.')),
+      );
+    }
+  }
+
+  // ================================================================
+  // DATE FORMAT
+  // ================================================================
 
   static String _formatDate(DateTime date) {
     const months = [
@@ -518,6 +771,10 @@ class MyAccountPage extends StatelessWidget {
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 }
+
+// ==================================================================
+// STAT CARD
+// ==================================================================
 
 class _StatCard extends StatelessWidget {
   final IconData icon;
@@ -552,7 +809,9 @@ class _StatCard extends StatelessWidget {
             ),
             child: Icon(icon, color: color),
           ),
+
           const SizedBox(width: 13),
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -582,6 +841,10 @@ class _StatCard extends StatelessWidget {
     );
   }
 }
+
+// ==================================================================
+// SECTION CARD
+// ==================================================================
 
 class _SectionCard extends StatelessWidget {
   final String title;
@@ -620,7 +883,9 @@ class _SectionCard extends StatelessWidget {
                 ),
                 child: Icon(icon, color: MyAccountPage.primaryTeal),
               ),
+
               const SizedBox(width: 12),
+
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -646,13 +911,19 @@ class _SectionCard extends StatelessWidget {
               ),
             ],
           ),
+
           const SizedBox(height: 20),
+
           child,
         ],
       ),
     );
   }
 }
+
+// ==================================================================
+// INFORMATION ROW
+// ==================================================================
 
 class _InfoRow extends StatelessWidget {
   final IconData icon;
@@ -671,7 +942,9 @@ class _InfoRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, size: 20, color: MyAccountPage.grayText),
+
         const SizedBox(width: 12),
+
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -683,7 +956,9 @@ class _InfoRow extends StatelessWidget {
                   color: MyAccountPage.grayText,
                 ),
               ),
+
               const SizedBox(height: 3),
+
               Text(
                 value,
                 style: const TextStyle(
@@ -699,6 +974,10 @@ class _InfoRow extends StatelessWidget {
     );
   }
 }
+
+// ==================================================================
+// STATUS ROW
+// ==================================================================
 
 class _StatusRow extends StatelessWidget {
   final String title;
@@ -718,7 +997,9 @@ class _StatusRow extends StatelessWidget {
     return Row(
       children: [
         Icon(icon, color: color, size: 21),
+
         const SizedBox(width: 12),
+
         Expanded(
           child: Text(
             title,
@@ -729,6 +1010,7 @@ class _StatusRow extends StatelessWidget {
             ),
           ),
         ),
+
         Flexible(
           child: Text(
             value,

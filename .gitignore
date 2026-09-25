@@ -46,3 +46,11 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+
+node_modules/
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

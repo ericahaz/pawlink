@@ -17,19 +17,18 @@ class _RegisterPageState extends State<RegisterPage> {
   // ============================================================
 
   static const Color primaryTeal = Color(0xFF0F766E);
-
   static const Color darkTeal = Color(0xFF115E59);
 
   static const Color lightTeal = Color(0xFFE7F5F2);
+  static const Color softerTeal = Color(0xFFF0F8F6);
 
   static const Color alertRed = Color(0xFFDC2626);
 
-  static const Color warmBackground = Color(0xFFFFFBF5);
+  static const Color warmBackground = Color(0xFFF7F1E8);
+  static const Color cream = Color(0xFFFFFBF5);
 
   static const Color darkText = Color(0xFF243333);
-
   static const Color grayText = Color(0xFF667373);
-
   static const Color borderColor = Color(0xFFE3E5E3);
 
   // ============================================================
@@ -37,16 +36,12 @@ class _RegisterPageState extends State<RegisterPage> {
   // ============================================================
 
   final TextEditingController nameController = TextEditingController();
-
   final TextEditingController emailController = TextEditingController();
-
   final TextEditingController passwordController = TextEditingController();
-
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
   final ScrollController _scrollController = ScrollController();
-
   final FocusNode _keyboardFocusNode = FocusNode();
 
   // ============================================================
@@ -112,11 +107,12 @@ class _RegisterPageState extends State<RegisterPage> {
     const double scrollAmount = 120;
 
     if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+      final target = (_scrollController.offset + scrollAmount)
+          .clamp(0.0, _scrollController.position.maxScrollExtent)
+          .toDouble();
+
       _scrollController.animateTo(
-        (_scrollController.offset + scrollAmount).clamp(
-          0.0,
-          _scrollController.position.maxScrollExtent,
-        ),
+        target,
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeOut,
       );
@@ -125,11 +121,12 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+      final target = (_scrollController.offset - scrollAmount)
+          .clamp(0.0, _scrollController.position.maxScrollExtent)
+          .toDouble();
+
       _scrollController.animateTo(
-        (_scrollController.offset - scrollAmount).clamp(
-          0.0,
-          _scrollController.position.maxScrollExtent,
-        ),
+        target,
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeOut,
       );
@@ -138,9 +135,13 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     if (event.logicalKey == LogicalKeyboardKey.pageDown) {
+      final target =
+          (_scrollController.offset + MediaQuery.of(context).size.height * 0.8)
+              .clamp(0.0, _scrollController.position.maxScrollExtent)
+              .toDouble();
+
       _scrollController.animateTo(
-        (_scrollController.offset + MediaQuery.of(context).size.height * 0.8)
-            .clamp(0.0, _scrollController.position.maxScrollExtent),
+        target,
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeOut,
       );
@@ -149,9 +150,13 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     if (event.logicalKey == LogicalKeyboardKey.pageUp) {
+      final target =
+          (_scrollController.offset - MediaQuery.of(context).size.height * 0.8)
+              .clamp(0.0, _scrollController.position.maxScrollExtent)
+              .toDouble();
+
       _scrollController.animateTo(
-        (_scrollController.offset - MediaQuery.of(context).size.height * 0.8)
-            .clamp(0.0, _scrollController.position.maxScrollExtent),
+        target,
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeOut,
       );
@@ -200,7 +205,7 @@ class _RegisterPageState extends State<RegisterPage> {
         },
         child: LayoutBuilder(
           builder: (context, constraints) {
-            if (constraints.maxWidth >= 900) {
+            if (constraints.maxWidth >= 1000) {
               return _buildDesktopLayout();
             }
 
@@ -216,54 +221,28 @@ class _RegisterPageState extends State<RegisterPage> {
   // ============================================================
 
   Widget _buildDesktopLayout() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final double viewportHeight = constraints.maxHeight;
-
-        return Scrollbar(
-          controller: _scrollController,
-          thumbVisibility: true,
-          child: SingleChildScrollView(
-            controller: _scrollController,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: viewportHeight),
-              child: IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                      child: Container(
-                        color: darkTeal,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 60,
-                          vertical: 60,
-                        ),
-                        child: _buildWelcomePanel(),
-                      ),
-                    ),
-
-                    Expanded(
-                      child: Container(
-                        color: warmBackground,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 40,
-                          vertical: 40,
-                        ),
-                        child: Center(
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 450),
-                            child: _buildRegisterForm(),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+    return Scrollbar(
+      controller: _scrollController,
+      thumbVisibility: true,
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: MediaQuery.of(context).size.height,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(28),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(flex: 11, child: _buildCommunitySide()),
+                const SizedBox(width: 28),
+                Expanded(flex: 10, child: _buildFormCard()),
+              ],
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -277,14 +256,12 @@ class _RegisterPageState extends State<RegisterPage> {
       thumbVisibility: true,
       child: SingleChildScrollView(
         controller: _scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
+        padding: const EdgeInsets.fromLTRB(18, 22, 18, 30),
         child: Column(
           children: [
-            _buildMobileLogo(),
-
-            const SizedBox(height: 30),
-
-            _buildRegisterForm(),
+            _buildMobileHeader(),
+            const SizedBox(height: 20),
+            _buildFormCard(),
           ],
         ),
       ),
@@ -292,397 +269,698 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   // ============================================================
-  // WELCOME PANEL
+  // COMMUNITY SIDE
   // ============================================================
 
-  Widget _buildWelcomePanel() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 20),
-
-        Container(
-          width: 76,
-          height: 76,
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.15),
-            shape: BoxShape.circle,
+  Widget _buildCommunitySide() {
+    return Container(
+      constraints: const BoxConstraints(minHeight: 690),
+      decoration: BoxDecoration(
+        color: darkTeal,
+        borderRadius: BorderRadius.circular(32),
+        boxShadow: [
+          BoxShadow(
+            color: darkTeal.withValues(alpha: 0.16),
+            blurRadius: 30,
+            offset: const Offset(0, 16),
           ),
-          child: const Icon(Icons.pets, color: Colors.white, size: 40),
-        ),
-
-        const SizedBox(height: 30),
-
-        const Text(
-          'Welcome to PawLink',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 38,
-            fontWeight: FontWeight.bold,
-            height: 1.15,
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          Positioned(
+            right: -70,
+            top: -80,
+            child: _clayCircle(
+              size: 220,
+              color: primaryTeal.withValues(alpha: 0.55),
+            ),
           ),
-        ),
-
-        const SizedBox(height: 18),
-
-        Text(
-          'Create your account and become part of a community that helps protect pets and support stray animals in the barangay.',
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.88),
-            fontSize: 17,
-            height: 1.6,
+          Positioned(
+            left: -60,
+            bottom: -80,
+            child: _clayCircle(
+              size: 200,
+              color: Colors.white.withValues(alpha: 0.05),
+            ),
           ),
-        ),
+          Positioned(
+            right: 45,
+            bottom: 42,
+            child: Transform.rotate(angle: -0.08, child: _smallClayTag()),
+          ),
+          Positioned(left: 42, bottom: 38, child: _pawBubble()),
+          Padding(
+            padding: const EdgeInsets.all(48),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildBrandMark(),
 
-        const SizedBox(height: 45),
+                const SizedBox(height: 52),
 
-        _buildWelcomeFeature(
-          icon: Icons.qr_code_2,
-          title: 'Pet QR Profiles',
-          description: 'Give your pet a digital profile that can be accessed through a QR code.',
-        ),
+                const Text(
+                  'A safer place\nfor every paw.',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 46,
+                    fontWeight: FontWeight.w800,
+                    height: 1.05,
+                    letterSpacing: -1.2,
+                  ),
+                ),
 
-        const SizedBox(height: 28),
+                const SizedBox(height: 20),
 
-        _buildWelcomeFeature(
-          icon: Icons.groups_outlined,
-          title: 'Community Support',
-          description:
-              'Connect pet owners and residents to help keep pets safe.',
-        ),
+                Text(
+                  'Create your PawLink account and become part of a community that helps owners, residents, and the barangay keep pets safe.',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.78),
+                    fontSize: 16,
+                    height: 1.6,
+                  ),
+                ),
 
-        const SizedBox(height: 28),
+                const SizedBox(height: 42),
 
-        _buildWelcomeFeature(
-          icon: Icons.location_on_outlined,
-          title: 'Lost & Found Reports',
-          description:
-              'Report lost, found, or stray pets and help return them safely.',
-        ),
+                _buildCommunityCard(
+                  icon: Icons.qr_code_2_rounded,
+                  number: '01',
+                  title: 'One profile, one QR',
+                  description: 'Give your registered pet a digital identity that can be reached when needed.',
+                ),
 
-        const Spacer(),
-      ],
+                const SizedBox(height: 14),
+
+                _buildCommunityCard(
+                  icon: Icons.people_alt_outlined,
+                  number: '02',
+                  title: 'Community-powered',
+                  description: 'Owners and residents can work together when a pet goes missing or is found.',
+                ),
+
+                const SizedBox(height: 14),
+
+                _buildCommunityCard(
+                  icon: Icons.shield_outlined,
+                  number: '03',
+                  title: 'Safety comes first',
+                  description: 'Unsafe or aggressive animals can be reported without requiring anyone to approach them.',
+                ),
+
+                const SizedBox(height: 45),
+
+                Row(
+                  children: [
+                    Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.pets,
+                        color: Colors.white,
+                        size: 19,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Community Pet & Stray Management',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.68),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   // ============================================================
-  // WELCOME FEATURE
+  // BRAND MARK
   // ============================================================
 
-  Widget _buildWelcomeFeature({
-    required IconData icon,
-    required String title,
-    required String description,
-  }) {
+  Widget _buildBrandMark() {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 48,
-          height: 48,
+          width: 54,
+          height: 54,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Icon(icon, color: Colors.white, size: 25),
-        ),
-
-        const SizedBox(width: 16),
-
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 5),
-
-              Text(
-                description,
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.78),
-                  fontSize: 14,
-                  height: 1.45,
-                ),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(17),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 14,
+                offset: const Offset(0, 7),
               ),
             ],
           ),
+          child: const Icon(Icons.pets, color: primaryTeal, size: 29),
         ),
-      ],
-    );
-  }
-
-  // ============================================================
-  // MOBILE LOGO
-  // ============================================================
-
-  Widget _buildMobileLogo() {
-    return Column(
-      children: [
-        Container(
-          width: 70,
-          height: 70,
-          decoration: const BoxDecoration(
-            color: primaryTeal,
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(Icons.pets, color: Colors.white, size: 36),
-        ),
-
-        const SizedBox(height: 14),
-
+        const SizedBox(width: 14),
         const Text(
           'PawLink',
           style: TextStyle(
-            color: primaryTeal,
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            fontSize: 25,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.5,
           ),
-        ),
-
-        const SizedBox(height: 5),
-
-        const Text(
-          'Community Pet & Stray Management',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: grayText, fontSize: 13),
         ),
       ],
     );
   }
 
   // ============================================================
-  // REGISTER FORM
+  // COMMUNITY CARD
   // ============================================================
 
-  Widget _buildRegisterForm() {
+  Widget _buildCommunityCard({
+    required IconData icon,
+    required String number,
+    required String title,
+    required String description,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(17),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.075),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 45,
+            height: 45,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.11),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(icon, color: Colors.white, size: 22),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      number,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.42),
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  description,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.62),
+                    fontSize: 12,
+                    height: 1.45,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // CLAY CIRCLE
+  // ============================================================
+
+  Widget _clayCircle({required double size, required Color color}) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+    );
+  }
+
+  // ============================================================
+  // SMALL CLAY TAG
+  // ============================================================
+
+  Widget _smallClayTag() {
+    return Container(
+      width: 132,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: cream,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.qr_code_2, color: primaryTeal, size: 28),
+              const SizedBox(width: 7),
+              Icon(Icons.pets, color: alertRed, size: 22),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'PET ID',
+            style: TextStyle(
+              color: darkText,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // PAW BUBBLE
+  // ============================================================
+
+  Widget _pawBubble() {
+    return Container(
+      width: 62,
+      height: 62,
+      decoration: BoxDecoration(
+        color: primaryTeal,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: const Icon(Icons.pets, color: Colors.white, size: 28),
+    );
+  }
+
+  // ============================================================
+  // MOBILE HEADER
+  // ============================================================
+
+  Widget _buildMobileHeader() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
+      decoration: BoxDecoration(
+        color: darkTeal,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: darkTeal.withValues(alpha: 0.13),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 62,
+            height: 62,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(19),
+            ),
+            child: const Icon(Icons.pets, color: primaryTeal, size: 33),
+          ),
+          const SizedBox(height: 14),
+          const Text(
+            'PawLink',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 27,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            'A community for every paw.',
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.72),
+              fontSize: 13,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // FORM CARD
+  // ============================================================
+
+  Widget _buildFormCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(30, 32, 30, 28),
+      decoration: BoxDecoration(
+        color: cream,
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: Colors.white, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.055),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildFormHeading(),
+
+          const SizedBox(height: 28),
+
+          _buildLabel('Full Name'),
+          const SizedBox(height: 8),
+          TextField(
+            controller: nameController,
+            textInputAction: TextInputAction.next,
+            decoration: _inputDecoration(
+              hintText: 'Enter your full name',
+              icon: Icons.person_outline,
+            ),
+          ),
+
+          const SizedBox(height: 18),
+
+          _buildLabel('Email Address'),
+          const SizedBox(height: 8),
+          TextField(
+            controller: emailController,
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
+            decoration: _inputDecoration(
+              hintText: 'Enter your email address',
+              icon: Icons.email_outlined,
+            ),
+          ),
+
+          const SizedBox(height: 18),
+
+          _buildLabel('Password'),
+          const SizedBox(height: 8),
+          TextField(
+            controller: passwordController,
+            obscureText: _obscurePassword,
+            textInputAction: TextInputAction.next,
+            decoration: _inputDecoration(
+              hintText: 'Create a password',
+              icon: Icons.lock_outline,
+              suffixIcon: IconButton(
+                onPressed: () {
+                  setState(() {
+                    _obscurePassword = !_obscurePassword;
+                  });
+                },
+                icon: Icon(
+                  _obscurePassword
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                  color: grayText,
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 18),
+
+          _buildLabel('Confirm Password'),
+          const SizedBox(height: 8),
+          TextField(
+            controller: confirmPasswordController,
+            obscureText: _obscureConfirmPassword,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _register(),
+            decoration: _inputDecoration(
+              hintText: 'Re-enter your password',
+              icon: Icons.lock_outline,
+              suffixIcon: IconButton(
+                onPressed: () {
+                  setState(() {
+                    _obscureConfirmPassword = !_obscureConfirmPassword;
+                  });
+                },
+                icon: Icon(
+                  _obscureConfirmPassword
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                  color: grayText,
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          _buildPasswordHint(),
+
+          const SizedBox(height: 16),
+
+          _buildAgreement(),
+
+          const SizedBox(height: 22),
+
+          _buildRegisterButton(),
+
+          const SizedBox(height: 20),
+
+          _buildLoginLink(),
+
+          const SizedBox(height: 16),
+
+          _buildFirebaseNote(),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // FORM HEADING
+  // ============================================================
+
+  Widget _buildFormHeading() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: lightTeal,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: const Text(
+            'JOIN THE COMMUNITY',
+            style: TextStyle(
+              color: darkTeal,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.1,
+            ),
+          ),
+        ),
+        const SizedBox(height: 14),
         const Text(
-          'Create an account',
+          'Create your account',
           style: TextStyle(
             color: darkText,
             fontSize: 30,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.7,
           ),
         ),
-
-        const SizedBox(height: 8),
-
+        const SizedBox(height: 7),
         const Text(
-          'Join PawLink and help build a safer community for pets.',
-          style: TextStyle(color: grayText, fontSize: 14, height: 1.5),
-        ),
-
-        const SizedBox(height: 30),
-
-        _buildLabel('Full Name'),
-
-        const SizedBox(height: 8),
-
-        TextField(
-          controller: nameController,
-          textInputAction: TextInputAction.next,
-          decoration: _inputDecoration(
-            hintText: 'Enter your full name',
-            icon: Icons.person_outline,
-          ),
-        ),
-
-        const SizedBox(height: 20),
-
-        _buildLabel('Email Address'),
-
-        const SizedBox(height: 8),
-
-        TextField(
-          controller: emailController,
-          keyboardType: TextInputType.emailAddress,
-          textInputAction: TextInputAction.next,
-          decoration: _inputDecoration(
-            hintText: 'Enter your email address',
-            icon: Icons.email_outlined,
-          ),
-        ),
-
-        const SizedBox(height: 20),
-
-        _buildLabel('Password'),
-
-        const SizedBox(height: 8),
-
-        TextField(
-          controller: passwordController,
-          obscureText: _obscurePassword,
-          textInputAction: TextInputAction.next,
-          decoration: _inputDecoration(
-            hintText: 'Create a password',
-            icon: Icons.lock_outline,
-            suffixIcon: IconButton(
-              onPressed: () {
-                setState(() {
-                  _obscurePassword = !_obscurePassword;
-                });
-              },
-              icon: Icon(
-                _obscurePassword
-                    ? Icons.visibility_outlined
-                    : Icons.visibility_off_outlined,
-                color: grayText,
-              ),
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 20),
-
-        _buildLabel('Confirm Password'),
-
-        const SizedBox(height: 8),
-
-        TextField(
-          controller: confirmPasswordController,
-          obscureText: _obscureConfirmPassword,
-          textInputAction: TextInputAction.done,
-          onSubmitted: (_) => _register(),
-          decoration: _inputDecoration(
-            hintText: 'Re-enter your password',
-            icon: Icons.lock_outline,
-            suffixIcon: IconButton(
-              onPressed: () {
-                setState(() {
-                  _obscureConfirmPassword = !_obscureConfirmPassword;
-                });
-              },
-              icon: Icon(
-                _obscureConfirmPassword
-                    ? Icons.visibility_outlined
-                    : Icons.visibility_off_outlined,
-                color: grayText,
-              ),
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 12),
-
-        const Text(
-          'Password must be at least 6 characters, contain one uppercase letter and one special character.',
-          style: TextStyle(color: grayText, fontSize: 11, height: 1.4),
-        ),
-
-        const SizedBox(height: 18),
-
-        _buildAgreement(),
-
-        const SizedBox(height: 25),
-
-        SizedBox(
-          width: double.infinity,
-          height: 52,
-          child: ElevatedButton(
-            onPressed: _isLoading ? null : _register,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: primaryTeal,
-              foregroundColor: Colors.white,
-              disabledBackgroundColor: primaryTeal.withValues(alpha: 0.6),
-              disabledForegroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: _isLoading
-                ? const SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Text(
-                    'Create Account',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-          ),
-        ),
-
-        const SizedBox(height: 24),
-
-        Center(
-          child: Wrap(
-            alignment: WrapAlignment.center,
-            children: [
-              const Text(
-                'Already have an account? ',
-                style: TextStyle(color: grayText, fontSize: 14),
-              ),
-
-              TextButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
-                  );
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: primaryTeal,
-                  padding: EdgeInsets.zero,
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: const Text(
-                  'Log in',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 18),
-
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            color: lightTeal,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.verified_user_outlined,
-                size: 15,
-                color: darkTeal,
-              ),
-
-              const SizedBox(width: 6),
-
-              Flexible(
-                child: Text(
-                  'Your account is secured by Firebase Authentication.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: darkTeal.withValues(alpha: 0.9),
-                    fontSize: 11,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          'Start connecting your pets to a safer community.',
+          style: TextStyle(color: grayText, fontSize: 13, height: 1.5),
         ),
       ],
+    );
+  }
+
+  // ============================================================
+  // PASSWORD HINT
+  // ============================================================
+
+  Widget _buildPasswordHint() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: softerTeal,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.info_outline, color: darkTeal, size: 16),
+          const SizedBox(width: 8),
+          const Expanded(
+            child: Text(
+              'Use at least 6 characters, one uppercase letter, and one special character.',
+              style: TextStyle(color: grayText, fontSize: 11, height: 1.4),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // REGISTER BUTTON
+  // ============================================================
+
+  Widget _buildRegisterButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: ElevatedButton(
+        onPressed: _isLoading ? null : _register,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primaryTeal,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: primaryTeal.withValues(alpha: 0.55),
+          disabledForegroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+        ),
+        child: _isLoading
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  color: Colors.white,
+                ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Text(
+                    'Create Account',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(width: 8),
+                  Icon(Icons.arrow_forward_rounded, size: 18),
+                ],
+              ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // LOGIN LINK
+  // ============================================================
+
+  Widget _buildLoginLink() {
+    return Center(
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          const Text(
+            'Already have an account?',
+            style: TextStyle(color: grayText, fontSize: 13),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginPage()),
+              );
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: primaryTeal,
+              padding: const EdgeInsets.only(left: 6),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: const Text(
+              'Log in',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // FIREBASE NOTE
+  // ============================================================
+
+  Widget _buildFirebaseNote() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: lightTeal,
+        borderRadius: BorderRadius.circular(13),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.verified_user_outlined, size: 15, color: darkTeal),
+          const SizedBox(width: 7),
+          Flexible(
+            child: Text(
+              'Your account is secured by Firebase Authentication.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: darkTeal.withValues(alpha: 0.9),
+                fontSize: 10.5,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -695,8 +973,8 @@ class _RegisterPageState extends State<RegisterPage> {
       label,
       style: const TextStyle(
         color: darkText,
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
+        fontSize: 13,
+        fontWeight: FontWeight.w700,
       ),
     );
   }
@@ -712,31 +990,23 @@ class _RegisterPageState extends State<RegisterPage> {
   }) {
     return InputDecoration(
       hintText: hintText,
-
-      hintStyle: const TextStyle(color: Color(0xFF9AA3A3), fontSize: 14),
-
-      prefixIcon: Icon(icon, color: grayText, size: 21),
-
+      hintStyle: const TextStyle(color: Color(0xFF9AA3A3), fontSize: 13),
+      prefixIcon: Icon(icon, color: grayText, size: 20),
       suffixIcon: suffixIcon,
-
       filled: true,
       fillColor: Colors.white,
-
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-
+      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(color: borderColor),
       ),
-
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(color: borderColor),
       ),
-
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: darkTeal, width: 1.5),
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: primaryTeal, width: 1.5),
       ),
     );
   }
@@ -746,67 +1016,63 @@ class _RegisterPageState extends State<RegisterPage> {
   // ============================================================
 
   Widget _buildAgreement() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 24,
-            height: 24,
-            child: Checkbox(
-              value: _agreedToGuidelines,
-              activeColor: primaryTeal,
-              onChanged: (value) {
-                setState(() {
-                  _agreedToGuidelines = value ?? false;
-                });
-              },
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 24,
+          height: 24,
+          child: Checkbox(
+            value: _agreedToGuidelines,
+            activeColor: primaryTeal,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5),
             ),
+            onChanged: (value) {
+              setState(() {
+                _agreedToGuidelines = value ?? false;
+              });
+            },
           ),
-
-          const SizedBox(width: 8),
-
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _agreedToGuidelines = !_agreedToGuidelines;
-                });
-              },
-              child: RichText(
-                text: TextSpan(
-                  style: const TextStyle(
-                    color: grayText,
-                    fontSize: 12,
-                    height: 1.5,
-                  ),
-                  children: [
-                    const TextSpan(text: 'I agree to the '),
-
-                    WidgetSpan(
-                      child: GestureDetector(
-                        onTap: _showCommunityGuidelines,
-                        child: const Text(
-                          'Community Guidelines',
-                          style: TextStyle(
-                            color: darkTeal,
-                            fontWeight: FontWeight.bold,
-                          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: GestureDetector(
+            onTap: () {
+              setState(() {
+                _agreedToGuidelines = !_agreedToGuidelines;
+              });
+            },
+            child: RichText(
+              text: TextSpan(
+                style: const TextStyle(
+                  color: grayText,
+                  fontSize: 11.5,
+                  height: 1.5,
+                ),
+                children: [
+                  const TextSpan(text: 'I agree to the '),
+                  WidgetSpan(
+                    child: GestureDetector(
+                      onTap: _showCommunityGuidelines,
+                      child: const Text(
+                        'Community Guidelines',
+                        style: TextStyle(
+                          color: darkTeal,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-
-                    const TextSpan(
-                      text: ' and consent to sharing pet contact information when a QR code is scanned.',
-                    ),
-                  ],
-                ),
+                  ),
+                  const TextSpan(
+                    text: ' and consent to sharing pet contact information when a QR code is scanned.',
+                  ),
+                ],
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -819,13 +1085,16 @@ class _RegisterPageState extends State<RegisterPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: cream,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(22),
+          ),
           title: const Text(
             'Community Guidelines',
             style: TextStyle(color: darkText, fontWeight: FontWeight.bold),
           ),
-
-          content: SingleChildScrollView(
-            child: const Text(
+          content: const SingleChildScrollView(
+            child: Text(
               'PawLink is a community platform created to help pet owners, residents, and the barangay work together to keep pets safe.\n\n'
               'By using PawLink, please:\n\n'
               '• Provide accurate information about yourself and your pets.\n\n'
@@ -838,7 +1107,6 @@ class _RegisterPageState extends State<RegisterPage> {
               style: TextStyle(color: grayText, fontSize: 14, height: 1.6),
             ),
           ),
-
           actions: [
             TextButton(
               onPressed: () {
@@ -865,10 +1133,6 @@ class _RegisterPageState extends State<RegisterPage> {
   Future<void> _register() async {
     FocusScope.of(context).unfocus();
 
-    // ----------------------------------------------------------
-    // AGREEMENT
-    // ----------------------------------------------------------
-
     if (!_agreedToGuidelines) {
       _showMessage(
         'Please agree to the Community Guidelines first.',
@@ -876,10 +1140,6 @@ class _RegisterPageState extends State<RegisterPage> {
       );
       return;
     }
-
-    // ----------------------------------------------------------
-    // REQUIRED FIELDS
-    // ----------------------------------------------------------
 
     if (nameController.text.trim().isEmpty ||
         emailController.text.trim().isEmpty ||
@@ -890,34 +1150,19 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     final name = nameController.text.trim();
-
     final email = emailController.text.trim();
-
     final password = passwordController.text;
-
     final confirmPassword = confirmPasswordController.text;
-
-    // ----------------------------------------------------------
-    // EMAIL
-    // ----------------------------------------------------------
 
     if (!email.contains('@')) {
       _showMessage('Please enter a valid email address.', isError: true);
       return;
     }
 
-    // ----------------------------------------------------------
-    // PASSWORD LENGTH
-    // ----------------------------------------------------------
-
     if (password.length < 6) {
       _showMessage('Password must be at least 6 characters.', isError: true);
       return;
     }
-
-    // ----------------------------------------------------------
-    // UPPERCASE
-    // ----------------------------------------------------------
 
     final hasUppercase = RegExp(r'[A-Z]').hasMatch(password);
 
@@ -928,10 +1173,6 @@ class _RegisterPageState extends State<RegisterPage> {
       );
       return;
     }
-
-    // ----------------------------------------------------------
-    // SPECIAL CHARACTER
-    // ----------------------------------------------------------
 
     final hasSpecialCharacter = RegExp(
       r'[!@#$%^&*(),.?":{}|<>_\-+=/\\[\];'
@@ -947,36 +1188,20 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    // ----------------------------------------------------------
-    // CONFIRM PASSWORD
-    // ----------------------------------------------------------
-
     if (password != confirmPassword) {
       _showMessage('Passwords do not match.', isError: true);
       return;
     }
-
-    // ----------------------------------------------------------
-    // START LOADING
-    // ----------------------------------------------------------
 
     setState(() {
       _isLoading = true;
     });
 
     try {
-      // --------------------------------------------------------
-      // CREATE FIREBASE AUTH ACCOUNT
-      // --------------------------------------------------------
-
       final credential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-
-      // --------------------------------------------------------
-      // SAVE USER DISPLAY NAME
-      // --------------------------------------------------------
 
       await credential.user?.updateDisplayName(name);
 
@@ -1052,6 +1277,7 @@ class _RegisterPageState extends State<RegisterPage> {
         content: Text(message),
         backgroundColor: isError ? alertRed : primaryTeal,
         behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
