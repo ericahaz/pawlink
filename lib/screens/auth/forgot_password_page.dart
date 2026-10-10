@@ -209,11 +209,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   // ============================================================
 
   Widget _buildDesktopLayout() {
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    // Keep the card inside a safe visible area.
-    final panelHeight = (screenHeight - 56).clamp(560.0, 760.0).toDouble();
-
     return Scrollbar(
       controller: _scrollController,
       thumbVisibility: false,
@@ -223,15 +218,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 1250),
-            child: SizedBox(
-              height: panelHeight,
+            child: IntrinsicHeight(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(
-                    flex: 11,
-                    child: _buildRecoveryVisual(minHeight: panelHeight),
-                  ),
+                  Expanded(flex: 11, child: _buildRecoveryVisual()),
 
                   const SizedBox(width: 30),
 
@@ -255,7 +246,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       thumbVisibility: false,
       child: SingleChildScrollView(
         controller: _scrollController,
-        padding: const EdgeInsets.fromLTRB(18, 18, 18, 30),
+        padding: const EdgeInsets.fromLTRB(18, 18, 18, 36),
         child: Column(
           children: [
             _buildMobileHeader(),
@@ -273,10 +264,10 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   // DESKTOP VISUAL
   // ============================================================
 
-  Widget _buildRecoveryVisual({required double minHeight}) {
+  Widget _buildRecoveryVisual() {
     return Container(
       width: double.infinity,
-      constraints: BoxConstraints(minHeight: minHeight),
+      constraints: const BoxConstraints(minHeight: 650),
       decoration: BoxDecoration(
         color: darkTeal,
         borderRadius: BorderRadius.circular(32),
@@ -361,7 +352,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 const SizedBox(height: 18),
 
                 Text(
-                  'Enter the email connected to your PawLink account and Firebase will send a secure password reset link.',
+                  'Enter the email connected to your PawLink account '
+                  'and Firebase will send a secure password reset link.',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.76),
                     fontSize: 15,
@@ -375,7 +367,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   number: '01',
                   icon: Icons.email_outlined,
                   title: 'Enter your email',
-                  description: 'Use the email address you used when creating your PawLink account.',
+                  description:
+                      'Use the email address you used when creating '
+                      'your PawLink account.',
                 ),
 
                 const SizedBox(height: 12),
@@ -385,7 +379,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   icon: Icons.mark_email_read_outlined,
                   title: 'Check your inbox',
                   description:
-                      'Firebase sends a password reset message to your email.',
+                      'Firebase sends a password reset message '
+                      'to your email.',
                 ),
 
                 const SizedBox(height: 12),
@@ -394,15 +389,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   number: '03',
                   icon: Icons.lock_reset_outlined,
                   title: 'Create a new password',
-                  description: 'Follow the link in the email to securely update your password.',
+                  description:
+                      'Follow the link in the email to securely '
+                      'update your password.',
                 ),
 
                 const SizedBox(height: 24),
 
-                // IMPORTANT:
-                // No Spacer here.
-                // Spacer inside the previous scrollable/unbounded
-                // layout was one of the causes of the blank/visual issue.
                 Row(
                   children: [
                     Container(
@@ -421,12 +414,14 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
                     const SizedBox(width: 12),
 
-                    Text(
-                      'Secure account recovery',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.68),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                    Flexible(
+                      child: Text(
+                        'Secure account recovery',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.68),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ],
@@ -441,40 +436,52 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   // ============================================================
   // BRAND MARK
+  // CLICKING PAWLINK RETURNS TO LANDING PAGE
   // ============================================================
 
   Widget _buildBrandMark() {
-    return Row(
-      children: [
-        Container(
-          width: 54,
-          height: 54,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(17),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 14,
-                offset: const Offset(0, 7),
+    return Tooltip(
+      message: 'Go to PawLink Home',
+      child: InkWell(
+        onTap: _goToHome,
+        borderRadius: BorderRadius.circular(18),
+        child: Padding(
+          padding: const EdgeInsets.all(4),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 54,
+                height: 54,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(17),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 14,
+                      offset: const Offset(0, 7),
+                    ),
+                  ],
+                ),
+                child: const Icon(Icons.pets, color: primaryTeal, size: 29),
+              ),
+
+              const SizedBox(width: 14),
+
+              const Text(
+                'PawLink',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 25,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
+                ),
               ),
             ],
           ),
-          child: const Icon(Icons.pets, color: primaryTeal, size: 29),
         ),
-
-        const SizedBox(width: 14),
-
-        const Text(
-          'PawLink',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 25,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.5,
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -664,46 +671,52 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        onTap: _goToHome,
+        borderRadius: BorderRadius.circular(22),
+        child: Row(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: const Icon(Icons.pets, color: primaryTeal, size: 30),
             ),
-            child: const Icon(Icons.pets, color: primaryTeal, size: 30),
-          ),
 
-          const SizedBox(width: 14),
+            const SizedBox(width: 14),
 
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'PawLink',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 25,
-                    fontWeight: FontWeight.w800,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'PawLink',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 25,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
-                ),
 
-                const SizedBox(height: 3),
+                  const SizedBox(height: 3),
 
-                Text(
-                  'Secure account recovery',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
-                    fontSize: 12,
+                  Text(
+                    'Secure account recovery',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.7),
+                      fontSize: 12,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+
+            const Icon(Icons.home_outlined, color: Colors.white70, size: 21),
+          ],
+        ),
       ),
     );
   }
@@ -795,7 +808,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         const SizedBox(height: 8),
 
         const Text(
-          'No worries. Enter your account email and we will send you a secure reset link.',
+          'No worries. Enter your account email and we will send '
+          'you a secure reset link.',
           style: TextStyle(color: grayText, fontSize: 13, height: 1.55),
         ),
       ],
@@ -905,7 +919,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
           const Expanded(
             child: Text(
-              'If the email belongs to a PawLink account, Firebase will send a password reset message to that address.',
+              'If the email belongs to a PawLink account, Firebase '
+              'will send a password reset message to that address.',
               style: TextStyle(color: darkTeal, fontSize: 11, height: 1.5),
             ),
           ),
@@ -988,6 +1003,16 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         borderSide: const BorderSide(color: primaryTeal, width: 1.5),
       ),
     );
+  }
+
+  // ============================================================
+  // GO TO PAWLINK HOME
+  // ============================================================
+
+  void _goToHome() {
+    FocusScope.of(context).unfocus();
+
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   // ============================================================
@@ -1074,6 +1099,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   // ============================================================
 
   void _showMessage(String message, {bool isError = false}) {
+    if (!mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),

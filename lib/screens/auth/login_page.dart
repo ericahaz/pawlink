@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -56,6 +57,14 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _obscurePassword = true;
   bool _isLoading = false;
+
+  // Remember Me
+  //
+  // TRUE  = keep the Firebase login after browser restart.
+  // FALSE = keep the login only for the current browser session.
+  //
+  // Default is TRUE to preserve Firebase's normal web behavior.
+  bool _rememberMe = true;
 
   // ============================================================
   // DISPOSE
@@ -680,7 +689,14 @@ class _LoginPageState extends State<LoginPage> {
 
           _buildPasswordField(),
 
-          const SizedBox(height: 7),
+          const SizedBox(height: 10),
+
+          // ======================================================
+          // REMEMBER ME
+          // ======================================================
+          _buildRememberMeRow(),
+
+          const SizedBox(height: 3),
 
           Align(
             alignment: Alignment.centerRight,
@@ -717,6 +733,71 @@ class _LoginPageState extends State<LoginPage> {
           _buildSecurityNote(),
         ],
       ),
+    );
+  }
+
+  // ============================================================
+  // REMEMBER ME
+  // ============================================================
+
+  Widget _buildRememberMeRow() {
+    return Row(
+      children: [
+        SizedBox(
+          width: 42,
+          height: 42,
+          child: Checkbox(
+            value: _rememberMe,
+            activeColor: primaryTeal,
+            checkColor: Colors.white,
+            side: const BorderSide(color: borderColor, width: 1.5),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5),
+            ),
+            onChanged: _isLoading
+                ? null
+                : (value) {
+                    setState(() {
+                      _rememberMe = value ?? true;
+                    });
+                  },
+          ),
+        ),
+
+        const SizedBox(width: 2),
+
+        GestureDetector(
+          onTap: _isLoading
+              ? null
+              : () {
+                  setState(() {
+                    _rememberMe = !_rememberMe;
+                  });
+                },
+          child: const Text(
+            'Remember me',
+            style: TextStyle(
+              color: darkText,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+
+        const Spacer(),
+
+        if (kIsWeb)
+          Tooltip(
+            message: _rememberMe
+                ? 'Stay signed in on this browser'
+                : 'Sign out when the browser session ends',
+            child: Icon(
+              _rememberMe ? Icons.devices_rounded : Icons.timer_outlined,
+              color: grayText,
+              size: 17,
+            ),
+          ),
+      ],
     );
   }
 
@@ -1107,6 +1188,26 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
+      // --------------------------------------------------------
+      // REMEMBER ME / AUTH PERSISTENCE
+      // --------------------------------------------------------
+      //
+      // Flutter Web supports:
+      //
+      // LOCAL   = keep signed in after browser restart
+      // SESSION = keep signed in only for the current session
+      //
+      // On Android/iOS, Firebase Auth persistence is handled
+      // automatically by the native Firebase SDK, so this
+      // setting is only applied on Web.
+      // --------------------------------------------------------
+
+      if (kIsWeb) {
+        await _auth.setPersistence(
+          _rememberMe ? Persistence.LOCAL : Persistence.SESSION,
+        );
+      }
+
       // --------------------------------------------------------
       // FIREBASE SIGN IN
       // --------------------------------------------------------

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -11,7 +13,8 @@ class LandingPage extends StatefulWidget {
   State<LandingPage> createState() => _LandingPageState();
 }
 
-class _LandingPageState extends State<LandingPage> {
+class _LandingPageState extends State<LandingPage>
+    with SingleTickerProviderStateMixin {
   // ============================================================
   // COLORS
   // ============================================================
@@ -46,12 +49,23 @@ class _LandingPageState extends State<LandingPage> {
   final GlobalKey _featuresKey = GlobalKey();
 
   // ============================================================
+  // LIVE BACKGROUND ANIMATION
+  // ============================================================
+
+  late final AnimationController _backgroundAnimationController;
+
+  // ============================================================
   // INIT
   // ============================================================
 
   @override
   void initState() {
     super.initState();
+
+    _backgroundAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 22),
+    )..repeat();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -62,6 +76,7 @@ class _LandingPageState extends State<LandingPage> {
 
   @override
   void dispose() {
+    _backgroundAnimationController.dispose();
     _scrollController.dispose();
     _keyboardFocusNode.dispose();
     super.dispose();
@@ -150,82 +165,109 @@ class _LandingPageState extends State<LandingPage> {
           focusNode: _keyboardFocusNode,
           autofocus: true,
           onKeyEvent: _handleKeyEvent,
-          child: Scrollbar(
-            controller: _scrollController,
-            thumbVisibility: true,
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              child: Column(
-                children: [
-                  _buildNavigation(context),
+          child: Stack(
+            children: [
+              _buildLiveBackground(),
 
-                  // HERO
-                  _buildHeroSection(context),
+              Scrollbar(
+                controller: _scrollController,
+                thumbVisibility: true,
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  child: Column(
+                    children: [
+                      _buildNavigation(context),
 
-                  // Soft transition into cream section.
-                  const _WaveDivider(
-                    topColor: warmBackground,
-                    bottomColor: cream,
-                    height: 58,
-                    curveHeight: 22,
+                      // HERO
+                      _buildHeroSection(context),
+
+                      // Soft transition into cream section.
+                      const _WaveDivider(
+                        topColor: warmBackground,
+                        bottomColor: cream,
+                        height: 58,
+                        curveHeight: 22,
+                      ),
+
+                      _buildAboutSection(),
+
+                      // Soft transition into warm section.
+                      const _WaveDivider(
+                        topColor: cream,
+                        bottomColor: warmBackground,
+                        height: 58,
+                        curveHeight: 22,
+                      ),
+
+                      _buildHowItWorks(),
+
+                      // Soft transition into cream section.
+                      const _WaveDivider(
+                        topColor: warmBackground,
+                        bottomColor: cream,
+                        height: 58,
+                        curveHeight: 22,
+                      ),
+
+                      _buildFeatures(),
+
+                      // Soft transition into safety section.
+                      const _WaveDivider(
+                        topColor: cream,
+                        bottomColor: lightRed,
+                        height: 58,
+                        curveHeight: 20,
+                      ),
+
+                      _buildSafetySection(),
+
+                      // Return from red to warm neutral.
+                      const _WaveDivider(
+                        topColor: lightRed,
+                        bottomColor: warmBackground,
+                        height: 58,
+                        curveHeight: 20,
+                      ),
+
+                      _buildCommunitySection(),
+
+                      // Deep teal CTA transition.
+                      const _WaveDivider(
+                        topColor: warmBackground,
+                        bottomColor: deepTeal,
+                        height: 58,
+                        curveHeight: 18,
+                      ),
+
+                      _buildGetStarted(context),
+                      _buildFooter(),
+                    ],
                   ),
-
-                  _buildAboutSection(),
-
-                  // Soft transition into warm section.
-                  const _WaveDivider(
-                    topColor: cream,
-                    bottomColor: warmBackground,
-                    height: 58,
-                    curveHeight: 22,
-                  ),
-
-                  _buildHowItWorks(),
-
-                  // Soft transition into cream section.
-                  const _WaveDivider(
-                    topColor: warmBackground,
-                    bottomColor: cream,
-                    height: 58,
-                    curveHeight: 22,
-                  ),
-
-                  _buildFeatures(),
-
-                  // Soft transition into safety section.
-                  const _WaveDivider(
-                    topColor: cream,
-                    bottomColor: lightRed,
-                    height: 58,
-                    curveHeight: 20,
-                  ),
-
-                  _buildSafetySection(),
-
-                  // Return from red to warm neutral.
-                  const _WaveDivider(
-                    topColor: lightRed,
-                    bottomColor: warmBackground,
-                    height: 58,
-                    curveHeight: 20,
-                  ),
-
-                  _buildCommunitySection(),
-
-                  // Deep teal CTA transition.
-                  const _WaveDivider(
-                    topColor: warmBackground,
-                    bottomColor: deepTeal,
-                    height: 58,
-                    curveHeight: 18,
-                  ),
-
-                  _buildGetStarted(context),
-                  _buildFooter(),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // LIVE PAWLINK BACKGROUND
+  // ============================================================
+
+  Widget _buildLiveBackground() {
+    return Positioned.fill(
+      child: IgnorePointer(
+        child: AnimatedBuilder(
+          animation: _backgroundAnimationController,
+          builder: (context, child) {
+            return CustomPaint(
+              painter: _PawLinkCommunityPainter(
+                progress: _backgroundAnimationController.value,
+              ),
+            );
+          },
         ),
       ),
     );
@@ -242,10 +284,7 @@ class _LandingPageState extends State<LandingPage> {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1180),
-        child: Padding(
-          padding: padding,
-          child: child,
-        ),
+        child: Padding(padding: padding, child: child),
       ),
     );
   }
@@ -270,11 +309,7 @@ class _LandingPageState extends State<LandingPage> {
           width: 1,
         ),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.white,
-            blurRadius: 0,
-            offset: Offset(-4, -4),
-          ),
+          BoxShadow(color: Colors.white, blurRadius: 0, offset: Offset(-4, -4)),
           BoxShadow(
             color: Color(0x22000000),
             blurRadius: 18,
@@ -319,9 +354,7 @@ class _LandingPageState extends State<LandingPage> {
                   size: 25,
                 ),
               ),
-
               const SizedBox(width: 12),
-
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -344,40 +377,26 @@ class _LandingPageState extends State<LandingPage> {
                   ),
                 ],
               ),
-
               const Spacer(),
-
               if (!isMobile) ...[
-                _navButton(
-                  'About',
-                  () => _scrollToSection(_aboutKey),
-                ),
+                _navButton('About', () => _scrollToSection(_aboutKey)),
                 _navButton(
                   'How It Works',
                   () => _scrollToSection(_howItWorksKey),
                 ),
-                _navButton(
-                  'Features',
-                  () => _scrollToSection(_featuresKey),
-                ),
+                _navButton('Features', () => _scrollToSection(_featuresKey)),
                 const SizedBox(width: 8),
               ],
-
               OutlinedButton(
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => const LoginPage(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const LoginPage()),
                   );
                 },
                 style: OutlinedButton.styleFrom(
                   foregroundColor: primaryTeal,
-                  side: const BorderSide(
-                    color: primaryTeal,
-                    width: 1.3,
-                  ),
+                  side: const BorderSide(color: primaryTeal, width: 1.3),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 17,
                     vertical: 14,
@@ -388,21 +407,16 @@ class _LandingPageState extends State<LandingPage> {
                 ),
                 child: const Text(
                   'Login',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.w800),
                 ),
               ),
-
               if (!isMobile) ...[
                 const SizedBox(width: 9),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const RegisterPage(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const RegisterPage()),
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -419,9 +433,7 @@ class _LandingPageState extends State<LandingPage> {
                   ),
                   child: const Text(
                     'Create Account',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.w800),
                   ),
                 ),
               ],
@@ -437,17 +449,11 @@ class _LandingPageState extends State<LandingPage> {
       onPressed: onPressed,
       style: TextButton.styleFrom(
         foregroundColor: darkText,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 12,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       ),
       child: Text(
         text,
-        style: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-        ),
+        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
       ),
     );
   }
@@ -475,15 +481,9 @@ class _LandingPageState extends State<LandingPage> {
 
           return Row(
             children: [
-              Expanded(
-                flex: 55,
-                child: _heroText(context),
-              ),
+              Expanded(flex: 55, child: _heroText(context)),
               const SizedBox(width: 45),
-              Expanded(
-                flex: 45,
-                child: _heroVisual(),
-              ),
+              Expanded(flex: 45, child: _heroVisual()),
             ],
           );
         },
@@ -496,10 +496,7 @@ class _LandingPageState extends State<LandingPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 13,
-            vertical: 8,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
           decoration: BoxDecoration(
             color: lightTeal,
             borderRadius: BorderRadius.circular(30),
@@ -514,11 +511,7 @@ class _LandingPageState extends State<LandingPage> {
           child: const Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.waving_hand_rounded,
-                color: primaryTeal,
-                size: 16,
-              ),
+              Icon(Icons.waving_hand_rounded, color: primaryTeal, size: 16),
               SizedBox(width: 7),
               Text(
                 'Kumusta, ka-PawLink!',
@@ -531,9 +524,7 @@ class _LandingPageState extends State<LandingPage> {
             ],
           ),
         ),
-
         const SizedBox(height: 23),
-
         const Text(
           'A safer way to',
           style: TextStyle(
@@ -544,7 +535,6 @@ class _LandingPageState extends State<LandingPage> {
             letterSpacing: -1.2,
           ),
         ),
-
         const Text(
           'look out for every paw.',
           style: TextStyle(
@@ -555,22 +545,14 @@ class _LandingPageState extends State<LandingPage> {
             letterSpacing: -1.2,
           ),
         ),
-
         const SizedBox(height: 20),
-
         const Text(
           'PawLink brings pet owners, residents, and barangays '
           'together in one place to register pets, share reports, '
           'and help lost animals find their way home.',
-          style: TextStyle(
-            color: grayText,
-            fontSize: 16,
-            height: 1.65,
-          ),
+          style: TextStyle(color: grayText, fontSize: 16, height: 1.65),
         ),
-
         const SizedBox(height: 27),
-
         Wrap(
           spacing: 11,
           runSpacing: 11,
@@ -579,20 +561,13 @@ class _LandingPageState extends State<LandingPage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const RegisterPage(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const RegisterPage()),
                 );
               },
-              icon: const Icon(
-                Icons.arrow_forward_rounded,
-                size: 19,
-              ),
+              icon: const Icon(Icons.arrow_forward_rounded, size: 19),
               label: const Text(
                 'Get Started',
-                style: TextStyle(
-                  fontWeight: FontWeight.w800,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w800),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryTeal,
@@ -613,9 +588,7 @@ class _LandingPageState extends State<LandingPage> {
               },
               style: OutlinedButton.styleFrom(
                 foregroundColor: darkTeal,
-                side: const BorderSide(
-                  color: Color(0xFF9BCBC5),
-                ),
+                side: const BorderSide(color: Color(0xFF9BCBC5)),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 23,
                   vertical: 16,
@@ -626,23 +599,15 @@ class _LandingPageState extends State<LandingPage> {
               ),
               child: const Text(
                 'Learn More',
-                style: TextStyle(
-                  fontWeight: FontWeight.w800,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w800),
               ),
             ),
           ],
         ),
-
         const SizedBox(height: 25),
-
         const Row(
           children: [
-            Icon(
-              Icons.verified_rounded,
-              color: primaryTeal,
-              size: 18,
-            ),
+            Icon(Icons.verified_rounded, color: primaryTeal, size: 18),
             SizedBox(width: 7),
             Text(
               'Built around local community support',
@@ -697,8 +662,6 @@ class _LandingPageState extends State<LandingPage> {
               ),
             ),
           ),
-
-          // Small organic teal shape.
           Positioned(
             left: 0,
             top: 35,
@@ -711,49 +674,27 @@ class _LandingPageState extends State<LandingPage> {
               ),
             ),
           ),
-
           Positioned(
             top: 0,
             right: 35,
-            child: _circle(
-              85,
-              Colors.white.withValues(alpha: 0.55),
-            ),
+            child: _circle(85, Colors.white.withValues(alpha: 0.55)),
           ),
-
           Positioned(
             bottom: 12,
             left: 2,
-            child: _circle(
-              60,
-              Colors.white.withValues(alpha: 0.5),
-            ),
+            child: _circle(60, Colors.white.withValues(alpha: 0.5)),
           ),
-
           Positioned(
             left: 40,
             top: 80,
-            child: Transform.rotate(
-              angle: -0.045,
-              child: _petCard(),
-            ),
+            child: Transform.rotate(angle: -0.045, child: _petCard()),
           ),
-
           Positioned(
             right: 16,
             top: 155,
-            child: Transform.rotate(
-              angle: 0.06,
-              child: _qrCard(),
-            ),
+            child: Transform.rotate(angle: 0.06, child: _qrCard()),
           ),
-
-          Positioned(
-            left: 20,
-            bottom: 35,
-            child: _reportBadge(),
-          ),
-
+          Positioned(left: 20, bottom: 35, child: _reportBadge()),
           Positioned(
             right: 8,
             bottom: 40,
@@ -835,18 +776,11 @@ class _LandingPageState extends State<LandingPage> {
               ],
             ),
             const SizedBox(height: 17),
-            Container(
-              height: 1,
-              color: const Color(0xFFE4E7E3),
-            ),
+            Container(height: 1, color: const Color(0xFFE4E7E3)),
             const SizedBox(height: 13),
             const Row(
               children: [
-                Icon(
-                  Icons.pets,
-                  color: primaryTeal,
-                  size: 14,
-                ),
+                Icon(Icons.pets, color: primaryTeal, size: 14),
                 SizedBox(width: 6),
                 Text(
                   'Shih Tzu',
@@ -857,11 +791,7 @@ class _LandingPageState extends State<LandingPage> {
                   ),
                 ),
                 Spacer(),
-                Icon(
-                  Icons.circle,
-                  color: primaryTeal,
-                  size: 8,
-                ),
+                Icon(Icons.circle, color: primaryTeal, size: 8),
                 SizedBox(width: 5),
                 Text(
                   'Registered',
@@ -893,9 +823,7 @@ class _LandingPageState extends State<LandingPage> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(13),
-              border: Border.all(
-                color: const Color(0xFFE2E7E4),
-              ),
+              border: Border.all(color: const Color(0xFFE2E7E4)),
             ),
             child: CustomPaint(
               painter: _FakeQrPainter(),
@@ -921,18 +849,11 @@ class _LandingPageState extends State<LandingPage> {
     return _clayCard(
       color: white,
       radius: 18,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 11,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
       child: const Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.location_on_rounded,
-            color: alertRed,
-            size: 20,
-          ),
+          Icon(Icons.location_on_rounded, color: alertRed, size: 20),
           SizedBox(width: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -966,10 +887,7 @@ class _LandingPageState extends State<LandingPage> {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
   }
 
@@ -1002,15 +920,9 @@ class _LandingPageState extends State<LandingPage> {
             return Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Expanded(
-                  flex: 43,
-                  child: _aboutIntro(),
-                ),
+                Expanded(flex: 43, child: _aboutIntro()),
                 const SizedBox(width: 60),
-                Expanded(
-                  flex: 57,
-                  child: _aboutPanel(),
-                ),
+                Expanded(flex: 57, child: _aboutPanel()),
               ],
             );
           },
@@ -1040,11 +952,7 @@ class _LandingPageState extends State<LandingPage> {
           'PawLink gives the community a shared digital '
           'space for pet profiles, lost-and-found reports, '
           'and local assistance.',
-          style: TextStyle(
-            color: grayText,
-            fontSize: 15,
-            height: 1.65,
-          ),
+          style: TextStyle(color: grayText, fontSize: 15, height: 1.65),
         ),
       ],
     );
@@ -1079,11 +987,7 @@ class _LandingPageState extends State<LandingPage> {
     );
   }
 
-  Widget _aboutItem(
-    IconData icon,
-    String title,
-    String description,
-  ) {
+  Widget _aboutItem(IconData icon, String title, String description) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1106,11 +1010,7 @@ class _LandingPageState extends State<LandingPage> {
               ),
             ],
           ),
-          child: Icon(
-            icon,
-            color: primaryTeal,
-            size: 23,
-          ),
+          child: Center(child: Icon(icon, color: primaryTeal, size: 23)),
         ),
         const SizedBox(width: 15),
         Expanded(
@@ -1170,10 +1070,7 @@ class _LandingPageState extends State<LandingPage> {
             const Text(
               'A simple flow designed around real community situations.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: grayText,
-                fontSize: 14,
-              ),
+              style: TextStyle(color: grayText, fontSize: 14),
             ),
             const SizedBox(height: 42),
             LayoutBuilder(
@@ -1274,11 +1171,7 @@ class _LandingPageState extends State<LandingPage> {
                 ),
               ),
               const Spacer(),
-              Icon(
-                icon,
-                color: primaryTeal,
-                size: 23,
-              ),
+              Icon(icon, color: primaryTeal, size: 23),
             ],
           ),
           const SizedBox(height: 21),
@@ -1293,11 +1186,7 @@ class _LandingPageState extends State<LandingPage> {
           const SizedBox(height: 6),
           Text(
             description,
-            style: const TextStyle(
-              color: grayText,
-              fontSize: 12,
-              height: 1.5,
-            ),
+            style: const TextStyle(color: grayText, fontSize: 12, height: 1.5),
           ),
         ],
       ),
@@ -1446,22 +1335,14 @@ class _LandingPageState extends State<LandingPage> {
           const SizedBox(height: 8),
           Text(
             description,
-            style: const TextStyle(
-              color: grayText,
-              fontSize: 13,
-              height: 1.55,
-            ),
+            style: const TextStyle(color: grayText, fontSize: 13, height: 1.55),
           ),
         ],
       ),
     );
   }
 
-  Widget _smallFeature(
-    IconData icon,
-    String title,
-    String description,
-  ) {
+  Widget _smallFeature(IconData icon, String title, String description) {
     return _clayCard(
       color: warmBackground,
       radius: 27,
@@ -1482,11 +1363,7 @@ class _LandingPageState extends State<LandingPage> {
           const SizedBox(height: 7),
           Text(
             description,
-            style: const TextStyle(
-              color: grayText,
-              fontSize: 12,
-              height: 1.5,
-            ),
+            style: const TextStyle(color: grayText, fontSize: 12, height: 1.5),
           ),
         ],
       ),
@@ -1501,11 +1378,7 @@ class _LandingPageState extends State<LandingPage> {
         color: white,
         borderRadius: BorderRadius.circular(17),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.white,
-            blurRadius: 0,
-            offset: Offset(-2, -2),
-          ),
+          BoxShadow(color: Colors.white, blurRadius: 0, offset: Offset(-2, -2)),
           BoxShadow(
             color: Color(0x18000000),
             blurRadius: 9,
@@ -1513,11 +1386,7 @@ class _LandingPageState extends State<LandingPage> {
           ),
         ],
       ),
-      child: Icon(
-        icon,
-        color: primaryTeal,
-        size: 25,
-      ),
+      child: Center(child: Icon(icon, color: primaryTeal, size: 25)),
     );
   }
 
@@ -1548,15 +1417,9 @@ class _LandingPageState extends State<LandingPage> {
 
             return Row(
               children: [
-                Expanded(
-                  flex: 56,
-                  child: _safetyText(),
-                ),
+                Expanded(flex: 56, child: _safetyText()),
                 const SizedBox(width: 55),
-                Expanded(
-                  flex: 44,
-                  child: _safetyCard(),
-                ),
+                Expanded(flex: 44, child: _safetyCard()),
               ],
             );
           },
@@ -1585,10 +1448,12 @@ class _LandingPageState extends State<LandingPage> {
                   ),
                 ],
               ),
-              child: const Icon(
-                Icons.shield_outlined,
-                color: Colors.white,
-                size: 24,
+              child: const Center(
+                child: Icon(
+                  Icons.shield_outlined,
+                  color: Colors.white,
+                  size: 24,
+                ),
               ),
             ),
             const SizedBox(width: 12),
@@ -1619,11 +1484,7 @@ class _LandingPageState extends State<LandingPage> {
           'unsafe, do not attempt to scan, catch, or approach '
           'the animal. Submit a report instead and share the '
           'location with the appropriate people.',
-          style: TextStyle(
-            color: darkRed,
-            fontSize: 14,
-            height: 1.65,
-          ),
+          style: TextStyle(color: darkRed, fontSize: 14, height: 1.65),
         ),
       ],
     );
@@ -1646,9 +1507,8 @@ class _LandingPageState extends State<LandingPage> {
                   color: lightRed,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Icon(
-                  Icons.report_problem_outlined,
-                  color: alertRed,
+                child: const Center(
+                  child: Icon(Icons.report_problem_outlined, color: alertRed),
                 ),
               ),
               const SizedBox(width: 12),
@@ -1685,11 +1545,7 @@ class _LandingPageState extends State<LandingPage> {
     );
   }
 
-  Widget _safetyItem(
-    String number,
-    String title,
-    String description,
-  ) {
+  Widget _safetyItem(String number, String title, String description) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -1773,11 +1629,7 @@ class _LandingPageState extends State<LandingPage> {
                 'PawLink is built around the people who care for, '
                 'find, report, and help protect animals in the community.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: grayText,
-                  fontSize: 14,
-                  height: 1.55,
-                ),
+                style: TextStyle(color: grayText, fontSize: 14, height: 1.55),
               ),
             ),
             const SizedBox(height: 40),
@@ -1862,18 +1714,11 @@ class _LandingPageState extends State<LandingPage> {
                   color: white,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Icon(
-                  icon,
-                  color: primaryTeal,
-                  size: 25,
-                ),
+                child: Center(child: Icon(icon, color: primaryTeal, size: 25)),
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 9,
-                  vertical: 5,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                 decoration: BoxDecoration(
                   color: white,
                   borderRadius: BorderRadius.circular(20),
@@ -1902,11 +1747,7 @@ class _LandingPageState extends State<LandingPage> {
           const SizedBox(height: 7),
           Text(
             description,
-            style: const TextStyle(
-              color: grayText,
-              fontSize: 12,
-              height: 1.55,
-            ),
+            style: const TextStyle(color: grayText, fontSize: 12, height: 1.55),
           ),
         ],
       ),
@@ -1921,18 +1762,12 @@ class _LandingPageState extends State<LandingPage> {
     return Container(
       width: double.infinity,
       color: deepTeal,
-      padding: const EdgeInsets.symmetric(
-        vertical: 75,
-        horizontal: 24,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 75, horizontal: 24),
       child: _content(
         child: _clayCard(
           color: primaryTeal,
           radius: 34,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 35,
-            vertical: 38,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 38),
           child: LayoutBuilder(
             builder: (context, constraints) {
               final mobile = constraints.maxWidth < 700;
@@ -1954,9 +1789,7 @@ class _LandingPageState extends State<LandingPage> {
                 children: [
                   _ctaIcon(),
                   const SizedBox(width: 25),
-                  Expanded(
-                    child: _ctaText(left: true),
-                  ),
+                  Expanded(child: _ctaText(left: true)),
                   const SizedBox(width: 25),
                   _ctaButtons(context),
                 ],
@@ -1976,10 +1809,8 @@ class _LandingPageState extends State<LandingPage> {
         color: Colors.white.withValues(alpha: 0.16),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: const Icon(
-        Icons.pets_rounded,
-        color: Colors.white,
-        size: 34,
+      child: const Center(
+        child: Icon(Icons.pets_rounded, color: Colors.white, size: 34),
       ),
     );
   }
@@ -1992,9 +1823,7 @@ class _LandingPageState extends State<LandingPage> {
       children: [
         Text(
           'Be part of PawLink.',
-          textAlign: left
-              ? TextAlign.left
-              : TextAlign.center,
+          textAlign: left ? TextAlign.left : TextAlign.center,
           style: const TextStyle(
             color: Colors.white,
             fontSize: 30,
@@ -2005,9 +1834,7 @@ class _LandingPageState extends State<LandingPage> {
         Text(
           'One small action can make it easier for a pet '
           'to get the help it needs.',
-          textAlign: left
-              ? TextAlign.left
-              : TextAlign.center,
+          textAlign: left ? TextAlign.left : TextAlign.center,
           style: const TextStyle(
             color: Color(0xFFD7F5F1),
             fontSize: 13,
@@ -2028,57 +1855,41 @@ class _LandingPageState extends State<LandingPage> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (_) => const RegisterPage(),
-              ),
+              MaterialPageRoute(builder: (_) => const RegisterPage()),
             );
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.white,
             foregroundColor: primaryTeal,
             elevation: 0,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 22,
-              vertical: 15,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 15),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
             ),
           ),
           child: const Text(
             'Create Account',
-            style: TextStyle(
-              fontWeight: FontWeight.w900,
-            ),
+            style: TextStyle(fontWeight: FontWeight.w900),
           ),
         ),
         OutlinedButton(
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (_) => const LoginPage(),
-              ),
+              MaterialPageRoute(builder: (_) => const LoginPage()),
             );
           },
           style: OutlinedButton.styleFrom(
             foregroundColor: Colors.white,
-            side: const BorderSide(
-              color: Colors.white,
-            ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 22,
-              vertical: 15,
-            ),
+            side: const BorderSide(color: Colors.white),
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 15),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
             ),
           ),
           child: const Text(
             'Login',
-            style: TextStyle(
-              fontWeight: FontWeight.w800,
-            ),
+            style: TextStyle(fontWeight: FontWeight.w800),
           ),
         ),
       ],
@@ -2093,12 +1904,7 @@ class _LandingPageState extends State<LandingPage> {
     return Container(
       width: double.infinity,
       color: deepTeal,
-      padding: const EdgeInsets.fromLTRB(
-        24,
-        5,
-        24,
-        35,
-      ),
+      padding: const EdgeInsets.fromLTRB(24, 5, 24, 35),
       child: _content(
         child: Column(
           children: [
@@ -2109,10 +1915,8 @@ class _LandingPageState extends State<LandingPage> {
                 color: Colors.white.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(17),
               ),
-              child: const Icon(
-                Icons.pets_rounded,
-                color: Colors.white,
-                size: 27,
+              child: const Center(
+                child: Icon(Icons.pets_rounded, color: Colors.white, size: 27),
               ),
             ),
             const SizedBox(height: 12),
@@ -2128,24 +1932,15 @@ class _LandingPageState extends State<LandingPage> {
             const Text(
               'A Community for Pet and Stray Management',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Color(0xFFB9D9D5),
-                fontSize: 11,
-              ),
+              style: TextStyle(color: Color(0xFFB9D9D5), fontSize: 11),
             ),
             const SizedBox(height: 20),
-            Container(
-              height: 1,
-              color: const Color(0xFF315D59),
-            ),
+            Container(height: 1, color: const Color(0xFF315D59)),
             const SizedBox(height: 15),
             const Text(
               'Made for the community, one paw at a time. 🐾',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Color(0xFFB9D9D5),
-                fontSize: 10,
-              ),
+              style: TextStyle(color: Color(0xFFB9D9D5), fontSize: 10),
             ),
           ],
         ),
@@ -2184,17 +1979,11 @@ class _LandingPageState extends State<LandingPage> {
           ),
           title: const Row(
             children: [
-              Icon(
-                Icons.pets_rounded,
-                color: primaryTeal,
-              ),
+              Icon(Icons.pets_rounded, color: primaryTeal),
               SizedBox(width: 10),
               Text(
                 'About PawLink',
-                style: TextStyle(
-                  color: darkText,
-                  fontWeight: FontWeight.w900,
-                ),
+                style: TextStyle(color: darkText, fontWeight: FontWeight.w900),
               ),
             ],
           ),
@@ -2204,10 +1993,7 @@ class _LandingPageState extends State<LandingPage> {
             'pets. It provides tools for pet registration, '
             'QR identification, joint ownership, reports, '
             'location sharing, and community assistance.',
-            style: TextStyle(
-              color: grayText,
-              height: 1.6,
-            ),
+            style: TextStyle(color: grayText, height: 1.6),
           ),
           actions: [
             TextButton(
@@ -2249,10 +2035,289 @@ class _LandingPageState extends State<LandingPage> {
 }
 
 // ================================================================
-// SOFT WAVY SECTION DIVIDER
+// LIVE PAWLINK COMMUNITY BACKGROUND
 //
-// Keeps the existing section colors but removes the hard,
-// rectangular transitions between them.
+// This is intentionally different from a generic particle
+// animation.
+//
+// The background represents:
+//
+// PET OWNER
+//     ↓
+// COMMUNITY
+//     ↓
+// REPORT / LOCATION
+//     ↓
+// BARANGAY
+//
+// Small paw prints and connection nodes slowly move around the
+// page while an occasional location pulse appears.
+// ================================================================
+
+class _PawLinkCommunityPainter extends CustomPainter {
+  final double progress;
+
+  _PawLinkCommunityPainter({required this.progress});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.width <= 0 || size.height <= 0) {
+      return;
+    }
+
+    final double angle = progress * math.pi * 2;
+
+    // ----------------------------------------------------------
+    // VERY SOFT LARGE ORGANIC GLOWS
+    // ----------------------------------------------------------
+
+    _drawGlow(
+      canvas,
+      center: Offset(
+        size.width * 0.12 + math.sin(angle) * 22,
+        size.height * 0.22 + math.cos(angle) * 16,
+      ),
+      radius: 110,
+      opacity: 0.018,
+    );
+
+    _drawGlow(
+      canvas,
+      center: Offset(
+        size.width * 0.87 + math.cos(angle * 0.8) * 25,
+        size.height * 0.42 + math.sin(angle * 0.8) * 18,
+      ),
+      radius: 135,
+      opacity: 0.015,
+    );
+
+    _drawGlow(
+      canvas,
+      center: Offset(
+        size.width * 0.48 + math.sin(angle * 0.65) * 28,
+        size.height * 0.80 + math.cos(angle * 0.65) * 18,
+      ),
+      radius: 120,
+      opacity: 0.014,
+    );
+
+    // ----------------------------------------------------------
+    // COMMUNITY CONNECTION NODES
+    // ----------------------------------------------------------
+
+    final Offset owner = Offset(
+      size.width * 0.13 + math.sin(angle) * 10,
+      size.height * 0.63 + math.cos(angle) * 7,
+    );
+
+    final Offset community = Offset(
+      size.width * 0.49 + math.cos(angle * 0.7) * 14,
+      size.height * 0.30 + math.sin(angle * 0.7) * 10,
+    );
+
+    final Offset barangay = Offset(
+      size.width * 0.84 + math.sin(angle * 0.55) * 12,
+      size.height * 0.69 + math.cos(angle * 0.55) * 9,
+    );
+
+    _drawConnection(canvas, owner, community);
+
+    _drawConnection(canvas, community, barangay);
+
+    _drawNode(canvas, owner, radius: 4.5, opacity: 0.075);
+
+    _drawNode(canvas, community, radius: 5, opacity: 0.085);
+
+    _drawNode(canvas, barangay, radius: 4.5, opacity: 0.075);
+
+    // ----------------------------------------------------------
+    // MOVING PAW TRAIL
+    // ----------------------------------------------------------
+
+    final List<_PawPoint> pawTrail = [
+      _PawPoint(x: 0.16, y: 0.36, scale: 0.70, phase: 0.0),
+      _PawPoint(x: 0.29, y: 0.53, scale: 0.52, phase: 0.18),
+      _PawPoint(x: 0.42, y: 0.68, scale: 0.76, phase: 0.36),
+      _PawPoint(x: 0.63, y: 0.48, scale: 0.56, phase: 0.55),
+      _PawPoint(x: 0.76, y: 0.30, scale: 0.68, phase: 0.74),
+      _PawPoint(x: 0.89, y: 0.57, scale: 0.48, phase: 0.91),
+    ];
+
+    for (final pawPoint in pawTrail) {
+      final double localPhase = (progress + pawPoint.phase) % 1.0;
+
+      final double movement = math.sin(localPhase * math.pi * 2);
+
+      final double x = size.width * pawPoint.x + movement * 16;
+
+      final double y =
+          size.height * pawPoint.y + math.cos(localPhase * math.pi * 2) * 10;
+
+      final double opacity = 0.012 + ((movement + 1) / 2) * 0.018;
+
+      _drawPaw(
+        canvas,
+        Offset(x, y),
+        pawPoint.scale,
+        opacity,
+        rotation: movement * 0.08,
+      );
+    }
+
+    // ----------------------------------------------------------
+    // LOCATION PULSE
+    // ----------------------------------------------------------
+
+    final double pulseProgress = (progress * 1.25) % 1.0;
+
+    final Offset pulseCenter = Offset(size.width * 0.72, size.height * 0.78);
+
+    _drawLocationPulse(canvas, pulseCenter, pulseProgress);
+  }
+
+  // ============================================================
+  // GLOW
+  // ============================================================
+
+  void _drawGlow(
+    Canvas canvas, {
+    required Offset center,
+    required double radius,
+    required double opacity,
+  }) {
+    final Paint paint = Paint()
+      ..color = const Color(0xFF0F766E).withValues(alpha: opacity);
+
+    canvas.drawCircle(center, radius, paint);
+  }
+
+  // ============================================================
+  // CONNECTION
+  // ============================================================
+
+  void _drawConnection(Canvas canvas, Offset first, Offset second) {
+    final Paint paint = Paint()
+      ..color = const Color(0xFF0F766E).withValues(alpha: 0.022)
+      ..strokeWidth = 1.2
+      ..style = PaintingStyle.stroke;
+
+    canvas.drawLine(first, second, paint);
+  }
+
+  // ============================================================
+  // NODE
+  // ============================================================
+
+  void _drawNode(
+    Canvas canvas,
+    Offset center, {
+    required double radius,
+    required double opacity,
+  }) {
+    final Paint outerPaint = Paint()
+      ..color = const Color(0xFF0F766E).withValues(alpha: opacity * 0.45);
+
+    final Paint innerPaint = Paint()
+      ..color = const Color(0xFF0F766E).withValues(alpha: opacity);
+
+    canvas.drawCircle(center, radius * 2.3, outerPaint);
+
+    canvas.drawCircle(center, radius, innerPaint);
+  }
+
+  // ============================================================
+  // PAW
+  // ============================================================
+
+  void _drawPaw(
+    Canvas canvas,
+    Offset center,
+    double scale,
+    double opacity, {
+    required double rotation,
+  }) {
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(rotation);
+
+    final Paint paint = Paint()
+      ..color = const Color(0xFF0F766E).withValues(alpha: opacity)
+      ..style = PaintingStyle.fill;
+
+    // Main paw pad.
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: Offset.zero,
+        width: 25 * scale,
+        height: 30 * scale,
+      ),
+      paint,
+    );
+
+    // Four toes.
+    final List<Offset> toes = [
+      Offset(-13 * scale, -14 * scale),
+      Offset(-5 * scale, -20 * scale),
+      Offset(5 * scale, -20 * scale),
+      Offset(13 * scale, -14 * scale),
+    ];
+
+    for (final toe in toes) {
+      canvas.drawCircle(toe, 4.7 * scale, paint);
+    }
+
+    canvas.restore();
+  }
+
+  // ============================================================
+  // LOCATION PULSE
+  // ============================================================
+
+  void _drawLocationPulse(Canvas canvas, Offset center, double progress) {
+    final double wave = math.sin(progress * math.pi);
+
+    final double radius = 10 + (progress * 28);
+
+    final Paint ringPaint = Paint()
+      ..color = const Color(0xFFDC2626)
+          .withValues(alpha: 0.025 * (1 - progress))
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+
+    canvas.drawCircle(center, radius, ringPaint);
+
+    final Paint centerPaint = Paint()
+      ..color = const Color(0xFFDC2626).withValues(alpha: 0.035 + wave * 0.015);
+
+    canvas.drawCircle(center, 4.5, centerPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _PawLinkCommunityPainter oldDelegate) {
+    return oldDelegate.progress != progress;
+  }
+}
+
+// ================================================================
+// PAW TRAIL DATA
+// ================================================================
+
+class _PawPoint {
+  final double x;
+  final double y;
+  final double scale;
+  final double phase;
+
+  const _PawPoint({
+    required this.x,
+    required this.y,
+    required this.scale,
+    required this.phase,
+  });
+}
+
+// ================================================================
+// SOFT WAVY SECTION DIVIDER
 // ================================================================
 
 class _WaveDivider extends StatelessWidget {
@@ -2297,27 +2362,17 @@ class _WaveDividerPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final topPaint = Paint()
+    final Paint topPaint = Paint()
       ..color = topColor
       ..style = PaintingStyle.fill;
 
-    final bottomPaint = Paint()
+    final Paint bottomPaint = Paint()
       ..color = bottomColor
       ..style = PaintingStyle.fill;
 
-    // Fill the entire area with the bottom color first.
-    canvas.drawRect(
-      Rect.fromLTWH(
-        0,
-        0,
-        size.width,
-        size.height,
-      ),
-      bottomPaint,
-    );
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bottomPaint);
 
-    // Soft hand-drawn-looking wave.
-    final path = Path();
+    final Path path = Path();
 
     path.moveTo(0, 0);
 
@@ -2340,6 +2395,7 @@ class _WaveDividerPainter extends CustomPainter {
     );
 
     path.lineTo(size.width, 0);
+
     path.close();
 
     canvas.drawPath(path, topPaint);
@@ -2356,32 +2412,22 @@ class _WaveDividerPainter extends CustomPainter {
 // ================================================================
 // DECORATIVE QR CODE
 //
-// This is only a visual illustration on the landing page.
-// It is NOT the real QR code used by PawLink.
+// Visual illustration only.
+// This is NOT the actual QR code used by PawLink.
 // ================================================================
 
 class _FakeQrPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
+    final Paint paint = Paint()
       ..color = const Color(0xFF243333)
       ..style = PaintingStyle.fill;
 
-    final cell = size.width / 21;
+    final double cell = size.width / 21;
 
-    void square(
-      int x,
-      int y,
-      int width,
-      int height,
-    ) {
+    void square(int x, int y, int width, int height) {
       canvas.drawRect(
-        Rect.fromLTWH(
-          x * cell,
-          y * cell,
-          width * cell,
-          height * cell,
-        ),
+        Rect.fromLTWH(x * cell, y * cell, width * cell, height * cell),
         paint,
       );
     }
@@ -2389,33 +2435,23 @@ class _FakeQrPainter extends CustomPainter {
     void finder(int x, int y) {
       square(x, y, 7, 7);
 
-      final innerPaint = Paint()
+      final Paint innerPaint = Paint()
         ..color = Colors.white
         ..style = PaintingStyle.fill;
 
       canvas.drawRect(
-        Rect.fromLTWH(
-          (x + 2) * cell,
-          (y + 2) * cell,
-          3 * cell,
-          3 * cell,
-        ),
+        Rect.fromLTWH((x + 2) * cell, (y + 2) * cell, 3 * cell, 3 * cell),
         innerPaint,
       );
 
-      square(
-        x + 2,
-        y + 2,
-        3,
-        3,
-      );
+      square(x + 2, y + 2, 3, 3);
     }
 
     finder(0, 0);
     finder(14, 0);
     finder(0, 14);
 
-    final modules = <List<int>>[
+    final List<List<int>> modules = [
       [8, 1],
       [10, 1],
       [12, 1],
@@ -2455,13 +2491,8 @@ class _FakeQrPainter extends CustomPainter {
       [12, 20],
     ];
 
-    for (final module in modules) {
-      square(
-        module[0],
-        module[1],
-        1,
-        1,
-      );
+    for (final List<int> module in modules) {
+      square(module[0], module[1], 1, 1);
     }
   }
 

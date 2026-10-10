@@ -28,47 +28,43 @@ class ReportService {
     required String details,
     double? latitude,
     double? longitude,
+    String? locationName,
   }) async {
     final user = _auth.currentUser;
 
     if (user == null) {
-      throw Exception('You must be logged in to report a lost pet.');
+      throw Exception(
+        'You must be logged in to report a lost pet.',
+      );
     }
 
     final document = _reports.doc();
-
     final now = FieldValue.serverTimestamp();
+
+    final cleanedLocationName = locationName?.trim();
 
     await document.set({
       'reportId': document.id,
       'type': 'lost',
-
       'petId': petId.isEmpty ? null : petId,
-      'petName': petName,
-
+      'petName': petName.trim(),
       'title': 'Lost Pet',
-      'name': petName,
-
-      'location': lastSeenLocation,
-      'lastSeenLocation': lastSeenLocation,
-
-      'details': details,
-
+      'name': petName.trim(),
+      'location': lastSeenLocation.trim(),
+      'lastSeenLocation': lastSeenLocation.trim(),
+      'details': details.trim(),
       'foundLocation': null,
-      'locationName': null,
-
+      'locationName': cleanedLocationName == null || cleanedLocationName.isEmpty
+          ? null
+          : cleanedLocationName,
       'foundDate': null,
       'message': null,
       'photoUrl': '',
-
       'reportedBy': user.uid,
       'reporterEmail': user.email,
-
       'status': 'active',
-
       'latitude': latitude,
       'longitude': longitude,
-
       'createdAt': now,
       'updatedAt': now,
     });
@@ -80,6 +76,7 @@ class ReportService {
   // CREATE FOUND PET REPORT
   // ============================================================
 
+  // Guests may submit found-pet reports.
   Future<String> createFoundPetReport({
     required String petId,
     required String petName,
@@ -89,44 +86,37 @@ class ReportService {
     double? latitude,
     double? longitude,
     String? photoUrl,
+    String? locationName,
   }) async {
     final user = _auth.currentUser;
 
     final document = _reports.doc();
-
     final now = FieldValue.serverTimestamp();
+
+    final cleanedLocationName = locationName?.trim();
 
     await document.set({
       'reportId': document.id,
       'type': 'found',
-
       'petId': petId.isEmpty ? null : petId,
-      'petName': petName,
-
+      'petName': petName.trim(),
       'title': 'Found Pet',
-      'name': petName,
-
-      'location': foundLocation,
-      'foundLocation': foundLocation,
-
+      'name': petName.trim(),
+      'location': foundLocation.trim(),
+      'foundLocation': foundLocation.trim(),
       'lastSeenLocation': null,
-      'locationName': null,
-
-      'details': message,
-
-      'foundDate': foundDate,
-      'message': message,
-
+      'locationName': cleanedLocationName == null || cleanedLocationName.isEmpty
+          ? null
+          : cleanedLocationName,
+      'details': message.trim(),
+      'foundDate': foundDate.trim(),
+      'message': message.trim(),
       'photoUrl': photoUrl ?? '',
-
       'reportedBy': user?.uid,
       'reporterEmail': user?.email,
-
       'status': 'active',
-
       'latitude': latitude,
       'longitude': longitude,
-
       'createdAt': now,
       'updatedAt': now,
     });
@@ -148,43 +138,36 @@ class ReportService {
     final user = _auth.currentUser;
 
     if (user == null) {
-      throw Exception('You must be logged in to report a pet sighting.');
+      throw Exception(
+        'You must be logged in to report a pet sighting.',
+      );
     }
 
     final document = _reports.doc();
-
     final now = FieldValue.serverTimestamp();
+
+    final cleanedLocation = locationName.trim();
 
     await document.set({
       'reportId': document.id,
       'type': 'sighting',
-
       'petId': null,
-      'petName': petName,
-
+      'petName': petName.trim(),
       'title': 'Pet Sighting',
-      'name': petName,
-
-      'location': locationName,
-      'locationName': locationName,
-
-      'lastSeenLocation': null,
+      'name': petName.trim(),
+      'location': cleanedLocation,
+      'locationName': cleanedLocation.isEmpty ? null : cleanedLocation,
+      'lastSeenLocation': cleanedLocation,
       'foundLocation': null,
-
-      'details': details,
-
+      'details': details.trim(),
       'foundDate': null,
-      'message': null,
+      'message': details.trim(),
       'photoUrl': '',
-
       'reportedBy': user.uid,
       'reporterEmail': user.email,
-
       'status': 'active',
-
       'latitude': latitude,
       'longitude': longitude,
-
       'createdAt': now,
       'updatedAt': now,
     });
@@ -193,7 +176,7 @@ class ReportService {
   }
 
   // ============================================================
-  // CREATE BARANGAY REPORT
+  // CREATE BARANGAY / STRAY REPORT
   // ============================================================
 
   Future<String> createBarangayReport({
@@ -202,47 +185,35 @@ class ReportService {
     required String details,
     double? latitude,
     double? longitude,
+    String? locationName,
   }) async {
     final user = _auth.currentUser;
 
-    if (user == null) {
-      throw Exception('You must be logged in to submit a barangay report.');
-    }
-
     final document = _reports.doc();
-
     final now = FieldValue.serverTimestamp();
+
+    final cleanedLocationName = (locationName ?? location).trim();
 
     await document.set({
       'reportId': document.id,
-      'type': 'barangay',
-
+      'type': 'stray',
       'petId': null,
       'petName': null,
-
-      'title': title,
-      'name': title,
-
-      'location': location,
-
-      'lastSeenLocation': null,
+      'title': title.trim(),
+      'name': title.trim(),
+      'location': location.trim(),
+      'locationName': cleanedLocationName.isEmpty ? null : cleanedLocationName,
+      'lastSeenLocation': location.trim(),
       'foundLocation': null,
-      'locationName': null,
-
-      'details': details,
-
+      'details': details.trim(),
       'foundDate': null,
-      'message': details,
+      'message': details.trim(),
       'photoUrl': '',
-
-      'reportedBy': user.uid,
-      'reporterEmail': user.email,
-
+      'reportedBy': user?.uid,
+      'reporterEmail': user?.email,
       'status': 'active',
-
       'latitude': latitude,
       'longitude': longitude,
-
       'createdAt': now,
       'updatedAt': now,
     });
@@ -251,45 +222,36 @@ class ReportService {
   }
 
   // ============================================================
-  // MY REPORTS
+  // GET MY REPORTS
   // ============================================================
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getMyReportsStream() {
-    final user = _auth.currentUser;
+    final uid = _auth.currentUser?.uid;
 
-    if (user == null) {
+    if (uid == null) {
       return const Stream.empty();
     }
 
-    return _reports.where('reportedBy', isEqualTo: user.uid).snapshots();
+    return _reports
+        .where(
+          'reportedBy',
+          isEqualTo: uid,
+        )
+        .snapshots();
   }
 
   // ============================================================
-  // MY REPORT COUNT
+  // GET MY REPORT COUNT
   // ============================================================
 
   Stream<int> getMyReportsCountStream() {
-    return getMyReportsStream().map((snapshot) => snapshot.docs.length);
+    return getMyReportsStream().map(
+      (snapshot) => snapshot.docs.length,
+    );
   }
 
   // ============================================================
-  // COMMUNITY SIGHTINGS
-  // ============================================================
-
-  Stream<QuerySnapshot<Map<String, dynamic>>> getCommunitySightingsStream() {
-    return _reports.where('type', isEqualTo: 'sighting').snapshots();
-  }
-
-  // ============================================================
-  // COMMUNITY REPORTS
-  // ============================================================
-
-  Stream<QuerySnapshot<Map<String, dynamic>>> getCommunityReportsStream() {
-    return _reports.snapshots();
-  }
-
-  // ============================================================
-  // FOUND REPORTS FOR USER'S PETS
+  // GET FOUND REPORTS FOR PETS
   // ============================================================
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getFoundReportsStream(
@@ -299,48 +261,16 @@ class ReportService {
       return const Stream.empty();
     }
 
-    final limitedPetIds = petIds.take(10).toList();
-
     return _reports
-        .where('type', isEqualTo: 'found')
-        .where('petId', whereIn: limitedPetIds)
+        .where(
+          'type',
+          isEqualTo: 'found',
+        )
+        .where(
+          'petId',
+          whereIn: petIds.length > 10 ? petIds.sublist(0, 10) : petIds,
+        )
         .snapshots();
-  }
-
-  // ============================================================
-  // LOST REPORTS
-  // ============================================================
-
-  Stream<QuerySnapshot<Map<String, dynamic>>> getLostReportsStream() {
-    return _reports.where('type', isEqualTo: 'lost').snapshots();
-  }
-
-  // ============================================================
-  // BARANGAY REPORTS
-  // ============================================================
-
-  Stream<QuerySnapshot<Map<String, dynamic>>> getBarangayReportsStream() {
-    return _reports.where('type', isEqualTo: 'barangay').snapshots();
-  }
-
-  // ============================================================
-  // GET ONE REPORT
-  // ============================================================
-
-  Future<DocumentSnapshot<Map<String, dynamic>>> getReport(
-    String reportId,
-  ) async {
-    return _reports.doc(reportId).get();
-  }
-
-  // ============================================================
-  // GET ONE REPORT STREAM
-  // ============================================================
-
-  Stream<DocumentSnapshot<Map<String, dynamic>>> getReportStream(
-    String reportId,
-  ) {
-    return _reports.doc(reportId).snapshots();
   }
 
   // ============================================================
@@ -353,82 +283,83 @@ class ReportService {
     required String details,
     double? latitude,
     double? longitude,
+    String? locationName,
   }) async {
     final user = _auth.currentUser;
 
     if (user == null) {
-      throw Exception('You must be logged in.');
+      throw Exception(
+        'You must be logged in to update a report.',
+      );
     }
 
     final document = await _reports.doc(reportId).get();
 
     if (!document.exists) {
-      throw Exception('Report not found.');
+      throw Exception(
+        'The report could not be found.',
+      );
     }
 
-    final data = document.data() ?? {};
+    final data = document.data();
+
+    if (data == null) {
+      throw Exception(
+        'The report could not be found.',
+      );
+    }
 
     final reportedBy = data['reportedBy']?.toString();
 
     if (reportedBy != user.uid) {
-      throw Exception('You can only edit your own reports.');
+      throw Exception(
+        'You are not authorized to update this report.',
+      );
     }
 
-    final type = data['type']?.toString().toLowerCase();
+    final cleanedLocationName = locationName?.trim();
 
-    final updateData = <String, dynamic>{
-      'location': location,
-      'details': details,
+    await _reports.doc(reportId).update({
+      'location': location.trim(),
+      'locationName': cleanedLocationName == null || cleanedLocationName.isEmpty
+          ? location.trim()
+          : cleanedLocationName,
+      'details': details.trim(),
       'latitude': latitude,
       'longitude': longitude,
       'updatedAt': FieldValue.serverTimestamp(),
-    };
-
-    switch (type) {
-      case 'lost':
-        updateData['lastSeenLocation'] = location;
-        break;
-
-      case 'found':
-        updateData['foundLocation'] = location;
-        updateData['message'] = details;
-        break;
-
-      case 'sighting':
-        updateData['locationName'] = location;
-        break;
-
-      case 'barangay':
-        updateData['message'] = details;
-        break;
-    }
-
-    await _reports.doc(reportId).update(updateData);
+    });
   }
 
   // ============================================================
   // RESOLVE REPORT
   // ============================================================
 
-  Future<void> resolveReport(String reportId) async {
+  Future<void> resolveReport(
+    String reportId,
+  ) async {
     final user = _auth.currentUser;
 
     if (user == null) {
-      throw Exception('You must be logged in.');
+      throw Exception(
+        'You must be logged in.',
+      );
     }
 
     final document = await _reports.doc(reportId).get();
 
     if (!document.exists) {
-      throw Exception('Report not found.');
+      throw Exception(
+        'The report could not be found.',
+      );
     }
 
-    final data = document.data() ?? {};
+    final data = document.data();
 
-    final reportedBy = data['reportedBy']?.toString();
-
-    if (reportedBy != user.uid) {
-      throw Exception('You can only resolve your own reports.');
+    if (data == null || data['reportedBy'] != user.uid) {
+      throw Exception(
+        'You are not authorized to resolve this report.',
+      );
     }
 
     await _reports.doc(reportId).update({
@@ -441,25 +372,31 @@ class ReportService {
   // REOPEN REPORT
   // ============================================================
 
-  Future<void> reopenReport(String reportId) async {
+  Future<void> reopenReport(
+    String reportId,
+  ) async {
     final user = _auth.currentUser;
 
     if (user == null) {
-      throw Exception('You must be logged in.');
+      throw Exception(
+        'You must be logged in.',
+      );
     }
 
     final document = await _reports.doc(reportId).get();
 
     if (!document.exists) {
-      throw Exception('Report not found.');
+      throw Exception(
+        'The report could not be found.',
+      );
     }
 
-    final data = document.data() ?? {};
+    final data = document.data();
 
-    final reportedBy = data['reportedBy']?.toString();
-
-    if (reportedBy != user.uid) {
-      throw Exception('You can only reopen your own reports.');
+    if (data == null || data['reportedBy'] != user.uid) {
+      throw Exception(
+        'You are not authorized to reopen this report.',
+      );
     }
 
     await _reports.doc(reportId).update({
@@ -472,25 +409,31 @@ class ReportService {
   // DELETE REPORT
   // ============================================================
 
-  Future<void> deleteReport(String reportId) async {
+  Future<void> deleteReport(
+    String reportId,
+  ) async {
     final user = _auth.currentUser;
 
     if (user == null) {
-      throw Exception('You must be logged in.');
+      throw Exception(
+        'You must be logged in.',
+      );
     }
 
     final document = await _reports.doc(reportId).get();
 
     if (!document.exists) {
-      throw Exception('Report not found.');
+      throw Exception(
+        'The report could not be found.',
+      );
     }
 
-    final data = document.data() ?? {};
+    final data = document.data();
 
-    final reportedBy = data['reportedBy']?.toString();
-
-    if (reportedBy != user.uid) {
-      throw Exception('You can only delete your own reports.');
+    if (data == null || data['reportedBy'] != user.uid) {
+      throw Exception(
+        'You are not authorized to delete this report.',
+      );
     }
 
     await _reports.doc(reportId).delete();

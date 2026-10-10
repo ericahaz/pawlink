@@ -6,15 +6,14 @@ import 'firebase_options.dart';
 import 'screens/landing/landing_page.dart';
 import 'screens/public/public_pet_page.dart';
 import 'screens/pets/accept_invitation_page.dart';
-
-// Import your dashboard page here.
-// Change this import only if your actual dashboard file is located elsewhere.
 import 'screens/home/home_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(const PawLink());
 }
@@ -31,19 +30,16 @@ class PawLink extends StatelessWidget {
 
       theme: ThemeData(
         useMaterial3: true,
-
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0F766E)),
-
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF0F766E),
+        ),
         scaffoldBackgroundColor: const Color(0xFFFFFBF5),
-
         fontFamily: 'Roboto',
-
         cardTheme: const CardThemeData(
           color: Colors.white,
           elevation: 0,
           margin: EdgeInsets.zero,
         ),
-
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFFFFFBF5),
           elevation: 0,
@@ -51,44 +47,48 @@ class PawLink extends StatelessWidget {
         ),
       ),
 
-      // ========================================================
+      // ============================================================
       // WEB URL ROUTING
-      // ========================================================
+      // ============================================================
+
       onGenerateRoute: (settings) {
         final uri = Uri.base;
         final segments = uri.pathSegments;
 
-        // ------------------------------------------------------
+        // ==========================================================
         // PUBLIC PET PROFILE
         //
         // /p/PET-ID
         //
-        // This page remains publicly accessible even without login.
-        // ------------------------------------------------------
+        // This page is available without logging in.
+        // ==========================================================
 
         if (segments.length == 2 && segments[0].toLowerCase() == 'p') {
           final petId = segments[1];
 
           if (petId.isNotEmpty) {
             return MaterialPageRoute(
-              builder: (context) => PublicPetPage(petId: petId),
+              builder: (_) => PublicPetPage(
+                petId: petId,
+              ),
             );
           }
         }
 
-        // ------------------------------------------------------
+        // ==========================================================
         // JOINT OWNER INVITATION
         //
         // /invite/INVITATION-ID
-        // ------------------------------------------------------
+        // ==========================================================
 
         if (segments.length == 2 && segments[0].toLowerCase() == 'invite') {
           final invitationId = segments[1];
 
           if (invitationId.isNotEmpty) {
             return MaterialPageRoute(
-              builder: (context) =>
-                  AcceptInvitationPage(invitationId: invitationId),
+              builder: (_) => AcceptInvitationPage(
+                invitationId: invitationId,
+              ),
             );
           }
         }
@@ -96,17 +96,20 @@ class PawLink extends StatelessWidget {
         return null;
       },
 
-      // ========================================================
+      // ============================================================
       // AUTHENTICATION GATE
-      // ========================================================
+      // ============================================================
       //
-      // Firebase decides which page the user should see:
+      // Logged in:
+      //     HomePage
       //
-      // Logged in  -> Dashboard
-      // Logged out -> Landing Page
+      // Logged out:
+      //     LandingPage
       //
-      // This also handles refreshing the browser.
-      // ========================================================
+      // Firebase authStateChanges() automatically reacts when
+      // FirebaseAuth.signOut() is called.
+      // ============================================================
+
       home: const AuthGate(),
     );
   }
@@ -116,13 +119,12 @@ class PawLink extends StatelessWidget {
 // AUTH GATE
 // ================================================================
 //
-// This listens to Firebase Authentication.
+// This is the single source of truth for whether the user is
+// authenticated.
 //
-// If the user is logged in:
-//     show Dashboard
-//
-// If the user is logged out:
-//     show Landing Page
+// FirebaseAuth.authStateChanges() emits:
+//   User   -> logged in
+//   null   -> logged out
 //
 // ================================================================
 
@@ -133,32 +135,35 @@ class AuthGate extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
-
       builder: (context, snapshot) {
-        // ------------------------------------------------------
-        // Firebase is still checking the authentication state.
-        // ------------------------------------------------------
+        // ========================================================
+        // INITIAL AUTH CHECK
+        // ========================================================
 
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             backgroundColor: Color(0xFFFFFBF5),
             body: Center(
-              child: CircularProgressIndicator(color: Color(0xFF0F766E)),
+              child: CircularProgressIndicator(
+                color: Color(0xFF0F766E),
+              ),
             ),
           );
         }
 
-        // ------------------------------------------------------
-        // User is logged in.
-        // ------------------------------------------------------
+        // ========================================================
+        // LOGGED IN
+        // ========================================================
 
-        if (snapshot.hasData && snapshot.data != null) {
+        final user = snapshot.data;
+
+        if (user != null) {
           return const HomePage();
         }
 
-        // ------------------------------------------------------
-        // User is logged out.
-        // ------------------------------------------------------
+        // ========================================================
+        // LOGGED OUT
+        // ========================================================
 
         return const LandingPage();
       },

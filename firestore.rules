@@ -1,0 +1,299 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================================
+    // HELPER FUNCTIONS
+    // ============================================================
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn()
+        && userId == request.auth.uid;
+    }
+
+    function existingOwner(userId) {
+      return signedIn()
+        && resource.data.userId == request.auth.uid;
+    }
+
+
+    // ============================================================
+    // USERS
+    // ============================================================
+    //
+    // If PawLink stores additional user profile information,
+    // authenticated users can manage only their own document.
+    //
+    // Expected document:
+    // users/{uid}
+    //
+    match /users/{userId} {
+
+      allow create: if isOwner(userId);
+
+      allow read: if isOwner(userId);
+
+      allow update: if isOwner(userId);
+
+      allow delete: if isOwner(userId);
+    }
+
+
+    // ============================================================
+    // PETS
+    // ============================================================
+    //
+    // PawLink registered pets.
+    //
+    // The ownerUid/userId field should contain the Firebase UID
+    // of the primary owner.
+    //
+    match /pets/{petId} {
+
+      // Register a pet.
+      allow create: if signedIn()
+        && (
+          request.resource.data.ownerId == request.auth.uid
+          || request.resource.data.ownerUid == request.auth.uid
+          || request.resource.data.userId == request.auth.uid
+        );
+
+      // Owner can read their own pet.
+      allow read: if signedIn()
+        && (
+          resource.data.ownerId == request.auth.uid
+          || resource.data.ownerUid == request.auth.uid
+          || resource.data.userId == request.auth.uid
+        );
+
+      // Primary owner can update their pet.
+      allow update: if signedIn()
+        && (
+          resource.data.ownerId == request.auth.uid
+          || resource.data.ownerUid == request.auth.uid
+          || resource.data.userId == request.auth.uid
+        );
+
+      // Primary owner can permanently delete a pet.
+      // This supports the PawLink Alive/Dead cleanup feature.
+      allow delete: if signedIn()
+        && (
+          resource.data.ownerId == request.auth.uid
+          || resource.data.ownerUid == request.auth.uid
+          || resource.data.userId == request.auth.uid
+        );
+    }
+
+
+    // ============================================================
+    // REPORTS
+    // ============================================================
+    //
+    // Lost Pet
+    // Found Pet
+    // Pet Sighting
+    // Barangay / Stray
+    //
+    // Current PawLink ReportService uses:
+    // reports/{reportId}
+    //
+    match /reports/{reportId} {
+
+      // A signed-in user may create their own report.
+      //
+      // Guests can also create reports according to the current
+      // PawLink design. Therefore creation is allowed without
+      // authentication.
+      allow create: if
+        !signedIn()
+        ||
+        request.resource.data.reportedBy == request.auth.uid;
+
+      // Users should not automatically be allowed to read every
+      // report. Reading should be handled more carefully once
+      // your final report visibility design is established.
+      //
+      // For development, authenticated users can read reports.
+      allow read: if signedIn();
+
+      // Only the person who created the report may update it.
+      allow update: if signedIn()
+        && resource.data.reportedBy == request.auth.uid;
+
+      // Only the person who created the report may delete it.
+      allow delete: if signedIn()
+        && resource.data.reportedBy == request.auth.uid;
+    }
+
+
+    // ============================================================
+    // SUPPORT REQUESTS
+    // ============================================================
+    //
+    // Help Center → Contact Admin → Send Request
+    //
+    // Expected:
+    //
+    // support_requests/{requestId}
+    //
+    // requestId
+    // userId
+    // userEmail
+    // category
+    // subject
+    // message
+    // status
+    // adminReply
+    // createdAt
+    // updatedAt
+    //
+    match /support_requests/{requestId} {
+
+      // Only authenticated users may send support requests.
+      //
+      // The userId in the submitted document MUST match
+      // the currently logged-in Firebase account.
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid;
+
+      // Users may read only their own support requests.
+      allow read: if signedIn()
+        && resource.data.userId == request.auth.uid;
+
+      // Users should not modify support requests directly.
+      // Admin functionality can be added later.
+      allow update: if false;
+
+      // Users cannot delete support requests.
+      allow delete: if false;
+    }
+
+
+    // ============================================================
+    // OWNER / CO-OWNER DATA
+    // ============================================================
+    //
+    // This supports PawLink's joint-owner feature.
+    //
+    // Because the exact OwnerService collection/field structure
+    // can vary, these rules use common ownership fields.
+    //
+    match /owners/{ownerId} {
+
+      allow create: if signedIn()
+        && (
+          request.resource.data.userId == request.auth.uid
+          || request.resource.data.ownerId == request.auth.uid
+        );
+
+      allow read: if signedIn()
+        && (
+          resource.data.userId == request.auth.uid
+          || resource.data.ownerId == request.auth.uid
+        );
+
+      allow update: if signedIn()
+        && (
+          resource.data.userId == request.auth.uid
+          || resource.data.ownerId == request.auth.uid
+        );
+
+      allow delete: if signedIn()
+        && (
+          resource.data.userId == request.auth.uid
+          || resource.data.ownerId == request.auth.uid
+        );
+    }
+
+
+    // ============================================================
+    // PET INVITATIONS
+    // ============================================================
+    //
+    // Used by the joint-owner/co-owner invitation system.
+    //
+    // Example:
+    // invitations/{invitationId}
+    //
+    match /invitations/{invitationId} {
+
+      // The sender must be logged in.
+      allow create: if signedIn()
+        && (
+          request.resource.data.senderId == request.auth.uid
+          || request.resource.data.ownerId == request.auth.uid
+          || request.resource.data.createdBy == request.auth.uid
+        );
+
+      // A sender can see their invitation.
+      //
+      // A recipient can also see it if their UID is stored.
+      allow read: if signedIn()
+        && (
+          resource.data.senderId == request.auth.uid
+          || resource.data.ownerId == request.auth.uid
+          || resource.data.recipientId == request.auth.uid
+          || resource.data.invitedUserId == request.auth.uid
+        );
+
+      // Sender or recipient can update an invitation.
+      allow update: if signedIn()
+        && (
+          resource.data.senderId == request.auth.uid
+          || resource.data.ownerId == request.auth.uid
+          || resource.data.recipientId == request.auth.uid
+          || resource.data.invitedUserId == request.auth.uid
+        );
+
+      allow delete: if signedIn()
+        && (
+          resource.data.senderId == request.auth.uid
+          || resource.data.ownerId == request.auth.uid
+          || resource.data.recipientId == request.auth.uid
+          || resource.data.invitedUserId == request.auth.uid
+        );
+    }
+
+
+    // ============================================================
+    // NOTIFICATIONS
+    // ============================================================
+    //
+    // If PawLink stores user notifications as:
+    //
+    // notifications/{notificationId}
+    //
+    // the notification must belong to the logged-in user.
+    //
+    match /notifications/{notificationId} {
+
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid;
+
+      allow read: if signedIn()
+        && resource.data.userId == request.auth.uid;
+
+      allow update: if signedIn()
+        && resource.data.userId == request.auth.uid;
+
+      allow delete: if signedIn()
+        && resource.data.userId == request.auth.uid;
+    }
+
+
+    // ============================================================
+    // DEFAULT DENY
+    // ============================================================
+    //
+    // Any collection not explicitly listed above is denied.
+    //
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -8,10 +8,12 @@ import '../../models/pet_model.dart';
 import '../../models/report_model.dart';
 import '../../services/pet_service.dart';
 import '../../services/report_service.dart';
+import '../../services/location_service.dart';
+import '../../widgets/location_picker.dart';
 
-import '../Home/home_page.dart';
-import '../Pets/my_pets_page.dart';
-import '../Barangay/barangay_page.dart';
+import '../home/home_page.dart';
+import '../pets/my_pets_page.dart';
+import '../barangay/barangay_page.dart';
 
 class ReportPage extends StatefulWidget {
   const ReportPage({super.key});
@@ -132,6 +134,7 @@ class _ReportPageState extends State<ReportPage> {
 
     double? latitude;
     double? longitude;
+    String? selectedLocationName;
 
     String? selectedPetId;
     PetModel? selectedPet;
@@ -313,22 +316,20 @@ class _ReportPageState extends State<ReportPage> {
                             // CONVERT FIRESTORE DOCUMENTS
                             // ------------------------------------------------
 
-                            final allPets =
-                                snapshot.data?.docs
+                            final allPets = snapshot.data?.docs
                                     .map(PetModel.fromFirestore)
                                     .toList() ??
                                 <PetModel>[];
 
                             // Only alive pets can be reported as lost.
-                            final pets = allPets
-                                .where((pet) => pet.isAlive)
-                                .toList();
+                            final pets =
+                                allPets.where((pet) => pet.isAlive).toList();
 
                             // Sort pets alphabetically.
                             pets.sort(
                               (a, b) => a.petName.toLowerCase().compareTo(
-                                b.petName.toLowerCase(),
-                              ),
+                                    b.petName.toLowerCase(),
+                                  ),
                             );
 
                             // ------------------------------------------------
@@ -393,8 +394,8 @@ class _ReportPageState extends State<ReportPage> {
 
                             final validSelectedPetId =
                                 pets.any((pet) => pet.petId == selectedPetId)
-                                ? selectedPetId
-                                : null;
+                                    ? selectedPetId
+                                    : null;
 
                             // ------------------------------------------------
                             // DROPDOWN
@@ -497,9 +498,7 @@ class _ReportPageState extends State<ReportPage> {
                                                 size: 18,
                                               ),
                                       ),
-
                                       const SizedBox(width: 10),
-
                                       Expanded(
                                         child: Text(
                                           pet.breed.isEmpty
@@ -579,7 +578,39 @@ class _ReportPageState extends State<ReportPage> {
                         controller: locationController,
                         decoration: _inputDecoration(
                           type == 'lost' ? 'Last seen location' : 'Location',
+                        ).copyWith(
+                          hintText: 'Search or enter a location',
+                          suffixIcon: const Icon(
+                            Icons.search_rounded,
+                            color: primaryTeal,
+                          ),
                         ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.info_outline_rounded,
+                            size: 16,
+                            color: grayText,
+                          ),
+                          const SizedBox(width: 7),
+                          Expanded(
+                            child: Text(
+                              selectedLocationName == null
+                                  ? 'Use Pin Map to search for a place or mark the exact location.'
+                                  : 'Selected: $selectedLocationName',
+                              style: const TextStyle(
+                                color: grayText,
+                                fontSize: 11.5,
+                                height: 1.4,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
 
                       const SizedBox(height: 14),
@@ -598,34 +629,84 @@ class _ReportPageState extends State<ReportPage> {
                       const SizedBox(height: 16),
 
                       // ==================================================
-                      // MAP
+                      // MAP LOCATION PICKER
                       // ==================================================
                       Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: lightTeal,
                           borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: const Color(0xFFCBE8E3),
+                          ),
                         ),
                         child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(Icons.location_on, color: primaryTeal),
-                            const SizedBox(width: 10),
-                            const Expanded(
-                              child: Text(
-                                'You can pin the report location on the map.',
-                                style: TextStyle(color: grayText, fontSize: 13),
+                            Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.location_on_rounded,
+                                color: primaryTeal,
+                                size: 21,
                               ),
                             ),
+                            const SizedBox(width: 10),
+                            const Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Mark the report location',
+                                    style: TextStyle(
+                                      color: darkText,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  SizedBox(height: 3),
+                                  Text(
+                                    'Search a place, use your current location, or tap the map to place the pin.',
+                                    style: TextStyle(
+                                      color: grayText,
+                                      fontSize: 11.5,
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
                             TextButton(
                               onPressed: isSaving
                                   ? null
                                   : () async {
-                                      final result = await _showMapPicker();
+                                      final result = await _showMapPicker(
+                                        initialLocation: latitude != null &&
+                                                longitude != null
+                                            ? LatLng(
+                                                latitude!,
+                                                longitude!,
+                                              )
+                                            : null,
+                                        initialLocationName:
+                                            selectedLocationName ??
+                                                locationController.text.trim(),
+                                      );
 
                                       if (result != null) {
                                         setDialogState(() {
-                                          latitude = result.latitude;
-                                          longitude = result.longitude;
+                                          latitude = result.location.latitude;
+                                          longitude = result.location.longitude;
+                                          selectedLocationName =
+                                              result.displayName;
+                                          locationController.text =
+                                              result.displayName;
                                         });
                                       }
                                     },
@@ -636,14 +717,41 @@ class _ReportPageState extends State<ReportPage> {
                       ),
 
                       if (latitude != null && longitude != null) ...[
-                        const SizedBox(height: 10),
-                        Text(
-                          'Pinned: ${latitude!.toStringAsFixed(5)}, '
-                          '${longitude!.toStringAsFixed(5)}',
-                          style: const TextStyle(
-                            color: primaryTeal,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                        const SizedBox(height: 8),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 9,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF9FAF9),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: borderColor),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.check_circle_rounded,
+                                color: primaryTeal,
+                                size: 17,
+                              ),
+                              const SizedBox(width: 7),
+                              Expanded(
+                                child: Text(
+                                  selectedLocationName?.isNotEmpty == true
+                                      ? selectedLocationName!
+                                      : 'Location pinned successfully.',
+                                  style: const TextStyle(
+                                    color: darkText,
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.35,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -701,7 +809,6 @@ class _ReportPageState extends State<ReportPage> {
                         },
                   child: const Text('Cancel'),
                 ),
-
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryTeal,
@@ -775,6 +882,7 @@ class _ReportPageState extends State<ReportPage> {
                                   details: details,
                                   latitude: latitude,
                                   longitude: longitude,
+                                  locationName: selectedLocationName,
                                 );
                                 break;
 
@@ -791,6 +899,7 @@ class _ReportPageState extends State<ReportPage> {
                                   message: details,
                                   latitude: latitude,
                                   longitude: longitude,
+                                  locationName: selectedLocationName,
                                 );
                                 break;
 
@@ -819,6 +928,7 @@ class _ReportPageState extends State<ReportPage> {
                                   details: details,
                                   latitude: latitude,
                                   longitude: longitude,
+                                  locationName: selectedLocationName,
                                 );
                                 break;
                             }
@@ -962,75 +1072,20 @@ class _ReportPageState extends State<ReportPage> {
   // MAP PICKER
   // ============================================================
 
-  Future<LatLng?> _showMapPicker() async {
-    LatLng selectedLocation = const LatLng(14.4064, 120.9405);
+  Future<LocationSelection?> _showMapPicker({
+    LatLng? initialLocation,
+    String? initialLocationName,
+  }) async {
+    final fallback = initialLocation ?? const LatLng(14.4064, 120.9405);
 
-    return showDialog<LatLng>(
+    return showDialog<LocationSelection>(
       context: context,
       builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: const Text(
-                'Pin Report Location',
-                style: TextStyle(fontWeight: FontWeight.w800, color: darkText),
-              ),
-              content: SizedBox(
-                width: 700,
-                height: 450,
-                child: FlutterMap(
-                  options: MapOptions(
-                    initialCenter: selectedLocation,
-                    initialZoom: 14,
-                    onTap: (_, point) {
-                      setState(() {
-                        selectedLocation = point;
-                      });
-                    },
-                  ),
-                  children: [
-                    TileLayer(
-                      urlTemplate:
-                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      userAgentPackageName: 'com.pawlink.app',
-                    ),
-                    MarkerLayer(
-                      markers: [
-                        Marker(
-                          point: selectedLocation,
-                          width: 45,
-                          height: 45,
-                          child: const Icon(
-                            Icons.location_pin,
-                            color: alertRed,
-                            size: 45,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(dialogContext);
-                  },
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryTeal,
-                    foregroundColor: Colors.white,
-                  ),
-                  onPressed: () {
-                    Navigator.pop(dialogContext, selectedLocation);
-                  },
-                  child: const Text('Use This Location'),
-                ),
-              ],
-            );
-          },
+        return LocationPicker(
+          initialLocation: fallback,
+          initialLocationName: initialLocationName,
+          title: 'Pin Report Location',
+          confirmLabel: 'Use This Location',
         );
       },
     );
@@ -1106,10 +1161,10 @@ class _ReportPageState extends State<ReportPage> {
     final Color statusColor = report.isResolved
         ? primaryTeal
         : report.isPending
-        ? Colors.orange
-        : report.isClosed
-        ? grayText
-        : alertRed;
+            ? Colors.orange
+            : report.isClosed
+                ? grayText
+                : alertRed;
 
     return Container(
       width: double.infinity,
@@ -1250,6 +1305,7 @@ class _ReportPageState extends State<ReportPage> {
 
     double? latitude = report.latitude;
     double? longitude = report.longitude;
+    String? selectedLocationName = report.locationName ?? report.location;
 
     await showDialog(
       context: context,
@@ -1270,8 +1326,28 @@ class _ReportPageState extends State<ReportPage> {
                   children: [
                     TextField(
                       controller: locationController,
-                      decoration: _inputDecoration('Location'),
+                      decoration: _inputDecoration('Location').copyWith(
+                        hintText: 'Search or enter a location',
+                        suffixIcon: const Icon(
+                          Icons.search_rounded,
+                          color: primaryTeal,
+                        ),
+                      ),
                     ),
+                    const SizedBox(height: 8),
+                    if (selectedLocationName != null &&
+                        selectedLocationName!.isNotEmpty)
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Selected: $selectedLocationName',
+                          style: const TextStyle(
+                            color: grayText,
+                            fontSize: 11.5,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
                     const SizedBox(height: 14),
                     TextField(
                       controller: detailsController,
@@ -1283,12 +1359,21 @@ class _ReportPageState extends State<ReportPage> {
                       onPressed: saving
                           ? null
                           : () async {
-                              final result = await _showMapPicker();
+                              final result = await _showMapPicker(
+                                initialLocation:
+                                    latitude != null && longitude != null
+                                        ? LatLng(latitude!, longitude!)
+                                        : null,
+                                initialLocationName: selectedLocationName ??
+                                    locationController.text.trim(),
+                              );
 
                               if (result != null) {
                                 setState(() {
-                                  latitude = result.latitude;
-                                  longitude = result.longitude;
+                                  latitude = result.location.latitude;
+                                  longitude = result.location.longitude;
+                                  selectedLocationName = result.displayName;
+                                  locationController.text = result.displayName;
                                 });
                               }
                             },
@@ -1334,6 +1419,7 @@ class _ReportPageState extends State<ReportPage> {
                               details: details,
                               latitude: latitude,
                               longitude: longitude,
+                              locationName: selectedLocationName,
                             );
 
                             if (!mounted) {
@@ -1637,8 +1723,8 @@ class _ReportPageState extends State<ReportPage> {
     final hour = date.hour == 0
         ? 12
         : date.hour > 12
-        ? date.hour - 12
-        : date.hour;
+            ? date.hour - 12
+            : date.hour;
 
     final minute = date.minute.toString().padLeft(2, '0');
 
@@ -1927,7 +2013,8 @@ class _ReportPageState extends State<ReportPage> {
                                   _reportButton(
                                     icon: Icons.search_off_rounded,
                                     title: 'Lost Pet',
-                                    description: 'Report a registered pet that is missing.',
+                                    description:
+                                        'Report a registered pet that is missing.',
                                     color: alertRed,
                                     onPressed: () => _showReportForm('lost'),
                                   ),
@@ -1950,7 +2037,8 @@ class _ReportPageState extends State<ReportPage> {
                                   _reportButton(
                                     icon: Icons.warning_amber_rounded,
                                     title: 'Stray / Safety Concern',
-                                    description: 'Notify the barangay about a stray or safety concern.',
+                                    description:
+                                        'Notify the barangay about a stray or safety concern.',
                                     color: alertRed,
                                     onPressed: () => _showReportForm('stray'),
                                   ),
@@ -1964,11 +2052,11 @@ class _ReportPageState extends State<ReportPage> {
                                     itemCount: buttons.length,
                                     gridDelegate:
                                         const SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 2,
-                                          crossAxisSpacing: 14,
-                                          mainAxisSpacing: 14,
-                                          childAspectRatio: 2.8,
-                                        ),
+                                      crossAxisCount: 2,
+                                      crossAxisSpacing: 14,
+                                      mainAxisSpacing: 14,
+                                      childAspectRatio: 2.8,
+                                    ),
                                     itemBuilder: (context, index) =>
                                         buttons[index],
                                   );
