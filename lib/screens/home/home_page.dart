@@ -33,15 +33,7 @@ class _HomePageState extends State<HomePage>
   final ScrollController _dashboardScrollController = ScrollController();
   final FocusNode _dashboardFocusNode = FocusNode();
 
-  // ============================================================
-  // BACKGROUND ANIMATION
-  // ============================================================
-
   late final AnimationController _backgroundAnimationController;
-
-  // ============================================================
-  // COLORS
-  // ============================================================
 
   static const Color primaryTeal = Color(0xFF0F766E);
   static const Color darkTeal = Color(0xFF115E59);
@@ -57,10 +49,6 @@ class _HomePageState extends State<HomePage>
   static const Color darkText = Color(0xFF243333);
   static const Color grayText = Color(0xFF667373);
   static const Color borderColor = Color(0xFFE3E5E3);
-
-  // ============================================================
-  // INIT / DISPOSE
-  // ============================================================
 
   @override
   void initState() {
@@ -183,7 +171,7 @@ class _HomePageState extends State<HomePage>
   }
 
   // ============================================================
-  // LIVE BACKGROUND ANIMATION
+  // BACKGROUND ANIMATION
   // ============================================================
 
   Widget _buildAnimatedBackground({required Widget child}) {
@@ -319,84 +307,59 @@ class _HomePageState extends State<HomePage>
           const SizedBox(height: 22),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(
-                14,
-                0,
-                14,
-                20,
-              ),
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _buildSidebarSectionLabel('MAIN'),
-
                   _buildSidebarItem(
                     icon: Icons.home_rounded,
                     label: 'Home',
                     selected: true,
                     onTap: () {},
                   ),
-
                   _buildSidebarItem(
                     icon: Icons.pets_rounded,
                     label: 'My Pets',
                     onTap: _openMyPets,
                   ),
-
                   _buildSidebarItem(
                     icon: Icons.add_circle_outline_rounded,
                     label: 'Register Pet',
                     onTap: _openRegisterPet,
                   ),
-
                   const SizedBox(height: 12),
-
                   _buildSidebarSectionLabel('COMMUNITY'),
-
                   _buildSidebarItem(
                     icon: Icons.report_problem_outlined,
                     label: 'Report',
                     onTap: _openReport,
                   ),
-
                   _buildSidebarItem(
                     icon: Icons.location_city_rounded,
                     label: 'Barangay',
                     onTap: _openBarangay,
                   ),
-
                   const SizedBox(height: 12),
-
                   _buildSidebarSectionLabel('ACCOUNT'),
-
                   _buildSidebarItem(
                     icon: Icons.person_outline_rounded,
                     label: 'My Account',
                     onTap: _openAccount,
                   ),
-
                   _buildSidebarItem(
                     icon: Icons.settings_outlined,
                     label: 'Settings',
                     onTap: _openSettings,
                   ),
-
-                  // ==================================================
-                  // NEW: HELP CENTER
-                  // ==================================================
-
                   _buildSidebarItem(
                     icon: Icons.help_outline_rounded,
                     label: 'Help Center',
                     onTap: _openHelpCenter,
                   ),
-
                   const SizedBox(height: 20),
-
                   _buildSidebarSafetyCard(),
-
                   const SizedBox(height: 18),
-
                   _buildSidebarItem(
                     icon: Icons.logout_rounded,
                     label: 'Log out',
@@ -455,11 +418,7 @@ class _HomePageState extends State<HomePage>
             ),
             child: Row(
               children: [
-                Icon(
-                  icon,
-                  size: 21,
-                  color: itemColor,
-                ),
+                Icon(icon, size: 21, color: itemColor),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -670,9 +629,7 @@ class _HomePageState extends State<HomePage>
             ),
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxWidth: 1250,
-                ),
+                constraints: const BoxConstraints(maxWidth: 1250),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -684,9 +641,7 @@ class _HomePageState extends State<HomePage>
                     const SizedBox(height: 27),
                     _buildQuickActions(isDesktop: isDesktop),
                     const SizedBox(height: 27),
-                    _buildPetsAndCommunitySection(
-                      isDesktop: isDesktop,
-                    ),
+                    _buildPetsAndCommunitySection(isDesktop: isDesktop),
                     const SizedBox(height: 27),
                     _buildSafetyReminder(),
                     const SizedBox(height: 15),
@@ -810,11 +765,7 @@ class _HomePageState extends State<HomePage>
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            primaryTeal,
-            darkTeal,
-            deepTeal,
-          ],
+          colors: [primaryTeal, darkTeal, deepTeal],
         ),
         borderRadius: BorderRadius.circular(29),
         boxShadow: [
@@ -830,42 +781,27 @@ class _HomePageState extends State<HomePage>
           Positioned(
             right: isDesktop ? 155 : 70,
             top: -15,
-            child: _buildHeroBubble(
-              size: 115,
-              opacity: 0.06,
-            ),
+            child: _buildHeroBubble(size: 115, opacity: 0.06),
           ),
           Positioned(
             right: 18,
             bottom: -30,
-            child: _buildHeroBubble(
-              size: 145,
-              opacity: 0.05,
-            ),
+            child: _buildHeroBubble(size: 145, opacity: 0.05),
           ),
           Positioned(
             right: isDesktop ? 270 : 125,
             bottom: 15,
-            child: _buildDecorativePaw(
-              size: 25,
-              opacity: 0.07,
-            ),
+            child: _buildDecorativePaw(size: 25, opacity: 0.07),
           ),
           Positioned(
             right: 28,
             top: 20,
-            child: _buildDecorativePaw(
-              size: 22,
-              opacity: 0.08,
-            ),
+            child: _buildDecorativePaw(size: 22, opacity: 0.08),
           ),
           Positioned(
             right: isDesktop ? 210 : 80,
             bottom: 30,
-            child: _buildDecorativePaw(
-              size: 15,
-              opacity: 0.06,
-            ),
+            child: _buildDecorativePaw(size: 15, opacity: 0.06),
           ),
           isDesktop
               ? Row(
@@ -954,15 +890,10 @@ class _HomePageState extends State<HomePage>
         const SizedBox(height: 18),
         ElevatedButton.icon(
           onPressed: _openRegisterPet,
-          icon: const Icon(
-            Icons.add_rounded,
-            size: 19,
-          ),
+          icon: const Icon(Icons.add_rounded, size: 19),
           label: const Text(
             'Register a Pet',
-            style: TextStyle(
-              fontWeight: FontWeight.w800,
-            ),
+            style: TextStyle(fontWeight: FontWeight.w800),
           ),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.white,
@@ -1129,9 +1060,7 @@ class _HomePageState extends State<HomePage>
 
           return Expanded(
             child: Padding(
-              padding: EdgeInsets.only(
-                right: isLast ? 0 : 14,
-              ),
+              padding: EdgeInsets.only(right: isLast ? 0 : 14),
               child: _buildStatCard(
                 icon: stat['icon'] as IconData,
                 label: stat['label'] as String,
@@ -1182,10 +1111,7 @@ class _HomePageState extends State<HomePage>
         },
         child: Ink(
           padding: const EdgeInsets.all(18),
-          decoration: _clayDecoration(
-            color: Colors.white,
-            radius: 21,
-          ),
+          decoration: _clayDecoration(color: Colors.white, radius: 21),
           child: Row(
             children: [
               Container(
@@ -1195,11 +1121,7 @@ class _HomePageState extends State<HomePage>
                   color: color.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 24,
-                ),
+                child: Icon(icon, color: color, size: 24),
               ),
               const SizedBox(width: 13),
               Expanded(
@@ -1254,9 +1176,9 @@ class _HomePageState extends State<HomePage>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           children: [
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1272,10 +1194,7 @@ class _HomePageState extends State<HomePage>
                   SizedBox(height: 4),
                   Text(
                     'Quick access to your most important PawLink tools.',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: grayText,
-                    ),
+                    style: TextStyle(fontSize: 12, color: grayText),
                   ),
                 ],
               ),
@@ -1371,10 +1290,7 @@ class _HomePageState extends State<HomePage>
         onTap: onTap,
         child: Ink(
           padding: const EdgeInsets.all(17),
-          decoration: _clayDecoration(
-            color: Colors.white,
-            radius: 20,
-          ),
+          decoration: _clayDecoration(color: Colors.white, radius: 20),
           child: Row(
             children: [
               Container(
@@ -1384,11 +1300,7 @@ class _HomePageState extends State<HomePage>
                   color: color.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(15),
                 ),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 24,
-                ),
+                child: Icon(icon, color: color, size: 24),
               ),
               const SizedBox(width: 13),
               Expanded(
@@ -1513,10 +1425,7 @@ class _HomePageState extends State<HomePage>
   }) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: _clayDecoration(
-        color: Colors.white,
-        radius: 23,
-      ),
+      decoration: _clayDecoration(color: Colors.white, radius: 23),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1577,9 +1486,7 @@ class _HomePageState extends State<HomePage>
             const Padding(
               padding: EdgeInsets.all(20),
               child: Center(
-                child: CircularProgressIndicator(
-                  color: primaryTeal,
-                ),
+                child: CircularProgressIndicator(color: primaryTeal),
               ),
             )
           else if (docs.isEmpty)
@@ -1598,17 +1505,12 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget _buildPetRow(
-    QueryDocumentSnapshot<Map<String, dynamic>> doc,
-  ) {
+  Widget _buildPetRow(QueryDocumentSnapshot<Map<String, dynamic>> doc) {
     final Map<String, dynamic> data = doc.data();
 
     final String petName = _readString(data, 'petName', 'Unnamed Pet');
-
     final String breed = _readString(data, 'breed', 'Breed not specified');
-
     final String status = _readString(data, 'status', 'alive');
-
     final String photoUrl = _readString(data, 'photoUrl', '');
 
     final String normalizedStatus = status.toLowerCase();
@@ -1633,9 +1535,7 @@ class _HomePageState extends State<HomePage>
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => PetProfilePage(
-                petId: doc.id,
-              ),
+              builder: (_) => PetProfilePage(petId: doc.id),
             ),
           );
         },
@@ -1728,10 +1628,7 @@ class _HomePageState extends State<HomePage>
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              lightTeal,
-              softerTeal,
-            ],
+            colors: [lightTeal, softerTeal],
           ),
           borderRadius: BorderRadius.circular(17),
         ),
@@ -1788,10 +1685,7 @@ class _HomePageState extends State<HomePage>
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            warmBackground,
-            Color(0xFFFFF8EF),
-          ],
+          colors: [warmBackground, Color(0xFFFFF8EF)],
         ),
         borderRadius: BorderRadius.circular(19),
         border: Border.all(color: borderColor),
@@ -1839,24 +1733,17 @@ class _HomePageState extends State<HomePage>
           const SizedBox(height: 14),
           OutlinedButton.icon(
             onPressed: _openRegisterPet,
-            icon: const Icon(
-              Icons.add_rounded,
-              size: 17,
-            ),
+            icon: const Icon(Icons.add_rounded, size: 17),
             style: OutlinedButton.styleFrom(
               foregroundColor: primaryTeal,
-              side: const BorderSide(
-                color: primaryTeal,
-              ),
+              side: const BorderSide(color: primaryTeal),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(11),
               ),
             ),
             label: const Text(
               'Register Pet',
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
         ],
@@ -1884,10 +1771,7 @@ class _HomePageState extends State<HomePage>
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                lightTeal,
-                softerTeal,
-              ],
+              colors: [lightTeal, softerTeal],
             ),
             borderRadius: BorderRadius.circular(23),
             border: Border.all(
@@ -1917,16 +1801,16 @@ class _HomePageState extends State<HomePage>
               const SizedBox(height: 17),
               _buildFoundReportCount(foundReports),
               const SizedBox(height: 14),
-              Row(
+              const Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.info_outline_rounded,
                     color: primaryTeal,
                     size: 15,
                   ),
-                  const SizedBox(width: 7),
-                  const Expanded(
+                  SizedBox(width: 7),
+                  Expanded(
                     child: Text(
                       'Community reports can help owners locate pets faster.',
                       style: TextStyle(
@@ -1952,10 +1836,7 @@ class _HomePageState extends State<HomePage>
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            lightTeal,
-            softerTeal,
-          ],
+          colors: [lightTeal, softerTeal],
         ),
         borderRadius: BorderRadius.circular(23),
         border: Border.all(
@@ -2117,10 +1998,7 @@ class _HomePageState extends State<HomePage>
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFFFF5F2),
-            Color(0xFFFFEFEC),
-          ],
+          colors: [Color(0xFFFFF5F2), Color(0xFFFFEFEC)],
         ),
         borderRadius: BorderRadius.circular(21),
         border: Border.all(
@@ -2214,10 +2092,7 @@ class _HomePageState extends State<HomePage>
           ),
         ],
       ),
-      padding: const EdgeInsets.only(
-        top: 7,
-        bottom: 7,
-      ),
+      padding: const EdgeInsets.only(top: 7, bottom: 7),
       child: Row(
         children: [
           _buildBottomNavItem(
@@ -2335,7 +2210,7 @@ class _HomePageState extends State<HomePage>
     FocusScope.of(context).unfocus();
 
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(
+      MaterialPageRoute<void>(
         builder: (_) => const LandingPage(),
       ),
       (route) => false,
@@ -2345,7 +2220,7 @@ class _HomePageState extends State<HomePage>
   void _openRegisterPet() {
     Navigator.push(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<void>(
         builder: (_) => const RegisterPetPage(),
       ),
     );
@@ -2354,7 +2229,7 @@ class _HomePageState extends State<HomePage>
   void _openMyPets() {
     Navigator.push(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<void>(
         builder: (_) => const MyPetsPage(),
       ),
     );
@@ -2363,7 +2238,7 @@ class _HomePageState extends State<HomePage>
   void _openReport() {
     Navigator.push(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<void>(
         builder: (_) => const ReportPage(),
       ),
     );
@@ -2372,7 +2247,7 @@ class _HomePageState extends State<HomePage>
   void _openBarangay() {
     Navigator.push(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<void>(
         builder: (_) => const BarangayPage(),
       ),
     );
@@ -2381,7 +2256,7 @@ class _HomePageState extends State<HomePage>
   void _openAccount() {
     Navigator.push(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<void>(
         builder: (_) => const MyAccountPage(),
       ),
     );
@@ -2390,20 +2265,16 @@ class _HomePageState extends State<HomePage>
   void _openSettings() {
     Navigator.push(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<void>(
         builder: (_) => const SettingsPage(),
       ),
     );
   }
 
-  // ============================================================
-  // NEW: HELP CENTER NAVIGATION
-  // ============================================================
-
   void _openHelpCenter() {
     Navigator.push(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<void>(
         builder: (_) => const HelpCenterPage(),
       ),
     );
@@ -2414,7 +2285,7 @@ class _HomePageState extends State<HomePage>
   // ============================================================
 
   void _showNotifications() {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
@@ -2425,12 +2296,7 @@ class _HomePageState extends State<HomePage>
       builder: (context) {
         return SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              22,
-              22,
-              22,
-              25,
-            ),
+            padding: const EdgeInsets.fromLTRB(22, 22, 22, 25),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2504,7 +2370,7 @@ class _HomePageState extends State<HomePage>
   }
 
   // ============================================================
-  // LOGOUT
+  // UPDATED LOGOUT
   // ============================================================
 
   Future<void> _logout() async {
@@ -2527,13 +2393,13 @@ class _HomePageState extends State<HomePage>
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(dialogContext, false);
+                Navigator.of(dialogContext).pop(false);
               },
               child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(dialogContext, true);
+                Navigator.of(dialogContext).pop(true);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: alertRed,
@@ -2546,18 +2412,27 @@ class _HomePageState extends State<HomePage>
       },
     );
 
-    if (shouldLogout != true) {
+    // Do nothing if the user cancels or this page is no longer active.
+    if (shouldLogout != true || !mounted) {
       return;
     }
 
     try {
+      // Sign out from Firebase first.
       await _auth.signOut();
 
-      // AuthGate in main.dart listens to
-      // FirebaseAuth.authStateChanges().
-      //
-      // Once signOut() completes, AuthGate automatically
-      // displays the public LandingPage.
+      if (!mounted) {
+        return;
+      }
+
+      // Remove HomePage and all previously pushed pages.
+      // The public LandingPage becomes the only page in the stack.
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute<void>(
+          builder: (_) => const LandingPage(),
+        ),
+        (route) => false,
+      );
     } catch (e) {
       if (!mounted) {
         return;
@@ -2602,7 +2477,6 @@ class _PawLinkBackgroundPainter extends CustomPainter {
     final Paint glowPaint = Paint()..style = PaintingStyle.fill;
 
     final double glowX = size.width * (0.15 + 0.70 * _wave(progress));
-
     final double glowY = size.height * (0.15 + 0.65 * _wave(progress + 0.27));
 
     glowPaint.color = primaryTeal.withValues(alpha: 0.025);
@@ -2627,38 +2501,22 @@ class _PawLinkBackgroundPainter extends CustomPainter {
       final double wave = _wave(progress + paw.phase);
 
       final double x = size.width * paw.x +
-          math.sin(
-                (progress + paw.phase) * math.pi * 2,
-              ) *
-              12;
+          math.sin((progress + paw.phase) * math.pi * 2) * 12;
 
       final double y = size.height * paw.y +
-          math.sin(
-                (progress + paw.phase) * math.pi * 2,
-              ) *
-              16;
+          math.sin((progress + paw.phase) * math.pi * 2) * 16;
 
       canvas.save();
-
       canvas.translate(x, y);
-
       canvas.rotate(
-        math.sin(
-              (progress + paw.phase) * math.pi * 2,
-            ) *
-            0.10,
+        math.sin((progress + paw.phase) * math.pi * 2) * 0.10,
       );
 
       pawPaint.color = primaryTeal.withValues(
         alpha: 0.018 + (wave * 0.025),
       );
 
-      _drawPaw(
-        canvas,
-        pawPaint,
-        paw.size,
-      );
-
+      _drawPaw(canvas, pawPaint, paw.size);
       canvas.restore();
     }
 
@@ -2677,10 +2535,7 @@ class _PawLinkBackgroundPainter extends CustomPainter {
       final double wave = _wave(progress + particle.phase);
 
       final double x = size.width * particle.x +
-          math.sin(
-                (progress + particle.phase) * math.pi * 2,
-              ) *
-              8;
+          math.sin((progress + particle.phase) * math.pi * 2) * 8;
 
       final double y = size.height * particle.y - (wave * 18);
 
@@ -2700,11 +2555,7 @@ class _PawLinkBackgroundPainter extends CustomPainter {
     return (math.sin(value * math.pi * 2) + 1) / 2;
   }
 
-  void _drawPaw(
-    Canvas canvas,
-    Paint paint,
-    double size,
-  ) {
+  void _drawPaw(Canvas canvas, Paint paint, double size) {
     final double toeRadius = size * 0.15;
 
     canvas.drawCircle(
@@ -2733,10 +2584,7 @@ class _PawLinkBackgroundPainter extends CustomPainter {
 
     final Path pad = Path();
 
-    pad.moveTo(
-      -size * 0.34,
-      size * 0.04,
-    );
+    pad.moveTo(-size * 0.34, size * 0.04);
 
     pad.cubicTo(
       -size * 0.34,
@@ -2775,7 +2623,6 @@ class _PawLinkBackgroundPainter extends CustomPainter {
     );
 
     pad.close();
-
     canvas.drawPath(pad, paint);
   }
 

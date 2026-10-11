@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'register_page.dart';
 import 'forgot_password_page.dart';
 import '../home/home_page.dart';
+import '../landing/landing_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,9 +16,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  // ============================================================
   // PAWLINK COLORS
-  // ============================================================
 
   static const Color primaryTeal = Color(0xFF0F766E);
   static const Color darkTeal = Color(0xFF115E59);
@@ -35,9 +34,7 @@ class _LoginPageState extends State<LoginPage> {
   static const Color grayText = Color(0xFF667373);
   static const Color borderColor = Color(0xFFE3E5E3);
 
-  // ============================================================
   // CONTROLLERS
-  // ============================================================
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -45,30 +42,41 @@ class _LoginPageState extends State<LoginPage> {
   final ScrollController _scrollController = ScrollController();
   final FocusNode _keyboardFocusNode = FocusNode();
 
-  // ============================================================
   // FIREBASE
-  // ============================================================
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // ============================================================
   // STATE
-  // ============================================================
 
   bool _obscurePassword = true;
   bool _isLoading = false;
-
-  // Remember Me
-  //
-  // TRUE  = keep the Firebase login after browser restart.
-  // FALSE = keep the login only for the current browser session.
-  //
-  // Default is TRUE to preserve Firebase's normal web behavior.
   bool _rememberMe = true;
 
-  // ============================================================
+  // NAVIGATION
+
+  void _goToLandingPage() {
+    if (!mounted) return;
+
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute<void>(
+        builder: (_) => const LandingPage(),
+      ),
+      (route) => false,
+    );
+  }
+
+  void _goToHomePage() {
+    if (!mounted) return;
+
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute<void>(
+        builder: (_) => const HomePage(),
+      ),
+      (route) => false,
+    );
+  }
+
   // DISPOSE
-  // ============================================================
 
   @override
   void dispose() {
@@ -76,13 +84,10 @@ class _LoginPageState extends State<LoginPage> {
     passwordController.dispose();
     _scrollController.dispose();
     _keyboardFocusNode.dispose();
-
     super.dispose();
   }
 
-  // ============================================================
   // KEYBOARD SCROLLING
-  // ============================================================
 
   KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
     if (event is! KeyDownEvent) {
@@ -95,93 +100,56 @@ class _LoginPageState extends State<LoginPage> {
 
     const double scrollAmount = 120;
 
+    final position = _scrollController.position;
+    double target;
+
     if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-      final target = (_scrollController.offset + scrollAmount)
-          .clamp(0.0, _scrollController.position.maxScrollExtent)
+      target = (_scrollController.offset + scrollAmount)
+          .clamp(0.0, position.maxScrollExtent)
           .toDouble();
-
-      _scrollController.animateTo(
-        target,
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOut,
-      );
-
-      return KeyEventResult.handled;
-    }
-
-    if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-      final target = (_scrollController.offset - scrollAmount)
-          .clamp(0.0, _scrollController.position.maxScrollExtent)
+    } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+      target = (_scrollController.offset - scrollAmount)
+          .clamp(0.0, position.maxScrollExtent)
           .toDouble();
-
-      _scrollController.animateTo(
-        target,
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOut,
-      );
-
-      return KeyEventResult.handled;
-    }
-
-    if (event.logicalKey == LogicalKeyboardKey.pageDown) {
-      final target =
+    } else if (event.logicalKey == LogicalKeyboardKey.pageDown) {
+      target =
           (_scrollController.offset + MediaQuery.of(context).size.height * 0.8)
-              .clamp(0.0, _scrollController.position.maxScrollExtent)
+              .clamp(0.0, position.maxScrollExtent)
               .toDouble();
-
-      _scrollController.animateTo(
-        target,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOut,
-      );
-
-      return KeyEventResult.handled;
-    }
-
-    if (event.logicalKey == LogicalKeyboardKey.pageUp) {
-      final target =
+    } else if (event.logicalKey == LogicalKeyboardKey.pageUp) {
+      target =
           (_scrollController.offset - MediaQuery.of(context).size.height * 0.8)
-              .clamp(0.0, _scrollController.position.maxScrollExtent)
+              .clamp(0.0, position.maxScrollExtent)
               .toDouble();
-
-      _scrollController.animateTo(
-        target,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOut,
-      );
-
-      return KeyEventResult.handled;
+    } else if (event.logicalKey == LogicalKeyboardKey.home) {
+      target = 0;
+    } else if (event.logicalKey == LogicalKeyboardKey.end) {
+      target = position.maxScrollExtent;
+    } else {
+      return KeyEventResult.ignored;
     }
 
-    if (event.logicalKey == LogicalKeyboardKey.home) {
-      _scrollController.animateTo(
-        0,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+    _scrollController.animateTo(
+      target,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
 
-      return KeyEventResult.handled;
-    }
-
-    if (event.logicalKey == LogicalKeyboardKey.end) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-
-      return KeyEventResult.handled;
-    }
-
-    return KeyEventResult.ignored;
+    return KeyEventResult.handled;
   }
 
-  // ============================================================
   // BUILD
-  // ============================================================
+  //
+  // No authStateChanges StreamBuilder here.
+  // Successful login navigation is handled by _login().
+  // This prevents the login page from redirecting twice.
 
   @override
   Widget build(BuildContext context) {
+    return _buildLoginScreen();
+  }
+
+  Widget _buildLoginScreen() {
     return Scaffold(
       backgroundColor: warmBackground,
       body: SafeArea(
@@ -202,9 +170,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // ============================================================
-  // DESKTOP
-  // ============================================================
+  // DESKTOP LAYOUT
 
   Widget _buildDesktopLayout() {
     return Scrollbar(
@@ -223,9 +189,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // ============================================================
   // DESKTOP SHELL
-  // ============================================================
 
   Widget _buildDesktopShell() {
     return Container(
@@ -250,52 +214,65 @@ class _LoginPageState extends State<LoginPage> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(flex: 11, child: _buildWelcomePanel()),
-            Expanded(flex: 9, child: _buildDesktopFormArea()),
+            Expanded(
+              flex: 11,
+              child: _buildWelcomePanel(),
+            ),
+            Expanded(
+              flex: 9,
+              child: _buildDesktopFormArea(),
+            ),
           ],
         ),
       ),
     );
   }
 
-  // ============================================================
   // DESKTOP FORM AREA
-  // ============================================================
 
   Widget _buildDesktopFormArea() {
     return Container(
       color: warmBackground,
-      padding: const EdgeInsets.symmetric(horizontal: 55, vertical: 42),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 40,
+        vertical: 30,
+      ),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 430),
-          child: _buildLoginCard(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildBackButton(),
+              const SizedBox(height: 12),
+              _buildLoginCard(),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // ============================================================
-  // MOBILE
-  // ============================================================
+  // MOBILE LAYOUT
 
   Widget _buildMobileLayout() {
     return Scrollbar(
       controller: _scrollController,
-      thumbVisibility: true,
       child: SingleChildScrollView(
         controller: _scrollController,
-        padding: const EdgeInsets.fromLTRB(20, 22, 20, 30),
+        padding: const EdgeInsets.fromLTRB(20, 18, 20, 30),
         child: Column(
           children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: _buildBackButton(),
+            ),
+            const SizedBox(height: 14),
             _buildMobileHeader(),
-
             const SizedBox(height: 24),
-
             _buildLoginCard(),
-
             const SizedBox(height: 20),
-
             _buildMobileSafetyNote(),
           ],
         ),
@@ -303,20 +280,43 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // ============================================================
+  // BACK BUTTON
+
+  Widget _buildBackButton() {
+    return TextButton.icon(
+      onPressed: _goToLandingPage,
+      icon: const Icon(
+        Icons.arrow_back_rounded,
+        size: 18,
+      ),
+      label: const Text('Back to Landing Page'),
+      style: TextButton.styleFrom(
+        foregroundColor: primaryTeal,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 10,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        textStyle: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+  }
+
   // WELCOME PANEL
-  // ============================================================
 
   Widget _buildWelcomePanel() {
     return Container(
       constraints: const BoxConstraints(minHeight: 720),
-      decoration: const BoxDecoration(color: primaryTeal),
+      decoration: const BoxDecoration(
+        color: primaryTeal,
+      ),
       child: Stack(
         children: [
-          // ------------------------------------------------------
-          // DECORATIVE CIRCLES
-          // ------------------------------------------------------
-
           Positioned(
             top: -85,
             right: -70,
@@ -325,7 +325,6 @@ class _LoginPageState extends State<LoginPage> {
               color: Colors.white.withValues(alpha: 0.06),
             ),
           ),
-
           Positioned(
             bottom: -80,
             left: -80,
@@ -334,7 +333,6 @@ class _LoginPageState extends State<LoginPage> {
               color: Colors.black.withValues(alpha: 0.06),
             ),
           ),
-
           Positioned(
             top: 135,
             left: -45,
@@ -343,29 +341,18 @@ class _LoginPageState extends State<LoginPage> {
               color: Colors.white.withValues(alpha: 0.045),
             ),
           ),
-
-          // ------------------------------------------------------
-          // MAIN CONTENT
-          // ------------------------------------------------------
           Padding(
             padding: const EdgeInsets.all(46),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildBrandMark(darkBackground: true),
-
                 const SizedBox(height: 42),
-
                 _buildWelcomeCopy(),
-
                 const SizedBox(height: 26),
-
                 _buildWelcomeHighlights(),
-
                 const SizedBox(height: 26),
-
                 _buildCommunityMiniCard(),
-
                 const SizedBox(height: 8),
               ],
             ),
@@ -375,84 +362,102 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // ============================================================
-  // BRAND MARK
-  // ============================================================
+  // CLICKABLE BRAND MARK
 
   Widget _buildBrandMark({bool darkBackground = false}) {
-    return Row(
-      children: [
-        Container(
-          width: 54,
-          height: 54,
-          decoration: BoxDecoration(
-            color: darkBackground ? Colors.white : primaryTeal,
-            borderRadius: BorderRadius.circular(17),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _goToLandingPage,
+        borderRadius: BorderRadius.circular(18),
+        mouseCursor: SystemMouseCursors.click,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 2,
+            vertical: 4,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 54,
+                height: 54,
+                decoration: BoxDecoration(
+                  color: darkBackground ? Colors.white : primaryTeal,
+                  borderRadius: BorderRadius.circular(17),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.pets,
+                  color: darkBackground ? primaryTeal : Colors.white,
+                  size: 29,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'PawLink',
+                    style: TextStyle(
+                      color: darkBackground ? Colors.white : primaryTeal,
+                      fontSize: 23,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  Text(
+                    'PET • COMMUNITY • CARE',
+                    style: TextStyle(
+                      color: darkBackground
+                          ? Colors.white.withValues(alpha: 0.68)
+                          : grayText,
+                      fontSize: 8.5,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.3,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-          child: Icon(
-            Icons.pets,
-            color: darkBackground ? primaryTeal : Colors.white,
-            size: 29,
-          ),
         ),
-
-        const SizedBox(width: 14),
-
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'PawLink',
-              style: TextStyle(
-                color: darkBackground ? Colors.white : primaryTeal,
-                fontSize: 23,
-                fontWeight: FontWeight.w900,
-                letterSpacing: -0.5,
-              ),
-            ),
-            Text(
-              'PET • COMMUNITY • CARE',
-              style: TextStyle(
-                color: darkBackground
-                    ? Colors.white.withValues(alpha: 0.68)
-                    : grayText,
-                fontSize: 8.5,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1.3,
-              ),
-            ),
-          ],
-        ),
-      ],
+      ),
     );
   }
 
-  // ============================================================
   // WELCOME COPY
-  // ============================================================
 
   Widget _buildWelcomeCopy() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 11,
+            vertical: 7,
+          ),
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.10),
+            ),
           ),
           child: const Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.waving_hand_rounded, color: Colors.white, size: 15),
+              Icon(
+                Icons.waving_hand_rounded,
+                color: Colors.white,
+                size: 15,
+              ),
               SizedBox(width: 7),
               Text(
                 'WELCOME BACK, KA-PAWLINK',
@@ -466,9 +471,7 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
         ),
-
         const SizedBox(height: 18),
-
         const Text(
           'Your pets,\nyour community,\nconnected.',
           style: TextStyle(
@@ -479,9 +482,7 @@ class _LoginPageState extends State<LoginPage> {
             letterSpacing: -1.2,
           ),
         ),
-
         const SizedBox(height: 16),
-
         Text(
           'Manage pet profiles, stay updated on reports, '
           'and help keep pets safe around the barangay.',
@@ -495,9 +496,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // ============================================================
   // WELCOME HIGHLIGHTS
-  // ============================================================
 
   Widget _buildWelcomeHighlights() {
     return Column(
@@ -507,17 +506,13 @@ class _LoginPageState extends State<LoginPage> {
           title: 'Pet QR profiles',
           description: 'Keep your pet identity easy to access.',
         ),
-
         const SizedBox(height: 10),
-
         _highlightItem(
           icon: Icons.location_on_outlined,
           title: 'Lost & found reports',
           description: 'Stay connected when a pet needs help.',
         ),
-
         const SizedBox(height: 10),
-
         _highlightItem(
           icon: Icons.groups_outlined,
           title: 'Community support',
@@ -537,7 +532,9 @@ class _LoginPageState extends State<LoginPage> {
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.085),
         borderRadius: BorderRadius.circular(17),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.08),
+        ),
       ),
       child: Row(
         children: [
@@ -550,9 +547,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             child: Icon(icon, color: Colors.white, size: 20),
           ),
-
           const SizedBox(width: 12),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -582,9 +577,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // ============================================================
   // COMMUNITY MINI CARD
-  // ============================================================
 
   Widget _buildCommunityMiniCard() {
     return Container(
@@ -592,7 +585,9 @@ class _LoginPageState extends State<LoginPage> {
       decoration: BoxDecoration(
         color: deepTeal,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.07),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.10),
@@ -616,9 +611,7 @@ class _LoginPageState extends State<LoginPage> {
               size: 20,
             ),
           ),
-
           const SizedBox(width: 12),
-
           const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -648,9 +641,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // ============================================================
   // LOGIN CARD
-  // ============================================================
 
   Widget _buildLoginCard() {
     return Container(
@@ -659,7 +650,10 @@ class _LoginPageState extends State<LoginPage> {
       decoration: BoxDecoration(
         color: cream,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: Colors.white, width: 1.2),
+        border: Border.all(
+          color: Colors.white,
+          width: 1.2,
+        ),
         boxShadow: const [
           BoxShadow(
             color: Color(0x12000000),
@@ -672,73 +666,60 @@ class _LoginPageState extends State<LoginPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildFormHeading(),
-
           const SizedBox(height: 25),
-
           _buildLabel('Email address'),
-
           const SizedBox(height: 8),
-
           _buildEmailField(),
-
           const SizedBox(height: 17),
-
           _buildLabel('Password'),
-
           const SizedBox(height: 8),
-
           _buildPasswordField(),
-
           const SizedBox(height: 10),
-
-          // ======================================================
-          // REMEMBER ME
-          // ======================================================
           _buildRememberMeRow(),
-
           const SizedBox(height: 3),
-
           Align(
             alignment: Alignment.centerRight,
             child: TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ForgotPasswordPage()),
-                );
-              },
+              onPressed: _isLoading
+                  ? null
+                  : () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (_) => const ForgotPasswordPage(),
+                        ),
+                      );
+                    },
               style: TextButton.styleFrom(
                 foregroundColor: primaryTeal,
-                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 2,
+                  vertical: 4,
+                ),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
               child: const Text(
                 'Forgot password?',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
           ),
-
           const SizedBox(height: 16),
-
           _buildLoginButton(),
-
           const SizedBox(height: 20),
-
           _buildCreateAccountRow(),
-
           const SizedBox(height: 18),
-
           _buildSecurityNote(),
         ],
       ),
     );
   }
 
-  // ============================================================
   // REMEMBER ME
-  // ============================================================
 
   Widget _buildRememberMeRow() {
     return Row(
@@ -750,7 +731,10 @@ class _LoginPageState extends State<LoginPage> {
             value: _rememberMe,
             activeColor: primaryTeal,
             checkColor: Colors.white,
-            side: const BorderSide(color: borderColor, width: 1.5),
+            side: const BorderSide(
+              color: borderColor,
+              width: 1.5,
+            ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(5),
             ),
@@ -758,14 +742,12 @@ class _LoginPageState extends State<LoginPage> {
                 ? null
                 : (value) {
                     setState(() {
-                      _rememberMe = value ?? true;
+                      _rememberMe = value ?? false;
                     });
                   },
           ),
         ),
-
         const SizedBox(width: 2),
-
         GestureDetector(
           onTap: _isLoading
               ? null
@@ -783,9 +765,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
-
         const Spacer(),
-
         if (kIsWeb)
           Tooltip(
             message: _rememberMe
@@ -801,9 +781,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // ============================================================
   // FORM HEADING
-  // ============================================================
 
   Widget _buildFormHeading() {
     return Column(
@@ -823,11 +801,13 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ],
           ),
-          child: const Icon(Icons.login_rounded, color: primaryTeal, size: 21),
+          child: const Icon(
+            Icons.login_rounded,
+            color: primaryTeal,
+            size: 21,
+          ),
         ),
-
         const SizedBox(height: 17),
-
         const Text(
           'Sign in',
           style: TextStyle(
@@ -837,26 +817,32 @@ class _LoginPageState extends State<LoginPage> {
             letterSpacing: -0.6,
           ),
         ),
-
         const SizedBox(height: 6),
-
         const Text(
           'Pick up where you left off.',
-          style: TextStyle(color: grayText, fontSize: 13.5, height: 1.4),
+          style: TextStyle(
+            color: grayText,
+            fontSize: 13.5,
+            height: 1.4,
+          ),
         ),
       ],
     );
   }
 
-  // ============================================================
   // EMAIL FIELD
-  // ============================================================
 
   Widget _buildEmailField() {
     return TextField(
       controller: emailController,
       keyboardType: TextInputType.emailAddress,
       textInputAction: TextInputAction.next,
+      autofillHints: const [
+        AutofillHints.username,
+        AutofillHints.email,
+      ],
+      autocorrect: false,
+      enableSuggestions: false,
       decoration: _inputDecoration(
         hint: 'you@example.com',
         icon: Icons.alternate_email_rounded,
@@ -864,15 +850,14 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // ============================================================
   // PASSWORD FIELD
-  // ============================================================
 
   Widget _buildPasswordField() {
     return TextField(
       controller: passwordController,
       obscureText: _obscurePassword,
       textInputAction: TextInputAction.done,
+      autofillHints: const [AutofillHints.password],
       onSubmitted: (_) => _login(),
       decoration: _inputDecoration(
         hint: 'Enter your password',
@@ -896,9 +881,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // ============================================================
   // LOGIN BUTTON
-  // ============================================================
 
   Widget _buildLoginButton() {
     return SizedBox(
@@ -930,7 +913,10 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   const Text(
                     'Continue to PawLink',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                   const SizedBox(width: 9),
                   Container(
@@ -952,18 +938,21 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // ============================================================
   // CREATE ACCOUNT
-  // ============================================================
 
   Widget _buildCreateAccountRow() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 12,
+      ),
       decoration: BoxDecoration(
         color: softerTeal,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: primaryTeal.withValues(alpha: 0.08)),
+        border: Border.all(
+          color: primaryTeal.withValues(alpha: 0.08),
+        ),
       ),
       child: Wrap(
         alignment: WrapAlignment.center,
@@ -971,24 +960,37 @@ class _LoginPageState extends State<LoginPage> {
         children: [
           const Text(
             'New to PawLink? ',
-            style: TextStyle(color: grayText, fontSize: 12.5),
+            style: TextStyle(
+              color: grayText,
+              fontSize: 12.5,
+            ),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => const RegisterPage()),
-              );
-            },
+            onPressed: _isLoading
+                ? null
+                : () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => const RegisterPage(),
+                      ),
+                    );
+                  },
             style: TextButton.styleFrom(
               foregroundColor: primaryTeal,
-              padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 3,
+                vertical: 2,
+              ),
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: const Text(
               'Create an account',
-              style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
         ],
@@ -996,9 +998,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // ============================================================
   // SECURITY NOTE
-  // ============================================================
 
   Widget _buildSecurityNote() {
     return Row(
@@ -1017,32 +1017,33 @@ class _LoginPageState extends State<LoginPage> {
             size: 16,
           ),
         ),
-
         const SizedBox(width: 9),
-
         const Expanded(
           child: Text(
             'Your sign-in is handled securely through Firebase Authentication.',
-            style: TextStyle(color: grayText, fontSize: 10.5, height: 1.45),
+            style: TextStyle(
+              color: grayText,
+              fontSize: 10.5,
+              height: 1.45,
+            ),
           ),
         ),
       ],
     );
   }
 
-  // ============================================================
   // MOBILE HEADER
-  // ============================================================
 
   Widget _buildMobileHeader() {
     return Column(
       children: [
         _buildBrandMark(),
-
         const SizedBox(height: 18),
-
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 13,
+            vertical: 8,
+          ),
           decoration: BoxDecoration(
             color: lightTeal,
             borderRadius: BorderRadius.circular(30),
@@ -1050,7 +1051,11 @@ class _LoginPageState extends State<LoginPage> {
           child: const Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.favorite_rounded, color: primaryTeal, size: 14),
+              Icon(
+                Icons.favorite_rounded,
+                color: primaryTeal,
+                size: 14,
+              ),
               SizedBox(width: 7),
               Text(
                 'WELCOME BACK, KA-PAWLINK',
@@ -1068,9 +1073,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // ============================================================
   // MOBILE SAFETY NOTE
-  // ============================================================
 
   Widget _buildMobileSafetyNote() {
     return Text(
@@ -1084,9 +1087,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // ============================================================
   // LABEL
-  // ============================================================
 
   Widget _buildLabel(String text) {
     return Text(
@@ -1099,9 +1100,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // ============================================================
   // INPUT DECORATION
-  // ============================================================
 
   InputDecoration _inputDecoration({
     required String hint,
@@ -1110,12 +1109,22 @@ class _LoginPageState extends State<LoginPage> {
   }) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: Color(0xFFA0A9A7), fontSize: 13),
-      prefixIcon: Icon(icon, color: primaryTeal, size: 20),
+      hintStyle: const TextStyle(
+        color: Color(0xFFA0A9A7),
+        fontSize: 13,
+      ),
+      prefixIcon: Icon(
+        icon,
+        color: primaryTeal,
+        size: 20,
+      ),
       suffixIcon: suffixIcon,
       filled: true,
       fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 16),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 15,
+        vertical: 16,
+      ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
         borderSide: const BorderSide(color: borderColor),
@@ -1126,7 +1135,10 @@ class _LoginPageState extends State<LoginPage> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
-        borderSide: const BorderSide(color: primaryTeal, width: 1.5),
+        borderSide: const BorderSide(
+          color: primaryTeal,
+          width: 1.5,
+        ),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
@@ -1134,73 +1146,64 @@ class _LoginPageState extends State<LoginPage> {
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
-        borderSide: const BorderSide(color: alertRed, width: 1.5),
+        borderSide: const BorderSide(
+          color: alertRed,
+          width: 1.5,
+        ),
       ),
     );
   }
 
-  // ============================================================
   // DECORATIVE CIRCLE
-  // ============================================================
 
-  Widget _decorativeCircle({required double size, required Color color}) {
+  Widget _decorativeCircle({
+    required double size,
+    required Color color,
+  }) {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+      ),
     );
   }
 
-  // ============================================================
   // FIREBASE LOGIN
-  // ============================================================
 
   Future<void> _login() async {
+    if (_isLoading) return;
+
     FocusScope.of(context).unfocus();
 
     final email = emailController.text.trim();
     final password = passwordController.text;
 
-    // ----------------------------------------------------------
-    // REQUIRED FIELDS
-    // ----------------------------------------------------------
-
     if (email.isEmpty || password.isEmpty) {
-      _showMessage('Please enter your email and password.', isError: true);
+      _showMessage(
+        'Please enter your email and password.',
+        isError: true,
+      );
       return;
     }
-
-    // ----------------------------------------------------------
-    // EMAIL
-    // ----------------------------------------------------------
 
     if (!email.contains('@')) {
-      _showMessage('Please enter a valid email address.', isError: true);
+      _showMessage(
+        'Please enter a valid email address.',
+        isError: true,
+      );
       return;
     }
-
-    // ----------------------------------------------------------
-    // LOADING
-    // ----------------------------------------------------------
 
     setState(() {
       _isLoading = true;
     });
 
     try {
-      // --------------------------------------------------------
-      // REMEMBER ME / AUTH PERSISTENCE
-      // --------------------------------------------------------
-      //
-      // Flutter Web supports:
-      //
-      // LOCAL   = keep signed in after browser restart
-      // SESSION = keep signed in only for the current session
-      //
-      // On Android/iOS, Firebase Auth persistence is handled
-      // automatically by the native Firebase SDK, so this
-      // setting is only applied on Web.
-      // --------------------------------------------------------
+      // Configure web persistence before signing in.
+      // LOCAL remains signed in across browser restarts.
+      // SESSION lasts for the current browser session.
 
       if (kIsWeb) {
         await _auth.setPersistence(
@@ -1208,11 +1211,10 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
 
-      // --------------------------------------------------------
-      // FIREBASE SIGN IN
-      // --------------------------------------------------------
-
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
       if (!mounted) return;
 
@@ -1220,20 +1222,8 @@ class _LoginPageState extends State<LoginPage> {
         _isLoading = false;
       });
 
-      _showMessage('Login successful!');
-
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      if (!mounted) return;
-
-      // --------------------------------------------------------
-      // GO TO PAWLINK DASHBOARD
-      // --------------------------------------------------------
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomePage()),
-      );
+      // Navigate exactly once after successful authentication.
+      _goToHomePage();
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
 
@@ -1247,33 +1237,26 @@ class _LoginPageState extends State<LoginPage> {
         case 'invalid-credential':
           message = 'Incorrect email or password.';
           break;
-
         case 'invalid-email':
           message = 'Please enter a valid email address.';
           break;
-
         case 'user-disabled':
           message = 'This account has been disabled.';
           break;
-
         case 'user-not-found':
           message = 'No account was found with this email.';
           break;
-
         case 'wrong-password':
           message = 'Incorrect password.';
           break;
-
         case 'too-many-requests':
           message = 'Too many login attempts. Please try again later.';
           break;
-
         case 'network-request-failed':
           message = 'Network error. Please check your internet connection.';
           break;
-
         default:
-          message = 'Login failed. Please try again.';
+          message = 'Login failed. Please try again. (${e.code})';
       }
 
       _showMessage(message, isError: true);
@@ -1284,21 +1267,26 @@ class _LoginPageState extends State<LoginPage> {
         _isLoading = false;
       });
 
-      _showMessage('Something went wrong. Please try again.', isError: true);
+      _showMessage(
+        'Something went wrong. Please check your connection and try again.',
+        isError: true,
+      );
     }
   }
 
-  // ============================================================
   // MESSAGE
-  // ============================================================
 
   void _showMessage(String message, {bool isError = false}) {
+    if (!mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
         backgroundColor: isError ? alertRed : primaryTeal,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
         margin: const EdgeInsets.all(16),
       ),
     );

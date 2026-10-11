@@ -58,8 +58,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
       final data = doc.data() ?? {};
 
-      _nameController.text = (data['name'] ?? user.displayName ?? '')
-          .toString();
+      _nameController.text =
+          (data['name'] ?? user.displayName ?? '').toString();
 
       _phoneController.text = (data['phone'] ?? '').toString();
 
@@ -287,25 +287,15 @@ class _SettingsPageState extends State<SettingsPage> {
                           children: [
                             _buildHeader(),
                             const SizedBox(height: 28),
-
                             _buildProfileSection(isDesktop),
-
                             const SizedBox(height: 20),
-
                             _buildSecuritySection(),
-
                             const SizedBox(height: 20),
-
                             _buildNotificationSection(),
-
                             const SizedBox(height: 20),
-
                             _buildPrivacySection(),
-
                             const SizedBox(height: 20),
-
                             _buildAccountActions(),
-
                             const SizedBox(height: 35),
                           ],
                         ),
@@ -567,7 +557,8 @@ class _SettingsPageState extends State<SettingsPage> {
         children: [
           _buildSwitch(
             title: 'Public QR Pet Profile',
-            subtitle: 'Allow people who scan your pet QR code to view its public profile.',
+            subtitle:
+                'Allow people who scan your pet QR code to view its public profile.',
             value: _qrPublicProfile,
             onChanged: (value) {
               setState(() {

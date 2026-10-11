@@ -223,9 +223,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Expanded(flex: 11, child: _buildRecoveryVisual()),
-
                   const SizedBox(width: 30),
-
                   Expanded(flex: 9, child: Center(child: _buildResetCard())),
                 ],
               ),
@@ -250,9 +248,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         child: Column(
           children: [
             _buildMobileHeader(),
-
             const SizedBox(height: 18),
-
             _buildResetCard(),
           ],
         ),
@@ -335,9 +331,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildBrandMark(),
-
                 const SizedBox(height: 42),
-
                 const Text(
                   'Lost access?\nWe can help.',
                   style: TextStyle(
@@ -348,9 +342,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     letterSpacing: -1.2,
                   ),
                 ),
-
                 const SizedBox(height: 18),
-
                 Text(
                   'Enter the email connected to your PawLink account '
                   'and Firebase will send a secure password reset link.',
@@ -360,42 +352,31 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     height: 1.6,
                   ),
                 ),
-
                 const SizedBox(height: 28),
-
                 _buildRecoveryStep(
                   number: '01',
                   icon: Icons.email_outlined,
                   title: 'Enter your email',
-                  description:
-                      'Use the email address you used when creating '
+                  description: 'Use the email address you used when creating '
                       'your PawLink account.',
                 ),
-
                 const SizedBox(height: 12),
-
                 _buildRecoveryStep(
                   number: '02',
                   icon: Icons.mark_email_read_outlined,
                   title: 'Check your inbox',
-                  description:
-                      'Firebase sends a password reset message '
+                  description: 'Firebase sends a password reset message '
                       'to your email.',
                 ),
-
                 const SizedBox(height: 12),
-
                 _buildRecoveryStep(
                   number: '03',
                   icon: Icons.lock_reset_outlined,
                   title: 'Create a new password',
-                  description:
-                      'Follow the link in the email to securely '
+                  description: 'Follow the link in the email to securely '
                       'update your password.',
                 ),
-
                 const SizedBox(height: 24),
-
                 Row(
                   children: [
                     Container(
@@ -411,9 +392,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         size: 19,
                       ),
                     ),
-
                     const SizedBox(width: 12),
-
                     Flexible(
                       child: Text(
                         'Secure account recovery',
@@ -466,9 +445,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 ),
                 child: const Icon(Icons.pets, color: primaryTeal, size: 29),
               ),
-
               const SizedBox(width: 14),
-
               const Text(
                 'PawLink',
                 style: TextStyle(
@@ -519,9 +496,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               size: 29,
             ),
           ),
-
           const SizedBox(height: 10),
-
           const Text(
             'ACCOUNT',
             style: TextStyle(
@@ -531,9 +506,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               letterSpacing: 1,
             ),
           ),
-
           const SizedBox(height: 3),
-
           const Text(
             'RECOVERY',
             style: TextStyle(
@@ -601,9 +574,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             ),
             child: Icon(icon, color: Colors.white, size: 21),
           ),
-
           const SizedBox(width: 13),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -618,9 +589,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
                     const SizedBox(width: 8),
-
                     Expanded(
                       child: Text(
                         title,
@@ -633,9 +602,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 5),
-
                 Text(
                   description,
                   style: TextStyle(
@@ -685,9 +652,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               ),
               child: const Icon(Icons.pets, color: primaryTeal, size: 30),
             ),
-
             const SizedBox(width: 14),
-
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -700,9 +665,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-
                   const SizedBox(height: 3),
-
                   Text(
                     'Secure account recovery',
                     style: TextStyle(
@@ -713,7 +676,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 ],
               ),
             ),
-
             const Icon(Icons.home_outlined, color: Colors.white70, size: 21),
           ],
         ),
@@ -746,25 +708,15 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildCardHeading(),
-
           const SizedBox(height: 27),
-
           _buildEmailField(),
-
           const SizedBox(height: 20),
-
           _buildResetButton(),
-
           const SizedBox(height: 18),
-
           _buildInformationBox(),
-
           const SizedBox(height: 20),
-
           _buildBackToLogin(),
-
           const SizedBox(height: 12),
-
           _buildSecurityNote(),
         ],
       ),
@@ -792,9 +744,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             size: 30,
           ),
         ),
-
         const SizedBox(height: 18),
-
         const Text(
           'Reset your password',
           style: TextStyle(
@@ -804,9 +754,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             letterSpacing: -0.7,
           ),
         ),
-
         const SizedBox(height: 8),
-
         const Text(
           'No worries. Enter your account email and we will send '
           'you a secure reset link.',
@@ -832,9 +780,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             fontWeight: FontWeight.w700,
           ),
         ),
-
         const SizedBox(height: 8),
-
         TextField(
           controller: emailController,
           keyboardType: TextInputType.emailAddress,
@@ -914,9 +860,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             ),
             child: const Icon(Icons.info_outline, color: primaryTeal, size: 17),
           ),
-
           const SizedBox(width: 10),
-
           const Expanded(
             child: Text(
               'If the email belongs to a PawLink account, Firebase '
@@ -961,9 +905,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Icon(Icons.verified_user_outlined, color: darkTeal, size: 14),
-
         const SizedBox(width: 6),
-
         Flexible(
           child: Text(
             'Password recovery is handled by Firebase Authentication.',
