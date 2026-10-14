@@ -93,6 +93,8 @@ class PetService {
     required String ownerContact,
     String? photoUrl,
     String safetyTag = 'safe',
+    String identifyingMarks = '',
+    String sex = 'unknown',
   }) async {
     final user = _auth.currentUser;
 
@@ -110,6 +112,8 @@ class PetService {
       'breed': breed.trim(),
       'color': color.trim(),
       'age': age.trim(),
+      'identifyingMarks': identifyingMarks.trim(),
+      'sex': _normalizeSex(sex),
       'photoUrl': photoUrl ?? '',
 
       // ========================================================
@@ -163,6 +167,8 @@ class PetService {
     required String ownerContact,
     String? photoUrl,
     String? safetyTag,
+    String? identifyingMarks,
+    String? sex,
   }) async {
     final Map<String, dynamic> updates = {
       'petName': petName.trim(),
@@ -173,6 +179,14 @@ class PetService {
       'ownerContact': ownerContact.trim(),
       'updatedAt': FieldValue.serverTimestamp(),
     };
+
+    if (identifyingMarks != null) {
+      updates['identifyingMarks'] = identifyingMarks.trim();
+    }
+
+    if (sex != null) {
+      updates['sex'] = _normalizeSex(sex);
+    }
 
     if (photoUrl != null) {
       updates['photoUrl'] = photoUrl;
@@ -274,6 +288,22 @@ class PetService {
       await _storage.ref().child('pet_images').child('$petId.jpg').delete();
     } catch (_) {
       // The photo may not exist.
+    }
+  }
+
+  // ============================================================
+  // NORMALIZE SEX
+  // ============================================================
+
+  String _normalizeSex(String sex) {
+    switch (sex.trim().toLowerCase()) {
+      case 'male':
+        return 'male';
+      case 'female':
+        return 'female';
+      case 'unknown':
+      default:
+        return 'unknown';
     }
   }
 

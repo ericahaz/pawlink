@@ -1,8 +1,6 @@
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
 import '../../services/pet_service.dart';
 
 class RegisterPetPage extends StatefulWidget {
@@ -15,23 +13,20 @@ class RegisterPetPage extends StatefulWidget {
 class _RegisterPetPageState extends State<RegisterPetPage> {
   final PetService _petService = PetService();
   final ImagePicker _imagePicker = ImagePicker();
-
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _petNameController = TextEditingController();
-
   final TextEditingController _breedController = TextEditingController();
-
   final TextEditingController _colorController = TextEditingController();
-
   final TextEditingController _ageController = TextEditingController();
-
+  final TextEditingController _identifyingMarksController =
+      TextEditingController();
   final TextEditingController _ownerNameController = TextEditingController();
-
   final TextEditingController _ownerContactController = TextEditingController();
 
   Uint8List? _imageBytes;
 
+  String _sex = 'unknown';
   String _safetyTag = 'safe';
 
   bool _isSaving = false;
@@ -57,6 +52,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
     _breedController.dispose();
     _colorController.dispose();
     _ageController.dispose();
+    _identifyingMarksController.dispose();
     _ownerNameController.dispose();
     _ownerContactController.dispose();
 
@@ -88,8 +84,9 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Unable to select image: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unable to select image: $e')),
+      );
     }
   }
 
@@ -118,6 +115,8 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
         breed: _breedController.text,
         color: _colorController.text,
         age: _ageController.text,
+        sex: _sex,
+        identifyingMarks: _identifyingMarksController.text,
         ownerName: _ownerNameController.text,
         ownerContact: _ownerContactController.text,
         safetyTag: _safetyTag,
@@ -143,6 +142,8 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
           breed: _breedController.text,
           color: _colorController.text,
           age: _ageController.text,
+          sex: _sex,
+          identifyingMarks: _identifyingMarksController.text,
           ownerName: _ownerNameController.text,
           ownerContact: _ownerContactController.text,
           photoUrl: photoUrl,
@@ -172,8 +173,9 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Unable to register pet: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unable to register pet: $e')),
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -225,22 +227,16 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                     children: [
                       _buildIntro(),
                       const SizedBox(height: 20),
-
                       _buildPhotoSection(),
                       const SizedBox(height: 18),
-
                       _buildPetInformation(),
                       const SizedBox(height: 18),
-
                       _buildSafetySection(),
                       const SizedBox(height: 18),
-
                       _buildOwnerInformation(),
                       const SizedBox(height: 18),
-
                       _buildQrInformation(),
                       const SizedBox(height: 24),
-
                       _buildRegisterButton(),
                     ],
                   ),
@@ -358,7 +354,11 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: borderColor),
         ),
-        child: const Icon(Icons.pets_rounded, color: primaryTeal, size: 40),
+        child: const Icon(
+          Icons.pets_rounded,
+          color: primaryTeal,
+          size: 40,
+        ),
       );
     }
 
@@ -397,7 +397,6 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
               if (value == null || value.trim().isEmpty) {
                 return 'Please enter the pet name.';
               }
-
               return null;
             },
           ),
@@ -413,7 +412,6 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
               if (value == null || value.trim().isEmpty) {
                 return 'Please enter the breed.';
               }
-
               return null;
             },
           ),
@@ -429,7 +427,6 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
               if (value == null || value.trim().isEmpty) {
                 return 'Please enter the color.';
               }
-
               return null;
             },
           ),
@@ -445,9 +442,74 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
               if (value == null || value.trim().isEmpty) {
                 return 'Please enter the age.';
               }
-
               return null;
             },
+          ),
+
+          const SizedBox(height: 14),
+
+          // SEX
+          DropdownButtonFormField<String>(
+            value: _sex,
+            decoration: InputDecoration(
+              labelText: 'Sex',
+              prefixIcon: const Icon(
+                Icons.pets_rounded,
+                color: primaryTeal,
+                size: 21,
+              ),
+              filled: true,
+              fillColor: Colors.white,
+              labelStyle: const TextStyle(color: grayText),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(13),
+                borderSide: const BorderSide(color: borderColor),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(13),
+                borderSide: const BorderSide(color: borderColor),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(13),
+                borderSide: const BorderSide(
+                  color: primaryTeal,
+                  width: 1.5,
+                ),
+              ),
+            ),
+            items: const [
+              DropdownMenuItem(
+                value: 'unknown',
+                child: Text('Unknown'),
+              ),
+              DropdownMenuItem(
+                value: 'male',
+                child: Text('Male'),
+              ),
+              DropdownMenuItem(
+                value: 'female',
+                child: Text('Female'),
+              ),
+            ],
+            onChanged: _isSaving
+                ? null
+                : (value) {
+                    if (value == null) return;
+                    setState(() {
+                      _sex = value;
+                    });
+                  },
+          ),
+
+          const SizedBox(height: 14),
+
+          // IDENTIFYING MARKS
+          _buildTextField(
+            controller: _identifyingMarksController,
+            label: 'Identifying Marks',
+            hint: 'Example: White spot on left paw or a unique marking',
+            icon: Icons.fingerprint_rounded,
+            validator: (value) => null,
           ),
         ],
       ),
@@ -471,7 +533,11 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
           const Text(
             'Choose a safety tag that can help people know how '
             'to respond if they encounter your pet.',
-            style: TextStyle(color: grayText, fontSize: 12, height: 1.45),
+            style: TextStyle(
+              color: grayText,
+              fontSize: 12,
+              height: 1.45,
+            ),
           ),
           const SizedBox(height: 16),
 
@@ -611,9 +677,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
               onChanged: _isSaving
                   ? null
                   : (newValue) {
-                      if (newValue == null) {
-                        return;
-                      }
+                      if (newValue == null) return;
 
                       setState(() {
                         _safetyTag = newValue;
@@ -651,7 +715,6 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
               if (value == null || value.trim().isEmpty) {
                 return 'Please enter the owner name.';
               }
-
               return null;
             },
           ),
@@ -668,7 +731,6 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
               if (value == null || value.trim().isEmpty) {
                 return 'Please enter a contact number.';
               }
-
               return null;
             },
           ),
@@ -717,7 +779,11 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                   'A unique QR code will automatically be created '
                   'for this pet. If the pet has multiple owners, '
                   'all owners will use the same QR code.',
-                  style: TextStyle(color: grayText, fontSize: 12, height: 1.45),
+                  style: TextStyle(
+                    color: grayText,
+                    fontSize: 12,
+                    height: 1.45,
+                  ),
                 ),
               ],
             ),
@@ -746,7 +812,9 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                 ),
               )
             : const Icon(Icons.add_circle_outline_rounded),
-        label: Text(_isSaving ? 'Registering Pet...' : 'Create Pet Profile'),
+        label: Text(
+          _isSaving ? 'Registering Pet...' : 'Create Pet Profile',
+        ),
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryTeal,
           foregroundColor: Colors.white,
@@ -786,11 +854,18 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        prefixIcon: Icon(icon, color: primaryTeal, size: 21),
+        prefixIcon: Icon(
+          icon,
+          color: primaryTeal,
+          size: 21,
+        ),
         filled: true,
         fillColor: Colors.white,
         labelStyle: const TextStyle(color: grayText),
-        hintStyle: const TextStyle(color: Color(0xFF9A9F9F), fontSize: 13),
+        hintStyle: const TextStyle(
+          color: Color(0xFF9A9F9F),
+          fontSize: 13,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
           borderSide: const BorderSide(color: borderColor),
@@ -801,7 +876,10 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: primaryTeal, width: 1.5),
+          borderSide: const BorderSide(
+            color: primaryTeal,
+            width: 1.5,
+          ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
@@ -809,7 +887,10 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: aggressiveRed, width: 1.5),
+          borderSide: const BorderSide(
+            color: aggressiveRed,
+            width: 1.5,
+          ),
         ),
       ),
     );
@@ -843,7 +924,10 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
   // SECTION TITLE
   // ============================================================
 
-  Widget _buildSectionTitle({required IconData icon, required String title}) {
+  Widget _buildSectionTitle({
+    required IconData icon,
+    required String title,
+  }) {
     return Row(
       children: [
         Container(
@@ -853,7 +937,11 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
             color: lightTeal,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, color: primaryTeal, size: 20),
+          child: Icon(
+            icon,
+            color: primaryTeal,
+            size: 20,
+          ),
         ),
         const SizedBox(width: 10),
         Text(

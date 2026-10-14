@@ -25,8 +25,12 @@ class _EditPetPageState extends State<EditPetPage> {
   final TextEditingController _breedController = TextEditingController();
   final TextEditingController _colorController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _identifyingMarksController =
+      TextEditingController();
   final TextEditingController _ownerNameController = TextEditingController();
   final TextEditingController _ownerContactController = TextEditingController();
+
+  String _sex = 'unknown';
 
   Uint8List? _imageBytes;
   String _existingPhotoUrl = '';
@@ -58,9 +62,9 @@ class _EditPetPageState extends State<EditPetPage> {
     _breedController.dispose();
     _colorController.dispose();
     _ageController.dispose();
+    _identifyingMarksController.dispose();
     _ownerNameController.dispose();
     _ownerContactController.dispose();
-
     super.dispose();
   }
 
@@ -70,8 +74,8 @@ class _EditPetPageState extends State<EditPetPage> {
 
   Future<void> _loadPet() async {
     try {
-      final DocumentSnapshot<Map<String, dynamic>> snapshot = await _petService
-          .getPet(widget.petId);
+      final DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await _petService.getPet(widget.petId);
 
       if (!snapshot.exists) {
         throw Exception('Pet profile no longer exists.');
@@ -86,6 +90,16 @@ class _EditPetPageState extends State<EditPetPage> {
         _breedController.text = _stringValue(data['breed']);
         _colorController.text = _stringValue(data['color']);
         _ageController.text = _stringValue(data['age']);
+        _identifyingMarksController.text =
+            _stringValue(data['identifyingMarks']);
+
+        final String savedSex =
+            _stringValue(data['sex']).toLowerCase().trim();
+
+        _sex = ['male', 'female', 'unknown'].contains(savedSex)
+            ? savedSex
+            : 'unknown';
+
         _ownerNameController.text = _stringValue(data['ownerName']);
         _ownerContactController.text = _stringValue(data['ownerContact']);
         _existingPhotoUrl = _stringValue(data['photoUrl']);
@@ -105,10 +119,7 @@ class _EditPetPageState extends State<EditPetPage> {
   }
 
   String _stringValue(dynamic value) {
-    if (value == null) {
-      return '';
-    }
-
+    if (value == null) return '';
     return value.toString();
   }
 
@@ -123,9 +134,7 @@ class _EditPetPageState extends State<EditPetPage> {
         imageQuality: 85,
       );
 
-      if (pickedImage == null) {
-        return;
-      }
+      if (pickedImage == null) return;
 
       final Uint8List bytes = await pickedImage.readAsBytes();
 
@@ -137,8 +146,9 @@ class _EditPetPageState extends State<EditPetPage> {
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Unable to select image: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unable to select image: $e')),
+      );
     }
   }
 
@@ -149,9 +159,7 @@ class _EditPetPageState extends State<EditPetPage> {
   Future<void> _saveChanges() async {
     FocusScope.of(context).unfocus();
 
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       _isSaving = true;
@@ -160,9 +168,7 @@ class _EditPetPageState extends State<EditPetPage> {
     try {
       String? photoUrl;
 
-      // --------------------------------------------------------
-      // 1. UPLOAD NEW PHOTO IF SELECTED
-      // --------------------------------------------------------
+      // UPLOAD NEW PHOTO IF SELECTED
 
       if (_imageBytes != null) {
         photoUrl = await _petService.uploadPetPhotoBytes(
@@ -171,9 +177,7 @@ class _EditPetPageState extends State<EditPetPage> {
         );
       }
 
-      // --------------------------------------------------------
-      // 2. UPDATE PET INFORMATION
-      // --------------------------------------------------------
+      // UPDATE PET INFORMATION
 
       await _petService.updatePet(
         petId: widget.petId,
@@ -181,6 +185,8 @@ class _EditPetPageState extends State<EditPetPage> {
         breed: _breedController.text,
         color: _colorController.text,
         age: _ageController.text,
+        identifyingMarks: _identifyingMarksController.text,
+        sex: _sex,
         ownerName: _ownerNameController.text,
         ownerContact: _ownerContactController.text,
         photoUrl: photoUrl,
@@ -189,7 +195,9 @@ class _EditPetPageState extends State<EditPetPage> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pet information updated successfully!')),
+        const SnackBar(
+          content: Text('Pet information updated successfully!'),
+        ),
       );
 
       Navigator.pop(context, true);
@@ -226,11 +234,16 @@ class _EditPetPageState extends State<EditPetPage> {
         ),
         title: const Text(
           'Edit Pet Information',
-          style: TextStyle(color: darkText, fontWeight: FontWeight.w800),
+          style: TextStyle(
+            color: darkText,
+            fontWeight: FontWeight.w800,
+          ),
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: primaryTeal))
+          ? const Center(
+              child: CircularProgressIndicator(color: primaryTeal),
+            )
           : LayoutBuilder(
               builder: (context, constraints) {
                 final bool isDesktop = constraints.maxWidth >= 800;
@@ -252,19 +265,14 @@ class _EditPetPageState extends State<EditPetPage> {
                           children: [
                             _buildIntro(),
                             const SizedBox(height: 20),
-
                             _buildPhotoSection(),
                             const SizedBox(height: 18),
-
                             _buildPetInformation(),
                             const SizedBox(height: 18),
-
                             _buildOwnerInformation(),
                             const SizedBox(height: 18),
-
                             _buildProtectedInformation(),
                             const SizedBox(height: 24),
-
                             _buildSaveButton(),
                           ],
                         ),
@@ -297,7 +305,11 @@ class _EditPetPageState extends State<EditPetPage> {
         const Text(
           'Keep your pet information accurate so the community '
           'can identify and contact you when needed.',
-          style: TextStyle(color: grayText, fontSize: 14, height: 1.5),
+          style: TextStyle(
+            color: grayText,
+            fontSize: 14,
+            height: 1.5,
+          ),
         ),
       ],
     );
@@ -400,9 +412,7 @@ class _EditPetPageState extends State<EditPetPage> {
             return _buildEmptyImage();
           },
           loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) {
-              return child;
-            }
+            if (loadingProgress == null) return child;
 
             return Container(
               width: 105,
@@ -436,7 +446,11 @@ class _EditPetPageState extends State<EditPetPage> {
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: borderColor),
       ),
-      child: const Icon(Icons.pets_rounded, color: primaryTeal, size: 40),
+      child: const Icon(
+        Icons.pets_rounded,
+        color: primaryTeal,
+        size: 40,
+      ),
     );
   }
 
@@ -454,7 +468,6 @@ class _EditPetPageState extends State<EditPetPage> {
             title: 'Pet Information',
           ),
           const SizedBox(height: 18),
-
           _buildTextField(
             controller: _petNameController,
             label: 'Pet Name',
@@ -464,13 +477,10 @@ class _EditPetPageState extends State<EditPetPage> {
               if (value == null || value.trim().isEmpty) {
                 return 'Please enter the pet name.';
               }
-
               return null;
             },
           ),
-
           const SizedBox(height: 14),
-
           _buildTextField(
             controller: _breedController,
             label: 'Breed',
@@ -480,13 +490,10 @@ class _EditPetPageState extends State<EditPetPage> {
               if (value == null || value.trim().isEmpty) {
                 return 'Please enter the breed.';
               }
-
               return null;
             },
           ),
-
           const SizedBox(height: 14),
-
           _buildTextField(
             controller: _colorController,
             label: 'Color',
@@ -496,13 +503,10 @@ class _EditPetPageState extends State<EditPetPage> {
               if (value == null || value.trim().isEmpty) {
                 return 'Please enter the color.';
               }
-
               return null;
             },
           ),
-
           const SizedBox(height: 14),
-
           _buildTextField(
             controller: _ageController,
             label: 'Age',
@@ -512,9 +516,72 @@ class _EditPetPageState extends State<EditPetPage> {
               if (value == null || value.trim().isEmpty) {
                 return 'Please enter the age.';
               }
-
               return null;
             },
+          ),
+          const SizedBox(height: 14),
+
+          // SEX
+          DropdownButtonFormField<String>(
+            value: _sex,
+            isExpanded: true,
+            decoration: InputDecoration(
+              labelText: 'Sex',
+              prefixIcon: const Icon(
+                Icons.pets_rounded,
+                color: primaryTeal,
+                size: 21,
+              ),
+              filled: true,
+              fillColor: Colors.white,
+              labelStyle: const TextStyle(color: grayText),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(13),
+                borderSide: const BorderSide(color: borderColor),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(13),
+                borderSide: const BorderSide(color: borderColor),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(13),
+                borderSide: const BorderSide(
+                  color: primaryTeal,
+                  width: 1.5,
+                ),
+              ),
+            ),
+            items: const [
+              DropdownMenuItem(
+                value: 'male',
+                child: Text('Male'),
+              ),
+              DropdownMenuItem(
+                value: 'female',
+                child: Text('Female'),
+              ),
+              DropdownMenuItem(
+                value: 'unknown',
+                child: Text('Unknown'),
+              ),
+            ],
+            onChanged: _isSaving
+                ? null
+                : (value) {
+                    if (value != null) {
+                      setState(() => _sex = value);
+                    }
+                  },
+          ),
+          const SizedBox(height: 14),
+
+          // IDENTIFYING MARKS
+          _buildTextField(
+            controller: _identifyingMarksController,
+            label: 'Identifying Marks',
+            hint: 'Example: White spot on chest, scar on left ear',
+            icon: Icons.fingerprint_rounded,
+            validator: (value) => null,
           ),
         ],
       ),
@@ -535,7 +602,6 @@ class _EditPetPageState extends State<EditPetPage> {
             title: 'Owner Information',
           ),
           const SizedBox(height: 18),
-
           _buildTextField(
             controller: _ownerNameController,
             label: 'Owner Name',
@@ -545,13 +611,10 @@ class _EditPetPageState extends State<EditPetPage> {
               if (value == null || value.trim().isEmpty) {
                 return 'Please enter the owner name.';
               }
-
               return null;
             },
           ),
-
           const SizedBox(height: 14),
-
           _buildTextField(
             controller: _ownerContactController,
             label: 'Contact Number',
@@ -562,7 +625,6 @@ class _EditPetPageState extends State<EditPetPage> {
               if (value == null || value.trim().isEmpty) {
                 return 'Please enter a contact number.';
               }
-
               return null;
             },
           ),
@@ -588,36 +650,33 @@ class _EditPetPageState extends State<EditPetPage> {
           const Text(
             'Some pet information is kept unchanged to protect '
             'the identity of the pet profile and its QR code.',
-            style: TextStyle(color: grayText, fontSize: 12, height: 1.45),
+            style: TextStyle(
+              color: grayText,
+              fontSize: 12,
+              height: 1.45,
+            ),
           ),
           const SizedBox(height: 16),
-
           _buildProtectedRow(
             icon: Icons.tag_rounded,
             title: 'Pet ID',
             description: 'The unique identity of this pet cannot be changed.',
           ),
-
           const SizedBox(height: 10),
-
           _buildProtectedRow(
             icon: Icons.qr_code_2_rounded,
             title: 'QR Profile',
             description:
                 'The existing QR identity remains connected to this pet.',
           ),
-
           const SizedBox(height: 10),
-
           _buildProtectedRow(
             icon: Icons.people_outline_rounded,
             title: 'Owners',
             description:
                 'Owner accounts are managed separately through Joint Owners.',
           ),
-
           const SizedBox(height: 10),
-
           _buildProtectedRow(
             icon: Icons.favorite_outline_rounded,
             title: 'Pet Status',
@@ -678,7 +737,11 @@ class _EditPetPageState extends State<EditPetPage> {
               ],
             ),
           ),
-          const Icon(Icons.lock_outline_rounded, color: grayText, size: 17),
+          const Icon(
+            Icons.lock_outline_rounded,
+            color: grayText,
+            size: 17,
+          ),
         ],
       ),
     );
@@ -747,7 +810,10 @@ class _EditPetPageState extends State<EditPetPage> {
         filled: true,
         fillColor: Colors.white,
         labelStyle: const TextStyle(color: grayText),
-        hintStyle: const TextStyle(color: Color(0xFF9A9F9F), fontSize: 13),
+        hintStyle: const TextStyle(
+          color: Color(0xFF9A9F9F),
+          fontSize: 13,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
           borderSide: const BorderSide(color: borderColor),
@@ -758,7 +824,10 @@ class _EditPetPageState extends State<EditPetPage> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: primaryTeal, width: 1.5),
+          borderSide: const BorderSide(
+            color: primaryTeal,
+            width: 1.5,
+          ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
@@ -766,7 +835,10 @@ class _EditPetPageState extends State<EditPetPage> {
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: aggressiveRed, width: 1.5),
+          borderSide: const BorderSide(
+            color: aggressiveRed,
+            width: 1.5,
+          ),
         ),
       ),
     );
@@ -800,7 +872,10 @@ class _EditPetPageState extends State<EditPetPage> {
   // SECTION TITLE
   // ============================================================
 
-  Widget _buildSectionTitle({required IconData icon, required String title}) {
+  Widget _buildSectionTitle({
+    required IconData icon,
+    required String title,
+  }) {
     return Row(
       children: [
         Container(

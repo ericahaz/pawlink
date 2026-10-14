@@ -81,7 +81,8 @@ class _PetProfilePageState extends State<PetProfilePage> {
 
     final double currentOffset = _scrollController.offset;
     final double maxOffset = _scrollController.position.maxScrollExtent;
-    final double viewportHeight = _scrollController.position.viewportDimension;
+    final double viewportHeight =
+        _scrollController.position.viewportDimension;
 
     double? targetOffset;
 
@@ -206,7 +207,6 @@ class _PetProfilePageState extends State<PetProfilePage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-
                   _buildSafetyOption(
                     value: 'safe',
                     title: 'Safe',
@@ -220,9 +220,7 @@ class _PetProfilePageState extends State<PetProfilePage> {
                       });
                     },
                   ),
-
                   const SizedBox(height: 10),
-
                   _buildSafetyOption(
                     value: 'caution',
                     title: 'Caution',
@@ -236,9 +234,7 @@ class _PetProfilePageState extends State<PetProfilePage> {
                       });
                     },
                   ),
-
                   const SizedBox(height: 10),
-
                   _buildSafetyOption(
                     value: 'aggressive',
                     title: 'Aggressive / Do Not Approach',
@@ -487,7 +483,6 @@ class _PetProfilePageState extends State<PetProfilePage> {
                 ),
               ),
               const SizedBox(height: 16),
-
               _buildStatusOption(
                 dialogContext: dialogContext,
                 title: 'Alive',
@@ -497,9 +492,7 @@ class _PetProfilePageState extends State<PetProfilePage> {
                 background: lightTeal,
                 value: 'alive',
               ),
-
               const SizedBox(height: 10),
-
               _buildStatusOption(
                 dialogContext: dialogContext,
                 title: 'Mark as Deceased',
@@ -995,7 +988,6 @@ class _PetProfilePageState extends State<PetProfilePage> {
                             const SizedBox(height: 16),
                             _buildEditButton(),
                             const SizedBox(height: 20),
-
                             if (isDesktop)
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1275,28 +1267,24 @@ class _PetProfilePageState extends State<PetProfilePage> {
             title: 'Pet Information',
           ),
           const SizedBox(height: 18),
-
           _buildInfoRow(
             icon: Icons.pets_rounded,
             label: 'Pet Name',
             value: _stringValue(data['petName']),
           ),
           const SizedBox(height: 11),
-
           _buildInfoRow(
             icon: Icons.category_outlined,
             label: 'Breed',
             value: _stringValue(data['breed']),
           ),
           const SizedBox(height: 11),
-
           _buildInfoRow(
             icon: Icons.palette_outlined,
             label: 'Color',
             value: _stringValue(data['color']),
           ),
           const SizedBox(height: 11),
-
           _buildInfoRow(
             icon: Icons.cake_outlined,
             label: 'Age',
@@ -1304,13 +1292,29 @@ class _PetProfilePageState extends State<PetProfilePage> {
           ),
           const SizedBox(height: 11),
 
+          // ADDED: SEX
+          _buildInfoRow(
+            icon: Icons.pets_rounded,
+            label: 'Sex',
+            value: _displaySex(_stringValue(data['sex'])),
+          ),
+          const SizedBox(height: 11),
+
+          // ADDED: IDENTIFYING MARKS
+          _buildInfoRow(
+            icon: Icons.fingerprint_rounded,
+            label: 'Identifying Marks',
+            value: _stringValue(data['identifyingMarks']).trim().isEmpty
+                ? 'Not specified'
+                : _stringValue(data['identifyingMarks']),
+          ),
+          const SizedBox(height: 11),
           _buildInfoRow(
             icon: Icons.person_outline_rounded,
             label: 'Owner Name',
             value: _stringValue(data['ownerName']),
           ),
           const SizedBox(height: 11),
-
           _buildInfoRow(
             icon: Icons.phone_outlined,
             label: 'Contact Number',
@@ -1319,6 +1323,18 @@ class _PetProfilePageState extends State<PetProfilePage> {
         ],
       ),
     );
+  }
+
+  // ADDED: DISPLAY SEX LABEL
+  String _displaySex(String sex) {
+    switch (sex.trim().toLowerCase()) {
+      case 'male':
+        return 'Male';
+      case 'female':
+        return 'Female';
+      default:
+        return 'Unknown';
+    }
   }
 
   // ============================================================
@@ -1367,7 +1383,6 @@ class _PetProfilePageState extends State<PetProfilePage> {
             title: 'Safety Level',
           ),
           const SizedBox(height: 16),
-
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(15),
@@ -1419,9 +1434,7 @@ class _PetProfilePageState extends State<PetProfilePage> {
               ],
             ),
           ),
-
           const SizedBox(height: 13),
-
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
@@ -1467,7 +1480,6 @@ class _PetProfilePageState extends State<PetProfilePage> {
             title: 'Pet Status',
           ),
           const SizedBox(height: 16),
-
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(15),
@@ -1531,9 +1543,7 @@ class _PetProfilePageState extends State<PetProfilePage> {
               ],
             ),
           ),
-
           const SizedBox(height: 13),
-
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
@@ -1584,7 +1594,6 @@ class _PetProfilePageState extends State<PetProfilePage> {
             title: 'Pet QR Profile',
           ),
           const SizedBox(height: 16),
-
           if (qrEnabled)
             QrCard(petId: petId)
           else
@@ -1626,16 +1635,13 @@ class _PetProfilePageState extends State<PetProfilePage> {
             title: 'Joint Owners',
           ),
           const SizedBox(height: 9),
-
           Text(
             ownerIds.length <= 1
                 ? 'You are currently the only owner of this pet.'
                 : '${ownerIds.length} owner accounts are connected to this pet.',
             style: const TextStyle(color: grayText, fontSize: 12, height: 1.45),
           ),
-
           const SizedBox(height: 15),
-
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(11),
@@ -1675,9 +1681,7 @@ class _PetProfilePageState extends State<PetProfilePage> {
               ],
             ),
           ),
-
           const SizedBox(height: 14),
-
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
