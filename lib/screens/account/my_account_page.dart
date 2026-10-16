@@ -148,30 +148,47 @@ class MyAccountPage extends StatelessWidget {
   }
 
   // ================================================================
-  // HEADER
+  // HEADER WITH BACK BUTTON
   // ================================================================
 
   Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text(
-                'My Account',
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w800,
-                  color: darkText,
+        IconButton(
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const LandingPage(),
                 ),
-              ),
-              SizedBox(height: 6),
-              Text(
-                'Manage your PawLink profile and view your account information.',
-                style: TextStyle(fontSize: 15, color: grayText, height: 1.4),
-              ),
-            ],
+              );
+            }
+          },
+          icon: const Icon(
+            Icons.arrow_back,
+            color: darkText,
+            size: 24,
+          ),
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(
+            minWidth: 32,
+            minHeight: 40,
+          ),
+          alignment: Alignment.centerLeft,
+          tooltip: 'Back',
+        ),
+        const SizedBox(width: 12),
+        const Expanded(
+          child: Text(
+            'My Account',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: darkText,
+            ),
           ),
         ),
       ],
@@ -251,7 +268,8 @@ class MyAccountPage extends StatelessWidget {
   // ================================================================
 
   Widget _buildAvatar(String name) {
-    final initial = name.trim().isNotEmpty ? name.trim()[0].toUpperCase() : 'P';
+    final initial =
+        name.trim().isNotEmpty ? name.trim()[0].toUpperCase() : 'P';
 
     return Container(
       width: 76,
@@ -336,7 +354,9 @@ class MyAccountPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
       ),
     );
   }
@@ -437,24 +457,23 @@ class MyAccountPage extends StatelessWidget {
       icon: Icons.person_outline,
       child: Column(
         children: [
-          _InfoRow(icon: Icons.badge_outlined, label: 'Full Name', value: name),
-
+          _InfoRow(
+            icon: Icons.badge_outlined,
+            label: 'Full Name',
+            value: name,
+          ),
           const Divider(height: 24),
-
           _InfoRow(
             icon: Icons.email_outlined,
             label: 'Email Address',
             value: email,
           ),
-
           const Divider(height: 24),
-
           _InfoRow(
             icon: Icons.phone_outlined,
             label: 'Phone Number',
             value: phone,
           ),
-
           if (createdAt != null) ...[
             const Divider(height: 24),
             _InfoRow(
@@ -485,9 +504,7 @@ class MyAccountPage extends StatelessWidget {
             icon: Icons.check_circle_outline,
             color: primaryTeal,
           ),
-
           const Divider(height: 24),
-
           _StatusRow(
             title: 'Email',
             value: user.emailVerified ? 'Verified' : 'Not verified',
@@ -496,9 +513,7 @@ class MyAccountPage extends StatelessWidget {
                 : Icons.mark_email_unread_outlined,
             color: user.emailVerified ? primaryTeal : alertRed,
           ),
-
           const Divider(height: 24),
-
           const _StatusRow(
             title: 'Authentication',
             value: 'Firebase Authentication',
@@ -521,7 +536,9 @@ class MyAccountPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: lightTeal,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: primaryTeal.withValues(alpha: 0.12)),
+        border: Border.all(
+          color: primaryTeal.withValues(alpha: 0.12),
+        ),
       ),
       child: Row(
         children: [
@@ -532,11 +549,12 @@ class MyAccountPage extends StatelessWidget {
               color: Colors.white,
               borderRadius: BorderRadius.circular(13),
             ),
-            child: const Icon(Icons.settings_outlined, color: primaryTeal),
+            child: const Icon(
+              Icons.settings_outlined,
+              color: primaryTeal,
+            ),
           ),
-
           const SizedBox(width: 14),
-
           const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -557,7 +575,6 @@ class MyAccountPage extends StatelessWidget {
               ],
             ),
           ),
-
           IconButton(
             onPressed: () {
               Navigator.push(
@@ -587,7 +604,9 @@ class MyAccountPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: alertRed.withValues(alpha: 0.18)),
+        border: Border.all(
+          color: alertRed.withValues(alpha: 0.18),
+        ),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -600,7 +619,10 @@ class MyAccountPage extends StatelessWidget {
               color: alertRed.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(13),
             ),
-            child: const Icon(Icons.logout_rounded, color: alertRed),
+            child: const Icon(
+              Icons.logout_rounded,
+              color: alertRed,
+            ),
           );
 
           final text = const Expanded(
@@ -633,7 +655,10 @@ class MyAccountPage extends StatelessWidget {
             style: OutlinedButton.styleFrom(
               foregroundColor: alertRed,
               side: const BorderSide(color: alertRed),
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 18,
+                vertical: 13,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -644,9 +669,18 @@ class MyAccountPage extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(children: [iconBox, const SizedBox(width: 14), text]),
+                Row(
+                  children: [
+                    iconBox,
+                    const SizedBox(width: 14),
+                    text,
+                  ],
+                ),
                 const SizedBox(height: 16),
-                SizedBox(width: double.infinity, child: button),
+                SizedBox(
+                  width: double.infinity,
+                  child: button,
+                ),
               ],
             );
           }
@@ -677,7 +711,10 @@ class MyAccountPage extends StatelessWidget {
           backgroundColor: Colors.white,
           title: const Text(
             'Log out of PawLink?',
-            style: TextStyle(color: darkText, fontWeight: FontWeight.w800),
+            style: TextStyle(
+              color: darkText,
+              fontWeight: FontWeight.w800,
+            ),
           ),
           content: const Text(
             'You will be returned to the PawLink landing page. '
@@ -693,7 +730,10 @@ class MyAccountPage extends StatelessWidget {
               onPressed: () {
                 Navigator.pop(dialogContext);
               },
-              child: const Text('Cancel', style: TextStyle(color: grayText)),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: grayText),
+              ),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -743,7 +783,9 @@ class MyAccountPage extends StatelessWidget {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Unable to log out. Please try again.')),
+        const SnackBar(
+          content: Text('Unable to log out. Please try again.'),
+        ),
       );
     }
   }
@@ -809,9 +851,7 @@ class _StatCard extends StatelessWidget {
             ),
             child: Icon(icon, color: color),
           ),
-
           const SizedBox(width: 13),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -881,11 +921,12 @@ class _SectionCard extends StatelessWidget {
                   color: MyAccountPage.lightTeal,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: MyAccountPage.primaryTeal),
+                child: Icon(
+                  icon,
+                  color: MyAccountPage.primaryTeal,
+                ),
               ),
-
               const SizedBox(width: 12),
-
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -911,9 +952,7 @@ class _SectionCard extends StatelessWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 20),
-
           child,
         ],
       ),
@@ -941,10 +980,12 @@ class _InfoRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 20, color: MyAccountPage.grayText),
-
+        Icon(
+          icon,
+          size: 20,
+          color: MyAccountPage.grayText,
+        ),
         const SizedBox(width: 12),
-
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -956,9 +997,7 @@ class _InfoRow extends StatelessWidget {
                   color: MyAccountPage.grayText,
                 ),
               ),
-
               const SizedBox(height: 3),
-
               Text(
                 value,
                 style: const TextStyle(
@@ -997,9 +1036,7 @@ class _StatusRow extends StatelessWidget {
     return Row(
       children: [
         Icon(icon, color: color, size: 21),
-
         const SizedBox(width: 12),
-
         Expanded(
           child: Text(
             title,
@@ -1010,7 +1047,6 @@ class _StatusRow extends StatelessWidget {
             ),
           ),
         ),
-
         Flexible(
           child: Text(
             value,

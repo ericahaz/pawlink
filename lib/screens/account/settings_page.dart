@@ -285,7 +285,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildHeader(),
+                            _buildHeader(context),
                             const SizedBox(height: 28),
                             _buildProfileSection(isDesktop),
                             const SizedBox(height: 20),
@@ -308,22 +308,49 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _buildHeader() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        Text(
-          'Settings',
-          style: TextStyle(
-            fontSize: 30,
-            fontWeight: FontWeight.w800,
+  // ================================================================
+  // HEADER WITH BACK BUTTON
+  // ================================================================
+
+  Widget _buildHeader(BuildContext context) {
+    return Row(
+      children: [
+        IconButton(
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const MyAccountPage(),
+                ),
+              );
+            }
+          },
+          icon: const Icon(
+            Icons.arrow_back,
             color: darkText,
+            size: 24,
           ),
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(
+            minWidth: 32,
+            minHeight: 40,
+          ),
+          alignment: Alignment.centerLeft,
+          tooltip: 'Back',
         ),
-        SizedBox(height: 6),
-        Text(
-          'Update your account, security, notifications, and privacy preferences.',
-          style: TextStyle(fontSize: 15, color: grayText, height: 1.4),
+        const SizedBox(width: 12),
+        const Expanded(
+          child: Text(
+            'Settings',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: darkText,
+            ),
+          ),
         ),
       ],
     );
