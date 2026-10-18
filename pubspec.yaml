@@ -11,6 +11,9 @@ dependencies:
   flutter:
     sdk: flutter
 
+  flutter_web_plugins:
+    sdk: flutter
+
   # Firebase
   firebase_core: ^4.1.0
   firebase_auth: ^6.1.0
@@ -19,6 +22,12 @@ dependencies:
 
   # UI / Icons
   cupertino_icons: ^1.0.8
+  
+  #Fonts
+  google_fonts: ^6.2.1
+
+  #Fonts
+  mobile_scanner: ^7.0.0
 
   # Maps
   flutter_map: ^8.3.2
