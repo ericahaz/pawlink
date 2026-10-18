@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../services/pet_service.dart';
 import '../../services/report_service.dart';
@@ -35,20 +36,23 @@ class _HomePageState extends State<HomePage>
 
   late final AnimationController _backgroundAnimationController;
 
-  static const Color primaryTeal = Color(0xFF0F766E);
-  static const Color darkTeal = Color(0xFF115E59);
-  static const Color deepTeal = Color(0xFF103B38);
+  static const Color primaryTeal = Color(0xFF0A7E8C);
+  static const Color darkTeal = Color(0xFF075C65);
+  static const Color deepTeal = Color(0xFF064B52);
 
-  static const Color lightTeal = Color(0xFFE7F5F2);
-  static const Color softerTeal = Color(0xFFF0F8F6);
+  static const Color lightTeal = Color(0xFFE5F4F5);
+  static const Color softerTeal = Color(0xFFF0F8F8);
 
-  static const Color alertRed = Color(0xFFDC2626);
+  static const Color alertRed = Color(0xFFEE5253);
+  static const Color warmOrange = Color(0xFFFF9F43);
+  static const Color foundGreen = Color(0xFF10AC84);
+  static const Color qrBlue = Color(0xFF2E86DE);
 
-  static const Color warmBackground = Color(0xFFFFFBF5);
+  static const Color warmBackground = Color(0xFFF8F9FA);
 
-  static const Color darkText = Color(0xFF243333);
-  static const Color grayText = Color(0xFF667373);
-  static const Color borderColor = Color(0xFFE3E5E3);
+  static const Color darkText = Color(0xFF263238);
+  static const Color grayText = Color(0xFF667085);
+  static const Color borderColor = Color(0xFFE5E7EB);
 
   @override
   void initState() {
@@ -134,38 +138,69 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: warmBackground,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final bool isDesktop = constraints.maxWidth >= 900;
+    final ThemeData baseTheme = Theme.of(context);
+    final TextTheme poppinsTextTheme = GoogleFonts.poppinsTextTheme(
+      baseTheme.textTheme,
+    );
 
-          if (isDesktop) {
-            return Row(
-              children: [
-                SizedBox(width: 258, child: _buildDesktopSidebar()),
-                Expanded(
-                  child: SafeArea(
-                    child: _buildDashboardContent(isDesktop: true),
+    return Theme(
+      data: baseTheme.copyWith(
+        textTheme: poppinsTextTheme,
+        primaryTextTheme: GoogleFonts.poppinsTextTheme(
+          baseTheme.primaryTextTheme,
+        ),
+        colorScheme: baseTheme.colorScheme.copyWith(
+          primary: primaryTeal,
+          secondary: warmOrange,
+          error: alertRed,
+          surface: Colors.white,
+        ),
+        scaffoldBackgroundColor: warmBackground,
+        appBarTheme: baseTheme.appBarTheme.copyWith(
+          backgroundColor: Colors.white,
+          foregroundColor: darkText,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: warmOrange,
+            foregroundColor: darkText,
+            textStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          ),
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: warmBackground,
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final bool isDesktop = constraints.maxWidth >= 900;
+
+            if (isDesktop) {
+              return Row(
+                children: [
+                  SizedBox(width: 258, child: _buildDesktopSidebar()),
+                  Expanded(
+                    child: SafeArea(
+                      child: _buildDashboardContent(isDesktop: true),
+                    ),
                   ),
-                ),
-              ],
-            );
-          }
+                ],
+              );
+            }
 
-          return SafeArea(
-            bottom: false,
-            child: Column(
-              children: [
-                _buildMobileHeader(),
-                Expanded(
-                  child: _buildDashboardContent(isDesktop: false),
-                ),
-                _buildMobileBottomNavigation(),
-              ],
-            ),
-          );
-        },
+            return SafeArea(
+              bottom: false,
+              child: Column(
+                children: [
+                  _buildMobileHeader(),
+                  Expanded(
+                    child: _buildDashboardContent(isDesktop: false),
+                  ),
+                  _buildMobileBottomNavigation(),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -455,8 +490,8 @@ class _HomePageState extends State<HomePage>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFFFFF7F5),
-            Color(0xFFFFF1EE),
+            Color(0xFFFFF3F3),
+            Color(0xFFFFEEEE),
           ],
         ),
         borderRadius: BorderRadius.circular(19),
@@ -896,8 +931,8 @@ class _HomePageState extends State<HomePage>
             style: TextStyle(fontWeight: FontWeight.w800),
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: primaryTeal,
+            backgroundColor: warmOrange,
+            foregroundColor: darkText,
             elevation: 0,
             padding: const EdgeInsets.symmetric(
               horizontal: 18,
@@ -1041,7 +1076,7 @@ class _HomePageState extends State<HomePage>
         'icon': Icons.qr_code_2_rounded,
         'label': 'QR Profiles',
         'value': loadingPets ? '...' : '$qrCount',
-        'color': darkTeal,
+        'color': qrBlue,
         'subtitle': 'Connected',
       },
       {
@@ -1210,7 +1245,7 @@ class _HomePageState extends State<HomePage>
                   icon: Icons.add_circle_outline_rounded,
                   title: 'Register Pet',
                   description: 'Create a new pet profile',
-                  color: primaryTeal,
+                  color: warmOrange,
                   onTap: _openRegisterPet,
                   tag: 'START HERE',
                 ),
@@ -1246,7 +1281,7 @@ class _HomePageState extends State<HomePage>
                 icon: Icons.add_circle_outline_rounded,
                 title: 'Register Pet',
                 description: 'Create a new pet profile',
-                color: primaryTeal,
+                color: warmOrange,
                 onTap: _openRegisterPet,
                 tag: 'START HERE',
               ),
@@ -1685,7 +1720,7 @@ class _HomePageState extends State<HomePage>
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [warmBackground, Color(0xFFFFF8EF)],
+          colors: [warmBackground, Color(0xFFFFF7ED)],
         ),
         borderRadius: BorderRadius.circular(19),
         border: Border.all(color: borderColor),
@@ -1927,12 +1962,12 @@ class _HomePageState extends State<HomePage>
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: primaryTeal.withValues(alpha: 0.09),
+              color: foundGreen.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
               Icons.location_on_outlined,
-              color: primaryTeal,
+              color: foundGreen,
               size: 21,
             ),
           ),
@@ -1968,7 +2003,7 @@ class _HomePageState extends State<HomePage>
                 vertical: 5,
               ),
               decoration: BoxDecoration(
-                color: primaryTeal.withValues(alpha: 0.08),
+                color: foundGreen.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text(
@@ -1976,7 +2011,7 @@ class _HomePageState extends State<HomePage>
                 style: TextStyle(
                   fontSize: 7,
                   fontWeight: FontWeight.w900,
-                  color: primaryTeal,
+                  color: foundGreen,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -1998,7 +2033,7 @@ class _HomePageState extends State<HomePage>
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFFFFF5F2), Color(0xFFFFEFEC)],
+          colors: [Color(0xFFFFF3F3), Color(0xFFFFEEEE)],
         ),
         borderRadius: BorderRadius.circular(21),
         border: Border.all(

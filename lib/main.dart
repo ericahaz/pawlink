@@ -10,6 +10,7 @@ import 'screens/landing/landing_page.dart';
 import 'screens/public/public_pet_page.dart';
 import 'screens/pets/accept_invitation_page.dart';
 import 'screens/home/home_page.dart';
+import 'screens/admin/barangay_admin_page.dart';
 
 // ============================================================
 // PAWLINK APP ENTRY POINT
@@ -82,9 +83,7 @@ class PawLink extends StatelessWidget {
       //
       // Public pet profile: /p/PET-ID
       // Joint-owner invitation: /invite/INVITATION-ID
-      //
-      // On Web, inspect the browser path before showing
-      // the default authentication gate.
+      // Barangay Admin: /admin/barangay
       // ======================================================
 
       onGenerateInitialRoutes: (initialRoute) {
@@ -158,6 +157,23 @@ class PawLink extends StatelessWidget {
         builder: (_) => AcceptInvitationPage(
           invitationId: invitationId,
         ),
+      );
+    }
+
+    // --------------------------------------------------------
+    // BARANGAY ADMIN PAGE
+    // URL format: /admin/barangay
+    //
+    // BarangayAdminPage checks the Firebase admin claim.
+    // The Firestore rules must also enforce admin permissions.
+    // --------------------------------------------------------
+
+    if (segments.length == 2 &&
+        segments[0].toLowerCase() == 'admin' &&
+        segments[1].toLowerCase() == 'barangay') {
+      return MaterialPageRoute<dynamic>(
+        settings: settings ?? RouteSettings(name: path),
+        builder: (_) => const BarangayAdminPage(),
       );
     }
 

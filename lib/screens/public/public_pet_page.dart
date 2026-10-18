@@ -16,7 +16,30 @@ class _PublicPetPageState extends State<PublicPetPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<DocumentSnapshot<Map<String, dynamic>>> _getPet() {
-    return _firestore.collection('pets').doc(widget.petId).get();
+    return _firestore.collection('public_pets').doc(widget.petId).get();
+  }
+
+  int _selectedPhotoIndex = 0;
+
+  List<String> _readPhotoUrls(Map<String, dynamic> data) {
+    final dynamic savedUrls = data['photoUrls'];
+
+    if (savedUrls is List) {
+      final urls = savedUrls
+          .whereType<String>()
+          .map((url) => url.trim())
+          .where((url) => url.isNotEmpty)
+          .take(4)
+          .toList();
+
+      if (urls.isNotEmpty) {
+        return urls;
+      }
+    }
+
+    final String legacyUrl = (data['photoUrl'] ?? '').toString().trim();
+
+    return legacyUrl.isEmpty ? <String>[] : <String>[legacyUrl];
   }
 
   @override
@@ -32,103 +55,62 @@ class _PublicPetPageState extends State<PublicPetPage> {
       body: FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
         future: _getPet(),
         builder: (context, snapshot) {
-          // Loading
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
-              child: CircularProgressIndicator(color: Color(0xFF00897B)),
+              child: CircularProgressIndicator(
+                color: Color(0xFF00897B),
+              ),
             );
           }
 
-          // Error
           if (snapshot.hasError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: 60,
-                      color: Colors.red,
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Unable to load pet profile.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '${snapshot.error}',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.grey),
-                    ),
-                  ],
-                ),
-              ),
+            return const _MessagePage(
+              icon: Icons.error_outline,
+              title: 'Unable to load pet profile.',
+              message: 'Please try again later. If the problem continues, '
+                  'contact PawLink support.',
             );
           }
 
-          // Pet does not exist
           if (!snapshot.hasData || !snapshot.data!.exists) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.pets_outlined, size: 70, color: Colors.grey),
-                    SizedBox(height: 16),
-                    Text(
-                      'Pet profile not found.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'This QR code may be invalid or the pet profile may no longer be available.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey, fontSize: 14),
-                    ),
-                  ],
-                ),
-              ),
+            return const _MessagePage(
+              icon: Icons.pets_outlined,
+              title: 'Pet profile not found.',
+              message: 'This QR profile may not have been created yet or '
+                  'may no longer be available.',
             );
           }
 
-          // Get Firestore data
           final data = snapshot.data!.data()!;
 
-          // Pet name
-          final String petName =
-              (data['name'] ?? data['petName'] ?? 'Unknown Pet').toString();
+          if (data['qrEnabled'] != true) {
+            return const _MessagePage(
+              icon: Icons.qr_code_2,
+              title: 'QR profile unavailable.',
+              message: 'The owner has disabled this pet profile.',
+            );
+          }
 
-          // Other pet information
+          final String petName = (data['petName'] ?? 'Unknown Pet').toString();
           final String breed = (data['breed'] ?? 'Not specified').toString();
-
           final String color = (data['color'] ?? 'Not specified').toString();
-
           final String age = (data['age'] ?? 'Not specified').toString();
+          final String status = (data['status'] ?? 'alive').toString();
 
-          final String status = (data['status'] ?? 'Alive').toString();
+          final List<String> photoUrls = _readPhotoUrls(data);
 
-          final String photoUrl = (data['photoUrl'] ?? '').toString();
+          final int selectedIndex = photoUrls.isEmpty
+              ? 0
+              : _selectedPhotoIndex.clamp(0, photoUrls.length - 1);
+
+          final bool isLost = status.toLowerCase() == 'lost';
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // =========================
-                // PET PHOTO
-                // =========================
+                // MAIN PHOTO
                 Container(
                   height: 250,
                   width: double.infinity,
@@ -137,10 +119,20 @@ class _PublicPetPageState extends State<PublicPetPage> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                   clipBehavior: Clip.antiAlias,
-                  child: photoUrl.isNotEmpty
+                  child: photoUrls.isNotEmpty
                       ? Image.network(
-                          photoUrl,
+                          photoUrls[selectedIndex],
+                          key: ValueKey(photoUrls[selectedIndex]),
                           fit: BoxFit.cover,
+                          loadingBuilder: (context, child, progress) {
+                            if (progress == null) return child;
+
+                            return const Center(
+                              child: CircularProgressIndicator(
+                                color: Color(0xFF00897B),
+                              ),
+                            );
+                          },
                           errorBuilder: (context, error, stackTrace) {
                             return const Icon(
                               Icons.pets,
@@ -149,14 +141,77 @@ class _PublicPetPageState extends State<PublicPetPage> {
                             );
                           },
                         )
-                      : const Icon(Icons.pets, size: 90, color: Colors.grey),
+                      : const Icon(
+                          Icons.pets,
+                          size: 90,
+                          color: Colors.grey,
+                        ),
                 ),
+
+                // PHOTO GALLERY
+                if (photoUrls.length > 1) ...[
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 78,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: photoUrls.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 10),
+                      itemBuilder: (context, index) {
+                        final bool isSelected = index == selectedIndex;
+
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _selectedPhotoIndex = index;
+                            });
+                          },
+                          child: Container(
+                            width: 78,
+                            height: 78,
+                            padding: const EdgeInsets.all(3),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isSelected
+                                    ? const Color(0xFF00897B)
+                                    : Colors.grey.shade300,
+                                width: isSelected ? 2.5 : 1,
+                              ),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                photoUrls[index],
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(
+                                    Icons.broken_image_outlined,
+                                    color: Colors.grey,
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Photo ${selectedIndex + 1} of ${photoUrls.length}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
 
                 const SizedBox(height: 24),
 
-                // =========================
                 // PET NAME
-                // =========================
                 Text(
                   petName,
                   textAlign: TextAlign.center,
@@ -169,9 +224,7 @@ class _PublicPetPageState extends State<PublicPetPage> {
 
                 const SizedBox(height: 10),
 
-                // =========================
-                // STATUS
-                // =========================
+                // PET STATUS
                 Center(
                   child: Container(
                     padding: const EdgeInsets.symmetric(
@@ -179,15 +232,14 @@ class _PublicPetPageState extends State<PublicPetPage> {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: status.toLowerCase() == 'lost'
-                          ? Colors.red.shade100
-                          : Colors.green.shade100,
+                      color:
+                          isLost ? Colors.red.shade100 : Colors.green.shade100,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       status.toUpperCase(),
                       style: TextStyle(
-                        color: status.toLowerCase() == 'lost'
+                        color: isLost
                             ? Colors.red.shade800
                             : Colors.green.shade800,
                         fontWeight: FontWeight.bold,
@@ -199,32 +251,27 @@ class _PublicPetPageState extends State<PublicPetPage> {
 
                 const SizedBox(height: 24),
 
-                // =========================
-                // PET INFORMATION
-                // =========================
                 _InfoCard(
                   icon: Icons.category_outlined,
                   label: 'Breed',
                   value: breed,
                 ),
-
                 const SizedBox(height: 12),
-
                 _InfoCard(
                   icon: Icons.palette_outlined,
                   label: 'Color',
                   value: color,
                 ),
-
                 const SizedBox(height: 12),
-
-                _InfoCard(icon: Icons.cake_outlined, label: 'Age', value: age),
+                _InfoCard(
+                  icon: Icons.cake_outlined,
+                  label: 'Age',
+                  value: age,
+                ),
 
                 const SizedBox(height: 28),
 
-                // =========================
-                // FOUND PET BUTTON
-                // =========================
+                // EXISTING FOUND-PET REPORT ACTION
                 SizedBox(
                   height: 54,
                   child: ElevatedButton.icon(
@@ -232,12 +279,10 @@ class _PublicPetPageState extends State<PublicPetPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) {
-                            return ReportFoundPetPage(
-                              petId: widget.petId,
-                              petName: petName,
-                            );
-                          },
+                          builder: (context) => ReportFoundPetPage(
+                            petId: widget.petId,
+                            petName: petName,
+                          ),
                         ),
                       );
                     },
@@ -263,9 +308,13 @@ class _PublicPetPageState extends State<PublicPetPage> {
                 const SizedBox(height: 12),
 
                 const Text(
-                  'If you found this pet, you can send a report to the owner through PawLink.',
+                  'If you found this pet, you can send a report to '
+                  'the owner through PawLink.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey, fontSize: 13),
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 13,
+                  ),
                 ),
 
                 const SizedBox(height: 20),
@@ -278,9 +327,50 @@ class _PublicPetPageState extends State<PublicPetPage> {
   }
 }
 
-// =====================================================
-// INFORMATION CARD
-// =====================================================
+class _MessagePage extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String message;
+
+  const _MessagePage({
+    required this.icon,
+    required this.title,
+    required this.message,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 64, color: Colors.grey),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 21,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.grey,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class _InfoCard extends StatelessWidget {
   final IconData icon;
@@ -310,22 +400,21 @@ class _InfoCard extends StatelessWidget {
               color: const Color(0xFFE0F2F1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.pets, color: Color(0xFF00897B)),
+            child: Icon(icon, color: const Color(0xFF00897B)),
           ),
-
           const SizedBox(width: 14),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   label,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
                 ),
-
                 const SizedBox(height: 3),
-
                 Text(
                   value,
                   style: const TextStyle(

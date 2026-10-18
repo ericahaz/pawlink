@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../models/pet_model.dart';
@@ -933,28 +932,34 @@ class _ReportPageState extends State<ReportPage> {
                                 break;
                             }
 
-                            if (!mounted) {
+                            if (!mounted || !dialogContext.mounted) {
                               return;
                             }
 
                             Navigator.pop(dialogContext);
 
-                            ScaffoldMessenger.of(context).showSnackBar(
+                            if (!mounted) {
+                              return;
+                            }
+
+                            ScaffoldMessenger.of(this.context).showSnackBar(
                               const SnackBar(
                                 content: Text('Report submitted successfully.'),
                                 backgroundColor: primaryTeal,
                               ),
                             );
                           } catch (e) {
-                            setDialogState(() {
-                              isSaving = false;
-                            });
+                            if (dialogContext.mounted) {
+                              setDialogState(() {
+                                isSaving = false;
+                              });
+                            }
 
                             if (!mounted) {
                               return;
                             }
 
-                            ScaffoldMessenger.of(context).showSnackBar(
+                            ScaffoldMessenger.of(this.context).showSnackBar(
                               SnackBar(
                                 content: Text(
                                   e.toString().replaceFirst('Exception: ', ''),
@@ -1422,24 +1427,34 @@ class _ReportPageState extends State<ReportPage> {
                               locationName: selectedLocationName,
                             );
 
-                            if (!mounted) {
+                            if (!mounted || !dialogContext.mounted) {
                               return;
                             }
 
                             Navigator.pop(dialogContext);
 
-                            ScaffoldMessenger.of(context).showSnackBar(
+                            if (!mounted) {
+                              return;
+                            }
+
+                            ScaffoldMessenger.of(this.context).showSnackBar(
                               const SnackBar(
                                 content: Text('Report updated.'),
                                 backgroundColor: primaryTeal,
                               ),
                             );
                           } catch (e) {
-                            setState(() {
-                              saving = false;
-                            });
+                            if (mounted) {
+                              setState(() {
+                                saving = false;
+                              });
+                            }
 
-                            ScaffoldMessenger.of(context).showSnackBar(
+                            if (!mounted) {
+                              return;
+                            }
+
+                            ScaffoldMessenger.of(this.context).showSnackBar(
                               SnackBar(
                                 content: Text(
                                   e.toString().replaceFirst('Exception: ', ''),

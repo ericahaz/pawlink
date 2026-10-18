@@ -6,21 +6,27 @@ class ReportModel {
 
   final String? petId;
   final String? petName;
+  final String? breed;
+  final String? color;
   final String? title;
   final String? name;
 
   final String location;
   final String details;
+  final String? description;
 
   final String? lastSeenLocation;
   final String? foundLocation;
   final String? locationName;
 
   final String? foundDate;
+  final DateTime? lostDate;
   final String? message;
   final String? photoUrl;
 
+  final String? contactNumber;
   final String? reportedBy;
+  final String? reporterId;
   final String? reporterEmail;
 
   final String status;
@@ -39,15 +45,21 @@ class ReportModel {
     required this.status,
     this.petId,
     this.petName,
+    this.breed,
+    this.color,
     this.title,
     this.name,
+    this.description,
     this.lastSeenLocation,
     this.foundLocation,
     this.locationName,
     this.foundDate,
+    this.lostDate,
     this.message,
     this.photoUrl,
+    this.contactNumber,
     this.reportedBy,
+    this.reporterId,
     this.reporterEmail,
     this.latitude,
     this.longitude,
@@ -56,90 +68,97 @@ class ReportModel {
   });
 
   // ============================================================
-  // FIRESTORE → MODEL
+  // FIRESTORE -> MODEL
+  // Supports both the ReportService and ReportLostPetPage formats.
   // ============================================================
 
   factory ReportModel.fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> document,
   ) {
-    final data = document.data() ?? {};
+    final data = document.data() ?? <String, dynamic>{};
+
+    final rawType = data['type'] ?? data['reportType'];
+    final rawReporter = data['reportedBy'] ?? data['reporterId'];
+    final rawDetails =
+        data['details'] ?? data['description'] ?? data['message'];
+
+    final rawLocation = data['location'] ??
+        data['lastSeenLocation'] ??
+        data['foundLocation'] ??
+        data['locationName'];
 
     return ReportModel(
-      reportId: (data['reportId'] ?? document.id).toString(),
-
-      type: normalizeType(data['type']),
-
+      reportId: _stringValue(data['reportId'] ?? document.id),
+      type: normalizeType(rawType),
       petId: _stringOrNull(data['petId']),
       petName: _stringOrNull(data['petName']),
+      breed: _stringOrNull(data['breed']),
+      color: _stringOrNull(data['color']),
       title: _stringOrNull(data['title']),
       name: _stringOrNull(data['name']),
-
-      location: _stringValue(
-        data['location'] ??
-            data['lastSeenLocation'] ??
-            data['foundLocation'] ??
-            data['locationName'],
-      ),
-
-      details: _stringValue(
-        data['details'] ?? data['description'] ?? data['message'],
-      ),
-
+      location: _stringValue(rawLocation),
+      details: _stringValue(rawDetails),
+      description: _stringOrNull(data['description']),
       lastSeenLocation: _stringOrNull(data['lastSeenLocation']),
-
       foundLocation: _stringOrNull(data['foundLocation']),
-
       locationName: _stringOrNull(data['locationName']),
-
-      foundDate: _stringOrNull(data['foundDate']),
-
+      foundDate: _dateStringOrNull(data['foundDate']),
+      lostDate: _dateTimeOrNull(data['lostDate']),
       message: _stringOrNull(data['message']),
-
       photoUrl: _stringOrNull(data['photoUrl']),
-
-      reportedBy: _stringOrNull(data['reportedBy']),
-
+      contactNumber: _stringOrNull(data['contactNumber']),
+      reportedBy: _stringOrNull(rawReporter),
+      reporterId: _stringOrNull(data['reporterId']),
       reporterEmail: _stringOrNull(data['reporterEmail']),
-
       status: normalizeStatus(data['status']),
-
       latitude: _doubleOrNull(data['latitude']),
-
       longitude: _doubleOrNull(data['longitude']),
-
       createdAt: _dateTimeOrNull(data['createdAt']),
-
       updatedAt: _dateTimeOrNull(data['updatedAt']),
     );
   }
 
   // ============================================================
-  // MODEL → FIRESTORE
+  // MODEL -> FIRESTORE
+  // Writes compatible fields for both report formats.
   // ============================================================
 
   Map<String, dynamic> toMap() {
+    final normalizedType = normalizeType(type);
+    final normalizedReporter = reportedBy ?? reporterId;
+    final normalizedDescription = description ?? details;
+
     return {
       'reportId': reportId,
 
-      'type': normalizeType(type),
+      // Both formats are retained for compatibility.
+      'type': normalizedType,
+      'reportType': normalizedType,
 
       'petId': petId,
       'petName': petName,
+      'breed': breed,
+      'color': color,
       'title': title,
       'name': name,
 
       'location': location,
       'details': details,
+      'description': normalizedDescription,
 
       'lastSeenLocation': lastSeenLocation,
       'foundLocation': foundLocation,
       'locationName': locationName,
 
       'foundDate': foundDate,
+      'lostDate': lostDate == null ? null : Timestamp.fromDate(lostDate!),
       'message': message,
       'photoUrl': photoUrl ?? '',
 
-      'reportedBy': reportedBy,
+      'contactNumber': contactNumber,
+
+      'reportedBy': normalizedReporter,
+      'reporterId': normalizedReporter,
       'reporterEmail': reporterEmail,
 
       'status': normalizeStatus(status),
@@ -147,8 +166,8 @@ class ReportModel {
       'latitude': latitude,
       'longitude': longitude,
 
-      'createdAt': createdAt,
-      'updatedAt': updatedAt,
+      'createdAt': createdAt == null ? null : Timestamp.fromDate(createdAt!),
+      'updatedAt': updatedAt == null ? null : Timestamp.fromDate(updatedAt!),
     };
   }
 
@@ -157,9 +176,9 @@ class ReportModel {
   // ============================================================
 
   static String normalizeType(dynamic value) {
-    final type = value?.toString().trim().toLowerCase() ?? '';
+    final normalized = value?.toString().trim().toLowerCase() ?? '';
 
-    switch (type) {
+    switch (normalized) {
       case 'lost':
       case 'lost_pet':
         return 'lost';
@@ -187,9 +206,9 @@ class ReportModel {
   // ============================================================
 
   static String normalizeStatus(dynamic value) {
-    final status = value?.toString().trim().toLowerCase() ?? '';
+    final normalized = value?.toString().trim().toLowerCase() ?? '';
 
-    switch (status) {
+    switch (normalized) {
       case 'active':
         return 'active';
 
@@ -201,6 +220,9 @@ class ReportModel {
 
       case 'closed':
         return 'closed';
+
+      case 'new':
+        return 'active';
 
       default:
         return 'active';
@@ -274,35 +296,38 @@ class ReportModel {
   }
 
   // ============================================================
-  // HELPERS
+  // VALUE HELPERS
   // ============================================================
 
   static String _stringValue(dynamic value) {
-    if (value == null) {
-      return '';
-    }
-
+    if (value == null) return '';
     return value.toString();
   }
 
   static String? _stringOrNull(dynamic value) {
-    if (value == null) {
-      return null;
+    if (value == null) return null;
+
+    final text = value.toString().trim();
+    return text.isEmpty ? null : text;
+  }
+
+  static String? _dateStringOrNull(dynamic value) {
+    if (value == null) return null;
+
+    if (value is Timestamp) {
+      return value.toDate().toIso8601String();
+    }
+
+    if (value is DateTime) {
+      return value.toIso8601String();
     }
 
     final text = value.toString().trim();
-
-    if (text.isEmpty) {
-      return null;
-    }
-
-    return text;
+    return text.isEmpty ? null : text;
   }
 
   static double? _doubleOrNull(dynamic value) {
-    if (value == null) {
-      return null;
-    }
+    if (value == null) return null;
 
     if (value is num) {
       return value.toDouble();
@@ -312,9 +337,7 @@ class ReportModel {
   }
 
   static DateTime? _dateTimeOrNull(dynamic value) {
-    if (value == null) {
-      return null;
-    }
+    if (value == null) return null;
 
     if (value is Timestamp) {
       return value.toDate();
@@ -322,6 +345,10 @@ class ReportModel {
 
     if (value is DateTime) {
       return value;
+    }
+
+    if (value is String) {
+      return DateTime.tryParse(value);
     }
 
     return null;

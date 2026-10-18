@@ -24,7 +24,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   
   #Fonts
-  google_fonts: ^6.2.1
+  google_fonts: ^6.3.0
 
   #Fonts
   mobile_scanner: ^7.0.0

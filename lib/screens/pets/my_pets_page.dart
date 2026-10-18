@@ -15,11 +15,8 @@ class MyPetsPage extends StatefulWidget {
 
 class _MyPetsPageState extends State<MyPetsPage> {
   final PetService _petService = PetService();
-
   final TextEditingController _searchController = TextEditingController();
-
   final ScrollController _scrollController = ScrollController();
-
   final FocusNode _keyboardFocusNode = FocusNode();
 
   String _searchText = '';
@@ -81,7 +78,6 @@ class _MyPetsPageState extends State<MyPetsPage> {
 
   void _handleKeyboardEvent(KeyEvent event) {
     if (event is! KeyDownEvent) return;
-
     if (!_scrollController.hasClients) return;
 
     final viewportHeight = MediaQuery.of(context).size.height;
@@ -102,16 +98,13 @@ class _MyPetsPageState extends State<MyPetsPage> {
     } else if (event.logicalKey == LogicalKeyboardKey.end) {
       targetOffset = _scrollController.position.maxScrollExtent;
     } else if (event.logicalKey == LogicalKeyboardKey.space) {
-      if (HardwareKeyboard.instance.isShiftPressed) {
-        targetOffset = currentOffset - viewportHeight * 0.85;
-      } else {
-        targetOffset = currentOffset + viewportHeight * 0.85;
-      }
+      targetOffset = HardwareKeyboard.instance.isShiftPressed
+          ? currentOffset - viewportHeight * 0.85
+          : currentOffset + viewportHeight * 0.85;
     }
 
     if (targetOffset != null) {
       final maxScroll = _scrollController.position.maxScrollExtent;
-
       final safeOffset = targetOffset.clamp(0.0, maxScroll).toDouble();
 
       _scrollController.animateTo(
@@ -137,23 +130,28 @@ class _MyPetsPageState extends State<MyPetsPage> {
         child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
           stream: _petService.getMyPetsStream(),
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
+            if (snapshot.hasError) {
+              debugPrint('========== PAWLINK MY PETS ERROR ==========');
+              debugPrint('Error type: ${snapshot.error.runtimeType}');
+              debugPrint('Error details: ${snapshot.error}');
+              debugPrint('Stack trace: ${snapshot.stackTrace}');
+              debugPrint('===========================================');
+
+              return _buildError(error: snapshot.error);
+            }
+
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                !snapshot.hasData) {
               return const Center(
                 child: CircularProgressIndicator(color: primaryTeal),
               );
-            }
-
-            if (snapshot.hasError) {
-              return _buildError();
             }
 
             final allPets = snapshot.data?.docs ?? [];
 
             final pets = allPets.where((doc) {
               final data = doc.data();
-
               final name = data['petName']?.toString().toLowerCase() ?? '';
-
               final breed = data['breed']?.toString().toLowerCase() ?? '';
 
               return name.contains(_searchText) || breed.contains(_searchText);
@@ -417,44 +415,40 @@ class _MyPetsPageState extends State<MyPetsPage> {
       }
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final cards = [
-          _buildStatCard(
-            icon: Icons.pets_rounded,
-            label: 'Total Pets',
-            value: pets.length.toString(),
-            background: softerTeal,
-            iconColor: primaryTeal,
-          ),
-          _buildStatCard(
-            icon: Icons.qr_code_2_rounded,
-            label: 'QR Profiles',
-            value: qrCount.toString(),
-            background: const Color(0xFFF3F7F6),
-            iconColor: darkTeal,
-          ),
-          _buildStatCard(
-            icon: Icons.shield_rounded,
-            label: 'Safety Alerts',
-            value: safetyAlerts.toString(),
-            background: safetyAlerts > 0
-                ? alertRed.withValues(alpha: 0.055)
-                : const Color(0xFFF5F7F5),
-            iconColor: safetyAlerts > 0 ? alertRed : const Color(0xFF15803D),
-          ),
-        ];
+    final cards = [
+      _buildStatCard(
+        icon: Icons.pets_rounded,
+        label: 'Total Pets',
+        value: pets.length.toString(),
+        background: softerTeal,
+        iconColor: primaryTeal,
+      ),
+      _buildStatCard(
+        icon: Icons.qr_code_2_rounded,
+        label: 'QR Profiles',
+        value: qrCount.toString(),
+        background: const Color(0xFFF3F7F6),
+        iconColor: darkTeal,
+      ),
+      _buildStatCard(
+        icon: Icons.shield_rounded,
+        label: 'Safety Alerts',
+        value: safetyAlerts.toString(),
+        background: safetyAlerts > 0
+            ? alertRed.withValues(alpha: 0.055)
+            : const Color(0xFFF5F7F5),
+        iconColor: safetyAlerts > 0 ? alertRed : const Color(0xFF15803D),
+      ),
+    ];
 
-        return Row(
-          children: [
-            Expanded(child: cards[0]),
-            const SizedBox(width: 10),
-            Expanded(child: cards[1]),
-            const SizedBox(width: 10),
-            Expanded(child: cards[2]),
-          ],
-        );
-      },
+    return Row(
+      children: [
+        Expanded(child: cards[0]),
+        const SizedBox(width: 10),
+        Expanded(child: cards[1]),
+        const SizedBox(width: 10),
+        Expanded(child: cards[2]),
+      ],
     );
   }
 
@@ -667,9 +661,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
         mainAxisSpacing: 16,
         childAspectRatio: 1.02,
       ),
-      itemBuilder: (context, index) {
-        return _buildPetCard(pets[index]);
-      },
+      itemBuilder: (context, index) => _buildPetCard(pets[index]),
     );
   }
 
@@ -678,27 +670,16 @@ class _MyPetsPageState extends State<MyPetsPage> {
     bool compact = false,
   }) {
     final data = doc.data();
-
     final petId = data['petId']?.toString() ?? doc.id;
-
     final name = data['petName']?.toString() ?? 'Unnamed Pet';
-
     final breed = data['breed']?.toString() ?? 'Breed not specified';
-
     final age = data['age']?.toString() ?? '';
-
     final color = data['color']?.toString() ?? '';
-
     final status = data['status']?.toString() ?? 'alive';
-
     final safetyTag = data['safetyTag']?.toString() ?? 'safe';
-
     final photoUrl = data['photoUrl']?.toString() ?? '';
-
     final qrEnabled = data['qrEnabled'] == true;
-
     final isAlive = status.toLowerCase() == 'alive';
-
     final safetyInfo = _getSafetyInfo(safetyTag);
 
     return Material(
@@ -1002,9 +983,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
           );
         },
         loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) {
-            return child;
-          }
+          if (loadingProgress == null) return child;
 
           return Container(
             color: lightTeal,
@@ -1129,9 +1108,8 @@ class _MyPetsPageState extends State<MyPetsPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: alive
-            ? const Color(0xFFEFF8EF)
-            : alertRed.withValues(alpha: 0.08),
+        color:
+            alive ? const Color(0xFFEFF8EF) : alertRed.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -1140,7 +1118,10 @@ class _MyPetsPageState extends State<MyPetsPage> {
           Container(
             width: 5,
             height: 5,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+            ),
           ),
           const SizedBox(width: 5),
           Text(
@@ -1335,16 +1316,23 @@ class _MyPetsPageState extends State<MyPetsPage> {
     );
   }
 
-  Widget _buildError() {
+  // Diagnostic error screen: shows the real Firebase error.
+  Widget _buildError({Object? error}) {
+    final errorMessage = error?.toString() ?? 'Unknown error';
+
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Container(
+          width: double.infinity,
+          constraints: const BoxConstraints(maxWidth: 550),
           padding: const EdgeInsets.all(25),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: alertRed.withValues(alpha: 0.15)),
+            border: Border.all(
+              color: alertRed.withValues(alpha: 0.15),
+            ),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -1376,9 +1364,44 @@ class _MyPetsPageState extends State<MyPetsPage> {
               ),
               const SizedBox(height: 5),
               const Text(
-                'Please check your Firebase connection.',
+                'We encountered a problem loading your pet profiles.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: grayText, fontSize: 13),
+                style: TextStyle(
+                  color: grayText,
+                  fontSize: 13,
+                ),
+              ),
+              const SizedBox(height: 18),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF5F5),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: alertRed.withValues(alpha: 0.12),
+                  ),
+                ),
+                child: SelectableText(
+                  errorMessage,
+                  style: const TextStyle(
+                    color: Color(0xFF991B1B),
+                    fontSize: 12,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () {
+                  setState(() {});
+                },
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Retry'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryTeal,
+                  foregroundColor: Colors.white,
+                ),
               ),
             ],
           ),
