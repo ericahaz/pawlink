@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class PetService {
@@ -18,8 +19,7 @@ class PetService {
   static const Duration _uploadTimeout = Duration(seconds: 60);
   static const Duration _firestoreTimeout = Duration(seconds: 30);
 
-  // Cloudinary configuration.
-  // Never put your Cloudinary API Secret in Flutter code.
+  // Cloudinary configuration remains unchanged.
   static const String _cloudinaryCloudName = 'oxltrdez';
   static const String _cloudinaryUploadPreset = 'pawlink_pet_photos';
 
@@ -72,7 +72,6 @@ class PetService {
       }
     }
 
-    // Backward compatibility with older single-photo profiles.
     final String oldPhotoUrl = (data['photoUrl'] ?? '').toString().trim();
 
     return oldPhotoUrl.isEmpty ? <String>[] : <String>[oldPhotoUrl];
@@ -106,10 +105,8 @@ class PetService {
     String stage = 'sending the photo';
 
     try {
-      // Send the upload request.
       final streamedResponse = await request.send().timeout(_uploadTimeout);
 
-      // Read the response body.
       stage = 'reading Cloudinary response data';
 
       final response = await http.Response.fromStream(streamedResponse)
@@ -126,7 +123,6 @@ class PetService {
         );
       }
 
-      // Successful Cloudinary upload.
       if (response.statusCode >= 200 &&
           response.statusCode < 300 &&
           result is Map) {
@@ -141,7 +137,6 @@ class PetService {
         );
       }
 
-      // Read the error supplied by Cloudinary.
       String message = 'HTTP ${response.statusCode}';
 
       if (result is Map) {
@@ -159,13 +154,10 @@ class PetService {
         'Check the device internet connection and try again.',
       );
     } on http.ClientException catch (e) {
-      throw Exception(
-        'Could not connect to Cloudinary: ${e.message}',
-      );
+      throw Exception('Could not connect to Cloudinary: ${e.message}');
     } on FormatException {
       throw Exception('Cloudinary returned an invalid response.');
     } catch (e) {
-      // Preserve our diagnostic messages without wrapping them again.
       if (e is Exception) {
         rethrow;
       }
@@ -194,7 +186,6 @@ class PetService {
 
   // ============================================================
   // UPLOAD ADDITIONAL PET PHOTO
-  // slot must be 1, 2, or 3.
   // ============================================================
 
   Future<String> uploadAdditionalPetPhotoBytes({
@@ -251,17 +242,72 @@ class PetService {
   }
 
   // ============================================================
-  // CURRENT USER'S PETS
+  // CURRENT USER'S PETS — DIAGNOSTIC VERSION
+  //
+  // The original private query is preserved.
+  // No security rules are bypassed or changed.
   // ============================================================
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getMyPetsStream() {
     final user = _auth.currentUser;
 
     if (user == null) {
+      debugPrint(
+        '[PAWLINK_DIAG] My Pets: no authenticated Firebase user.',
+      );
       return const Stream.empty();
     }
 
-    return _pets.where('ownerIds', arrayContains: user.uid).snapshots();
+    debugPrint('========== PAWLINK MY PETS QUERY ==========');
+    debugPrint('[PAWLINK_DIAG] Firebase project: '
+        '${_firestore.app.options.projectId}');
+    debugPrint('[PAWLINK_DIAG] Authenticated: ${_auth.currentUser != null}');
+    debugPrint('[PAWLINK_DIAG] User UID: ${user.uid}');
+    debugPrint('[PAWLINK_DIAG] Collection: /pets');
+    debugPrint('[PAWLINK_DIAG] Operation: realtime snapshots query');
+    debugPrint('[PAWLINK_DIAG] Filter: ownerIds arrayContains current UID');
+    debugPrint('[PAWLINK_DIAG] Starting request...');
+    debugPrint('============================================');
+
+    return _pets
+        .where('ownerIds', arrayContains: user.uid)
+        .snapshots()
+        .transform(
+          StreamTransformer<QuerySnapshot<Map<String, dynamic>>,
+              QuerySnapshot<Map<String, dynamic>>>.fromHandlers(
+            handleData: (snapshot, sink) {
+              debugPrint(
+                '[PAWLINK_DIAG] /pets query SUCCESS',
+              );
+              debugPrint(
+                '[PAWLINK_DIAG] Matching document count: '
+                '${snapshot.docs.length}',
+              );
+
+              // Log document IDs only, not private document contents.
+              for (final doc in snapshot.docs) {
+                debugPrint(
+                  '[PAWLINK_DIAG] Matching document ID: ${doc.id}',
+                );
+              }
+
+              sink.add(snapshot);
+            },
+            handleError: (error, stackTrace, sink) {
+              debugPrint(
+                '[PAWLINK_DIAG] /pets query FAILED',
+              );
+              debugPrint(
+                '[PAWLINK_DIAG] Error type: ${error.runtimeType}',
+              );
+              debugPrint('[PAWLINK_DIAG] Error: $error');
+              debugPrint('[PAWLINK_DIAG] Stack trace: $stackTrace');
+
+              // Forward the error so the existing UI still displays it.
+              sink.addError(error, stackTrace);
+            },
+          ),
+        );
   }
 
   // ============================================================
@@ -296,6 +342,62 @@ class PetService {
     } catch (e) {
       throw Exception('Unable to load pet information: $e');
     }
+  }
+  // ============================================================
+  // TEMPORARY FIRESTORE PERMISSION DIAGNOSTIC
+  // Remove after testing.
+  // ============================================================
+
+  Future<void> diagnosePetReadPermissions() async {
+    const testPetId = 'fnDzRDDD6FzwX44Qh59G';
+
+    final user = _auth.currentUser;
+
+    debugPrint('========== PAWLINK PERMISSION TEST ==========');
+    debugPrint('Project: ${_firestore.app.options.projectId}');
+    debugPrint('Database: (default)');
+    debugPrint('Authenticated: ${user != null}');
+    debugPrint('UID: ${user?.uid ?? "Not signed in"}');
+    debugPrint('Test pet ID: $testPetId');
+
+    if (user == null) {
+      debugPrint('RESULT: No authenticated Firebase user.');
+      return;
+    }
+
+    // Test 1: Read one private pet document.
+    try {
+      final petSnapshot =
+          await _pets.doc(testPetId).get().timeout(_firestoreTimeout);
+
+      debugPrint(
+        'DIRECT READ: SUCCESS; exists=${petSnapshot.exists}',
+      );
+    } catch (e, stackTrace) {
+      debugPrint('DIRECT READ: FAILED; $e');
+      debugPrint('$stackTrace');
+    }
+
+    // Test 2: Query private pets owned by the signed-in user.
+    try {
+      final querySnapshot = await _pets
+          .where('ownerIds', arrayContains: user.uid)
+          .get()
+          .timeout(_firestoreTimeout);
+
+      debugPrint(
+        'OWNER QUERY: SUCCESS; count=${querySnapshot.docs.length}',
+      );
+
+      for (final doc in querySnapshot.docs) {
+        debugPrint('OWNER QUERY PET ID: ${doc.id}');
+      }
+    } catch (e, stackTrace) {
+      debugPrint('OWNER QUERY: FAILED; $e');
+      debugPrint('$stackTrace');
+    }
+
+    debugPrint('========== END PERMISSION TEST ==========');
   }
 
   // ============================================================
@@ -638,9 +740,6 @@ class PetService {
 
   // ============================================================
   // DELETE PET + PUBLIC QR PROFILE + LEGACY FIREBASE PHOTOS
-  //
-  // Cloudinary deletion is not performed from this client.
-  // It requires a trusted backend.
   // ============================================================
 
   Future<void> deletePet(String petId) async {
@@ -655,7 +754,7 @@ class PetService {
       throw Exception('Unable to delete pet profile: $e');
     }
 
-    // Clean up legacy Firebase Storage primary photo.
+    // Legacy Firebase Storage cleanup; Cloudinary is unchanged.
     try {
       await _storage
           .ref()
@@ -667,7 +766,6 @@ class PetService {
       // The legacy photo may not exist.
     }
 
-    // Clean up legacy additional photos.
     try {
       final folder = _storage.ref().child('pet_images').child(petId);
       final result = await folder.listAll().timeout(_uploadTimeout);
