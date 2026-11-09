@@ -759,7 +759,7 @@ class _HomePageState extends State<HomePage>
               ),
               const SizedBox(height: 7),
               const Text(
-                'Keep your pets connected, protected, and part of the community.',
+                'Keep your community pets connected and protected with secure QR IDs.',
                 style: TextStyle(
                   color: grayText,
                   fontSize: 13,
@@ -1070,21 +1070,21 @@ class _HomePageState extends State<HomePage>
         'label': 'My Pets',
         'value': loadingPets ? '...' : '$petCount',
         'color': primaryTeal,
-        'subtitle': 'Registered',
+        'subtitle': '',
       },
       {
         'icon': Icons.qr_code_2_rounded,
-        'label': 'QR Profiles',
+        'label': 'QR Profiles Action',
         'value': loadingPets ? '...' : '$qrCount',
         'color': qrBlue,
-        'subtitle': 'Connected',
+        'subtitle': '',
       },
       {
         'icon': Icons.assignment_outlined,
-        'label': 'My Reports',
+        'label': 'Submitted Reports',
         'value': loadingReports ? '...' : '$reportCount',
         'color': alertRed,
-        'subtitle': 'Submitted',
+        'subtitle': '',
       },
     ];
 
@@ -1166,7 +1166,7 @@ class _HomePageState extends State<HomePage>
                     Text(
                       label,
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         color: grayText,
                         fontWeight: FontWeight.w700,
                       ),
@@ -1218,7 +1218,7 @@ class _HomePageState extends State<HomePage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'What would you like to do?',
+                    'Quick Actions',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
@@ -1227,10 +1227,6 @@ class _HomePageState extends State<HomePage>
                     ),
                   ),
                   SizedBox(height: 4),
-                  Text(
-                    'Quick access to your most important PawLink tools.',
-                    style: TextStyle(fontSize: 12, color: grayText),
-                  ),
                 ],
               ),
             ),
@@ -1354,7 +1350,7 @@ class _HomePageState extends State<HomePage>
                       child: Text(
                         tag,
                         style: TextStyle(
-                          fontSize: 7,
+                          fontSize: 8,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 0.7,
                           color: color,
@@ -1365,7 +1361,7 @@ class _HomePageState extends State<HomePage>
                     Text(
                       title,
                       style: const TextStyle(
-                        fontSize: 14,
+                        fontSize: 15,
                         fontWeight: FontWeight.w900,
                         color: darkText,
                       ),
@@ -1374,7 +1370,7 @@ class _HomePageState extends State<HomePage>
                     Text(
                       description,
                       style: const TextStyle(
-                        fontSize: 11,
+                        fontSize: 12,
                         color: grayText,
                       ),
                     ),
