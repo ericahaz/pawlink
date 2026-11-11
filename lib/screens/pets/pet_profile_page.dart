@@ -1047,91 +1047,393 @@ class _PetProfilePageState extends State<PetProfilePage> {
   // PET HEADER
   // ============================================================
 
-  Widget _buildPetHeader(Map<String, dynamic> data) {
-    final String petName = _stringValue(data['petName']);
-    final String breed = _stringValue(data['breed']);
-    final String photoUrl = _stringValue(data['photoUrl']);
+  
+Widget _buildPetHeader(Map<String, dynamic> data) {
+  final String petName = _stringValue(data['petName']);
+  final String breed = _stringValue(data['breed']);
+  final String photoUrl = _stringValue(data['photoUrl']);
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Colors.white, softerTeal],
-        ),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: borderColor),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x12000000),
-            blurRadius: 22,
-            offset: Offset(0, 10),
-          ),
-          BoxShadow(
-            color: Color(0xFFFFFFFF),
-            blurRadius: 8,
-            offset: Offset(-4, -4),
-          ),
-        ],
+  final dynamic photosValue = data['photoUrls'];
+
+  final List<String> photoUrls = photosValue is List
+      ? photosValue
+          .whereType<String>()
+          .map((url) => url.trim())
+          .where((url) => url.isNotEmpty)
+          .toList()
+      : <String>[];
+
+  if (photoUrls.isEmpty && photoUrl.isNotEmpty) {
+    photoUrls.add(photoUrl);
+  }
+
+  final String albumCover = photoUrls.isNotEmpty
+      ? photoUrls.first
+      : '';
+
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      gradient: const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Colors.white, softerTeal],
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _buildPetImage(photoUrl: photoUrl, size: 92),
-          const SizedBox(width: 18),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 9,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: lightTeal,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Text(
-                    'PET PROFILE',
-                    style: TextStyle(
-                      color: primaryTeal,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.1,
+      borderRadius: BorderRadius.circular(24),
+      border: Border.all(color: borderColor),
+      boxShadow: const [
+        BoxShadow(
+          color: Color(0x12000000),
+          blurRadius: 22,
+          offset: Offset(0, 10),
+        ),
+        BoxShadow(
+          color: Color(0xFFFFFFFF),
+          blurRadius: 8,
+          offset: Offset(-4, -4),
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildPetImage(photoUrl: photoUrl, size: 92),
+            const SizedBox(width: 18),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 9,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: lightTeal,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      'PET PROFILE',
+                      style: TextStyle(
+                        color: primaryTeal,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.1,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  petName.isEmpty ? 'Unnamed Pet' : petName,
-                  style: const TextStyle(
-                    color: darkText,
-                    fontSize: 25,
-                    fontWeight: FontWeight.w900,
-                    height: 1.05,
+                  const SizedBox(height: 8),
+                  Text(
+                    petName.isEmpty ? 'Unnamed Pet' : petName,
+                    style: const TextStyle(
+                      color: darkText,
+                      fontSize: 25,
+                      fontWeight: FontWeight.w900,
+                      height: 1.05,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  breed.isEmpty ? 'Breed not specified' : breed,
-                  style: const TextStyle(
-                    color: grayText,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                  const SizedBox(height: 5),
+                  Text(
+                    breed.isEmpty ? 'Breed not specified' : breed,
+                    style: const TextStyle(
+                      color: grayText,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
+                  const SizedBox(height: 11),
+                  _buildPetIdBadge(_stringValue(data['petId'])),
+                ],
+              ),
+            ),
+          ],
+        ),
+        if (photoUrls.isNotEmpty) ...[
+          const SizedBox(height: 20),
+          const Text(
+            'Pet Photos',
+            style: TextStyle(
+              color: darkText,
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: InkWell(
+              onTap: () {
+                _showPetPhotoAlbum(photoUrls, 0);
+              },
+              borderRadius: BorderRadius.circular(17),
+              child: Container(
+                width: 420,
+                constraints: const BoxConstraints(maxWidth: 420),
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(17),
+                  border: Border.all(color: borderColor),
                 ),
-                const SizedBox(height: 11),
-                _buildPetIdBadge(_stringValue(data['petId'])),
-              ],
+                child: Row(
+                  children: [
+                    Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            albumCover,
+                            width: 94,
+                            height: 94,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                width: 94,
+                                height: 94,
+                                color: lightTeal,
+                                child: const Icon(
+                                  Icons.pets_rounded,
+                                  color: primaryTeal,
+                                  size: 32,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        Positioned(
+                          right: 0,
+                          bottom: 0,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 9,
+                              vertical: 5,
+                            ),
+                            decoration: const BoxDecoration(
+                              color: Colors.black87,
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(10),
+                              ),
+                            ),
+                            child: Text(
+                              '${photoUrls.length}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Uploaded Photos',
+                            style: TextStyle(
+                              color: darkText,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            '${photoUrls.length} photos',
+                            style: const TextStyle(
+                              color: grayText,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: grayText,
+                      size: 24,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
-      ),
+      ],
+    ),
+  );
+}
+
+
+
+Future<void> _showPetPhotoAlbum(
+  List<String> photoUrls,
+  int initialIndex,
+) async {
+  if (photoUrls.isEmpty || !mounted) return;
+
+  final int safeIndex = initialIndex.clamp(0, photoUrls.length - 1);
+
+  final PageController pageController = PageController(
+    initialPage: safeIndex,
+  );
+
+  int currentIndex = safeIndex;
+
+  try {
+    await showDialog<void>(
+      context: context,
+      barrierColor: Colors.black87,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return Dialog(
+              backgroundColor: Colors.black,
+              insetPadding: const EdgeInsets.all(18),
+              child: SizedBox(
+                width: 900,
+                height: MediaQuery.of(context).size.height * 0.78,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      child: Row(
+                        children: [
+                          const Expanded(
+                            child: Text(
+                              'Uploaded Photos',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 17,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            '${currentIndex + 1} / ${photoUrls.length}',
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              Navigator.pop(dialogContext);
+                            },
+                            icon: const Icon(
+                              Icons.close_rounded,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: PageView.builder(
+                        controller: pageController,
+                        itemCount: photoUrls.length,
+                        onPageChanged: (index) {
+                          setDialogState(() {
+                            currentIndex = index;
+                          });
+                        },
+                        itemBuilder: (context, index) {
+                          return Center(
+                            child: InteractiveViewer(
+                              minScale: 0.8,
+                              maxScale: 4,
+                              child: Image.network(
+                                photoUrls[index],
+                                fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(
+                                    Icons.broken_image_outlined,
+                                    color: Colors.white70,
+                                    size: 55,
+                                  );
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    SizedBox(
+                      height: 82,
+                      child: ListView.separated(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        scrollDirection: Axis.horizontal,
+                        itemCount: photoUrls.length,
+                        separatorBuilder: (context, index) {
+                          return const SizedBox(width: 9);
+                        },
+                        itemBuilder: (context, index) {
+                          final bool isSelected = currentIndex == index;
+
+                          return InkWell(
+                            onTap: () {
+                              pageController.animateToPage(
+                                index,
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.easeInOut,
+                              );
+                            },
+                            child: Container(
+                              width: 60,
+                              height: 60,
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: isSelected
+                                      ? primaryTeal
+                                      : Colors.white30,
+                                  width: isSelected ? 3 : 1,
+                                ),
+                                borderRadius: BorderRadius.circular(9),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: Image.network(
+                                  photoUrls[index],
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Icon(
+                                      Icons.broken_image_outlined,
+                                      color: Colors.white,
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
+  } finally {
+    pageController.dispose();
   }
+}
 
   Widget _buildPetImage({required String photoUrl, required double size}) {
     if (photoUrl.isEmpty) {
