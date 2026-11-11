@@ -370,7 +370,7 @@ class _LandingPageState extends State<LandingPage>
                     'PET & STRAY MANAGEMENT',
                     style: TextStyle(
                       color: softGray,
-                      fontSize: 8,
+                      fontSize: 14,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.8,
                     ),
@@ -453,7 +453,7 @@ class _LandingPageState extends State<LandingPage>
       ),
       child: Text(
         text,
-        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
       ),
     );
   }
@@ -517,7 +517,7 @@ class _LandingPageState extends State<LandingPage>
                 'Kumusta, ka-PawLink!',
                 style: TextStyle(
                   color: darkTeal,
-                  fontSize: 12,
+                  fontSize: 16,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -550,7 +550,7 @@ class _LandingPageState extends State<LandingPage>
           'PawLink brings pet owners, residents, and barangays '
           'together in one place to register pets, share reports, '
           'and help lost animals find their way home.',
-          style: TextStyle(color: grayText, fontSize: 16, height: 1.65),
+          style: TextStyle(color: grayText, fontSize: 18, height: 1.65),
         ),
         const SizedBox(height: 27),
         Wrap(
@@ -613,7 +613,7 @@ class _LandingPageState extends State<LandingPage>
               'Built around local community support',
               style: TextStyle(
                 color: grayText,
-                fontSize: 12,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -757,7 +757,7 @@ class _LandingPageState extends State<LandingPage>
                       'PET PROFILE',
                       style: TextStyle(
                         color: softGray,
-                        fontSize: 8,
+                        fontSize: 14,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 1,
                       ),
@@ -767,7 +767,7 @@ class _LandingPageState extends State<LandingPage>
                       'Max',
                       style: TextStyle(
                         color: darkText,
-                        fontSize: 18,
+                        fontSize: 20,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
@@ -786,7 +786,7 @@ class _LandingPageState extends State<LandingPage>
                   'Shih Tzu',
                   style: TextStyle(
                     color: grayText,
-                    fontSize: 11,
+                    fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -797,7 +797,7 @@ class _LandingPageState extends State<LandingPage>
                   'Registered',
                   style: TextStyle(
                     color: primaryTeal,
-                    fontSize: 10,
+                    fontSize: 14,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -835,7 +835,7 @@ class _LandingPageState extends State<LandingPage>
             'SCAN TO IDENTIFY',
             style: TextStyle(
               color: grayText,
-              fontSize: 8,
+              fontSize: 14,
               fontWeight: FontWeight.w900,
               letterSpacing: 0.8,
             ),
@@ -862,7 +862,7 @@ class _LandingPageState extends State<LandingPage>
                 'FOUND REPORT',
                 style: TextStyle(
                   color: alertRed,
-                  fontSize: 8,
+                  fontSize: 14,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.7,
                 ),
@@ -872,7 +872,7 @@ class _LandingPageState extends State<LandingPage>
                 'Location shared',
                 style: TextStyle(
                   color: darkText,
-                  fontSize: 11,
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -952,7 +952,7 @@ class _LandingPageState extends State<LandingPage>
           'PawLink gives the community a shared digital '
           'space for pet profiles, lost-and-found reports, '
           'and local assistance.',
-          style: TextStyle(color: grayText, fontSize: 15, height: 1.65),
+          style: TextStyle(color: grayText, fontSize: 17, height: 1.65),
         ),
       ],
     );
@@ -1021,7 +1021,7 @@ class _LandingPageState extends State<LandingPage>
                 title,
                 style: const TextStyle(
                   color: darkText,
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -1030,7 +1030,7 @@ class _LandingPageState extends State<LandingPage>
                 description,
                 style: const TextStyle(
                   color: grayText,
-                  fontSize: 13,
+                  fontSize: 17,
                   height: 1.45,
                 ),
               ),
@@ -1070,7 +1070,7 @@ class _LandingPageState extends State<LandingPage>
             const Text(
               'A simple flow designed around real community situations.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: grayText, fontSize: 14),
+              style: TextStyle(color: grayText, fontSize: 16),
             ),
             const SizedBox(height: 42),
             LayoutBuilder(
@@ -1164,7 +1164,7 @@ class _LandingPageState extends State<LandingPage>
                     number,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 11,
+                      fontSize: 16,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
@@ -1179,14 +1179,14 @@ class _LandingPageState extends State<LandingPage>
             title,
             style: const TextStyle(
               color: darkText,
-              fontSize: 17,
+              fontSize: 19,
               fontWeight: FontWeight.w900,
             ),
           ),
           const SizedBox(height: 6),
           Text(
             description,
-            style: const TextStyle(color: grayText, fontSize: 12, height: 1.5),
+            style: const TextStyle(color: grayText, fontSize: 16, height: 1.5),
           ),
         ],
       ),
@@ -1335,7 +1335,7 @@ class _LandingPageState extends State<LandingPage>
           const SizedBox(height: 8),
           Text(
             description,
-            style: const TextStyle(color: grayText, fontSize: 13, height: 1.55),
+            style: const TextStyle(color: grayText, fontSize: 17, height: 1.55),
           ),
         ],
       ),
@@ -1356,14 +1356,14 @@ class _LandingPageState extends State<LandingPage>
             title,
             style: const TextStyle(
               color: darkText,
-              fontSize: 17,
+              fontSize: 19,
               fontWeight: FontWeight.w900,
             ),
           ),
           const SizedBox(height: 7),
           Text(
             description,
-            style: const TextStyle(color: grayText, fontSize: 12, height: 1.5),
+            style: const TextStyle(color: grayText, fontSize: 16, height: 1.5),
           ),
         ],
       ),
@@ -1461,7 +1461,7 @@ class _LandingPageState extends State<LandingPage>
               'SAFETY FIRST',
               style: TextStyle(
                 color: alertRed,
-                fontSize: 11,
+                fontSize: 16,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 1.2,
               ),
@@ -1484,7 +1484,7 @@ class _LandingPageState extends State<LandingPage>
           'unsafe, do not attempt to scan, catch, or approach '
           'the animal. Submit a report instead and share the '
           'location with the appropriate people.',
-          style: TextStyle(color: darkRed, fontSize: 14, height: 1.65),
+          style: TextStyle(color: darkRed, fontSize: 16, height: 1.65),
         ),
       ],
     );
@@ -1517,7 +1517,7 @@ class _LandingPageState extends State<LandingPage>
                   'See a pet that needs help?',
                   style: TextStyle(
                     color: darkText,
-                    fontSize: 16,
+                    fontSize: 18,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -1563,7 +1563,7 @@ class _LandingPageState extends State<LandingPage>
                 number,
                 style: const TextStyle(
                   color: alertRed,
-                  fontSize: 9,
+                  fontSize: 14,
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -1578,7 +1578,7 @@ class _LandingPageState extends State<LandingPage>
                   title,
                   style: const TextStyle(
                     color: darkText,
-                    fontSize: 13,
+                    fontSize: 17,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -1587,7 +1587,7 @@ class _LandingPageState extends State<LandingPage>
                   description,
                   style: const TextStyle(
                     color: grayText,
-                    fontSize: 11,
+                    fontSize: 16,
                     height: 1.4,
                   ),
                 ),
@@ -1629,7 +1629,7 @@ class _LandingPageState extends State<LandingPage>
                 'PawLink is built around the people who care for, '
                 'find, report, and help protect animals in the community.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: grayText, fontSize: 14, height: 1.55),
+                style: TextStyle(color: grayText, fontSize: 16, height: 1.55),
               ),
             ),
             const SizedBox(height: 40),
@@ -1727,7 +1727,7 @@ class _LandingPageState extends State<LandingPage>
                   label,
                   style: const TextStyle(
                     color: primaryTeal,
-                    fontSize: 8,
+                    fontSize: 14,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 0.8,
                   ),
@@ -1740,14 +1740,14 @@ class _LandingPageState extends State<LandingPage>
             title,
             style: const TextStyle(
               color: darkText,
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: FontWeight.w900,
             ),
           ),
           const SizedBox(height: 7),
           Text(
             description,
-            style: const TextStyle(color: grayText, fontSize: 12, height: 1.55),
+            style: const TextStyle(color: grayText, fontSize: 16, height: 1.55),
           ),
         ],
       ),
@@ -1837,7 +1837,7 @@ class _LandingPageState extends State<LandingPage>
           textAlign: left ? TextAlign.left : TextAlign.center,
           style: const TextStyle(
             color: Color(0xFFD7F5F1),
-            fontSize: 13,
+            fontSize: 17,
             height: 1.5,
           ),
         ),
@@ -1932,7 +1932,7 @@ class _LandingPageState extends State<LandingPage>
             const Text(
               'A Community for Pet and Stray Management',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Color(0xFFB9D9D5), fontSize: 11),
+              style: TextStyle(color: Color(0xFFB9D9D5), fontSize: 16),
             ),
             const SizedBox(height: 20),
             Container(height: 1, color: const Color(0xFF315D59)),
@@ -1940,7 +1940,7 @@ class _LandingPageState extends State<LandingPage>
             const Text(
               'Made for the community, one paw at a time. 🐾',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Color(0xFFB9D9D5), fontSize: 10),
+              style: TextStyle(color: Color(0xFFB9D9D5), fontSize: 14),
             ),
           ],
         ),
@@ -1957,7 +1957,7 @@ class _LandingPageState extends State<LandingPage>
       text,
       style: const TextStyle(
         color: primaryTeal,
-        fontSize: 10,
+        fontSize: 14,
         fontWeight: FontWeight.w900,
         letterSpacing: 1.4,
       ),

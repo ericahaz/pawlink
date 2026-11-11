@@ -275,28 +275,40 @@ class _SettingsPageState extends State<SettingsPage> {
                   final isDesktop = constraints.maxWidth >= 900;
 
                   return SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isDesktop ? 48 : 20,
-                      vertical: isDesktop ? 40 : 24,
+                    padding: EdgeInsets.fromLTRB(
+                      isDesktop ? 28 : 8,
+                      4,
+                      isDesktop ? 28 : 8,
+                      isDesktop ? 32 : 20,
                     ),
                     child: Center(
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 1050),
+                        constraints: const BoxConstraints(maxWidth: 1200),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _buildHeader(context),
-                            const SizedBox(height: 28),
-                            _buildProfileSection(isDesktop),
-                            const SizedBox(height: 20),
-                            _buildSecuritySection(),
-                            const SizedBox(height: 20),
-                            _buildNotificationSection(),
-                            const SizedBox(height: 20),
-                            _buildPrivacySection(),
-                            const SizedBox(height: 20),
-                            _buildAccountActions(),
-                            const SizedBox(height: 35),
+                            SizedBox(height: isDesktop ? 24 : 18),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isDesktop ? 0 : 4,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildProfileSection(isDesktop),
+                                  const SizedBox(height: 18),
+                                  _buildSecuritySection(),
+                                  const SizedBox(height: 18),
+                                  _buildNotificationSection(),
+                                  const SizedBox(height: 18),
+                                  _buildPrivacySection(),
+                                  const SizedBox(height: 18),
+                                  _buildAccountActions(),
+                                  const SizedBox(height: 24),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -335,19 +347,19 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(
-            minWidth: 32,
-            minHeight: 40,
+            minWidth: 40,
+            minHeight: 44,
           ),
           alignment: Alignment.centerLeft,
           tooltip: 'Back',
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
         const Expanded(
           child: Text(
             'Settings',
             style: TextStyle(
               fontSize: 22,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w800,
               color: darkText,
             ),
           ),
@@ -448,7 +460,14 @@ class _SettingsPageState extends State<SettingsPage> {
   }) {
     return TextField(
       controller: controller,
+      style: const TextStyle(fontSize: 16, color: darkText),
       decoration: InputDecoration(
+        labelStyle: const TextStyle(fontSize: 15),
+        hintStyle: const TextStyle(fontSize: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 17,
+        ),
         labelText: label,
         hintText: hint,
         prefixIcon: Icon(icon),
@@ -476,7 +495,14 @@ class _SettingsPageState extends State<SettingsPage> {
     return TextField(
       enabled: false,
       controller: TextEditingController(text: email),
+      style: const TextStyle(fontSize: 16, color: grayText),
       decoration: InputDecoration(
+        labelStyle: const TextStyle(fontSize: 15),
+        helperStyle: const TextStyle(fontSize: 13),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 17,
+        ),
         labelText: 'Email Address',
         helperText: 'Your login email is managed by Firebase Authentication.',
         prefixIcon: const Icon(Icons.email_outlined),
@@ -673,7 +699,7 @@ class _SettingsPageState extends State<SettingsPage> {
     required ValueChanged<bool> onChanged,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 14),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
           Expanded(
@@ -729,7 +755,9 @@ class _SettingsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(22),
+      padding: EdgeInsets.all(
+        MediaQuery.of(context).size.width >= 900 ? 24 : 16,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
@@ -815,7 +843,7 @@ class _ActionTile extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
           children: [
             Icon(
