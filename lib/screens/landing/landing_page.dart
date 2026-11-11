@@ -428,53 +428,7 @@ class _LandingPageState extends State<LandingPage>
 
           return Row(
             children: [
-<<<<<<< HEAD
               _buildPawLinkLogo(),
-=======
-              Container(
-                width: 46,
-                height: 46,
-                decoration: BoxDecoration(
-                  color: primaryTeal,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x26000000),
-                      blurRadius: 10,
-                      offset: Offset(3, 5),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.pets_rounded,
-                  color: Colors.white,
-                  size: 25,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'PawLink',
-                    style: TextStyle(
-                      color: darkText,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  Text(
-                    'PET & STRAY MANAGEMENT',
-                    style: TextStyle(
-                      color: softGray,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8,
-                    ),
-                  ),
-                ],
-              ),
->>>>>>> 5f587cf358ff8c32ababc4e61564081a4a544eb6
               const Spacer(),
               if (!isMobile) ...[
                 _navButton('About', () => _scrollToSection(_aboutKey)),
