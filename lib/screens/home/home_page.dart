@@ -135,6 +135,83 @@ class _HomePageState extends State<HomePage>
   }
 
   // ============================================================
+  // CUSTOM PAWLINK LOGO WIDGET
+  // ============================================================
+
+  Widget _buildPawLinkLogo({bool compact = false}) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: compact ? 38 : 46,
+          height: compact ? 38 : 46,
+          decoration: _clayDecoration(
+            color: lightTeal,
+            radius: compact ? 12 : 15,
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Icon(
+                Icons.shield_rounded,
+                color: warmOrange.withValues(alpha: 0.35),
+                size: compact ? 26 : 32,
+              ),
+              const Positioned(
+                bottom: 6,
+                child: Icon(
+                  Icons.pets_rounded,
+                  color: primaryTeal,
+                  size: 18,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(width: compact ? 8 : 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Paw',
+                  style: TextStyle(
+                    fontSize: 21,
+                    fontWeight: FontWeight.w900,
+                    color: primaryTeal,
+                    letterSpacing: -0.4,
+                  ),
+                ),
+                const Text(
+                  'Link',
+                  style: TextStyle(
+                    fontSize: 21,
+                    fontWeight: FontWeight.w900,
+                    color: warmOrange,
+                    letterSpacing: -0.4,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 1),
+            const Text(
+              'Community Pet Care',
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.w600,
+                color: grayText,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
   // MAIN BUILD
   // ============================================================
 
@@ -286,7 +363,7 @@ class _HomePageState extends State<HomePage>
         children: [
           const SizedBox(height: 24),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: InkWell(
               borderRadius: BorderRadius.circular(18),
               onTap: _goToLanding,
@@ -295,49 +372,7 @@ class _HomePageState extends State<HomePage>
                   vertical: 5,
                   horizontal: 2,
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 46,
-                      height: 46,
-                      decoration: _clayDecoration(
-                        color: lightTeal,
-                        radius: 15,
-                      ),
-                      child: const Icon(
-                        Icons.pets_rounded,
-                        color: primaryTeal,
-                        size: 26,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'PawLink',
-                            style: TextStyle(
-                              fontSize: 21,
-                              fontWeight: FontWeight.w900,
-                              color: darkTeal,
-                              letterSpacing: -0.4,
-                            ),
-                          ),
-                          SizedBox(height: 1),
-                          Text(
-                            'Community Pet Care',
-                            style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w600,
-                              color: grayText,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                child: _buildPawLinkLogo(),
               ),
             ),
           ),
@@ -554,7 +589,7 @@ class _HomePageState extends State<HomePage>
     final User? user = _auth.currentUser;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(17, 12, 14, 12),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(
@@ -563,63 +598,27 @@ class _HomePageState extends State<HomePage>
       ),
       child: Row(
         children: [
-          InkWell(
-            borderRadius: BorderRadius.circular(14),
-            onTap: _goToLanding,
-            child: Container(
-              width: 43,
-              height: 43,
-              decoration: _clayDecoration(
-                color: lightTeal,
-                radius: 14,
-              ),
-              child: const Icon(
-                Icons.pets_rounded,
-                color: primaryTeal,
-                size: 23,
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
           Expanded(
             child: InkWell(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(14),
               onTap: _goToLanding,
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 5),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'PawLink',
-                      style: TextStyle(
-                        fontSize: 19,
-                        fontWeight: FontWeight.w900,
-                        color: darkTeal,
-                      ),
-                    ),
-                    Text(
-                      'Community Pet Care',
-                      style: TextStyle(
-                        fontSize: 8,
-                        fontWeight: FontWeight.w600,
-                        color: grayText,
-                      ),
-                    ),
-                  ],
-                ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: _buildPawLinkLogo(compact: true),
               ),
             ),
           ),
           _buildNotificationButton(),
+          const SizedBox(width: 4),
           CircleAvatar(
-            radius: 18,
+            radius: 17,
             backgroundColor: lightTeal,
             child: Text(
               _getInitial(user?.email),
               style: const TextStyle(
                 color: primaryTeal,
                 fontWeight: FontWeight.w800,
+                fontSize: 13,
               ),
             ),
           ),
@@ -1444,6 +1443,7 @@ class _HomePageState extends State<HomePage>
       ),
     );
   }
+
   // ============================================================
   // PETS + COMMUNITY
   // ============================================================
@@ -2357,6 +2357,7 @@ class _HomePageState extends State<HomePage>
       ),
     );
   }
+
   // ============================================================
   // NOTIFICATIONS
   // ============================================================
@@ -2527,7 +2528,7 @@ class _HomePageState extends State<HomePage>
                                     ),
                                   ),
                                   const SizedBox(height: 6),
-                                  Text(
+                                  const Text(
                                     'Please check your connection and try again.',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
@@ -2563,7 +2564,7 @@ class _HomePageState extends State<HomePage>
                                   Container(
                                     width: 82,
                                     height: 82,
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       color: lightTeal,
                                       shape: BoxShape.circle,
                                     ),
@@ -2948,11 +2949,11 @@ class _HomePageState extends State<HomePage>
       return '${difference.inDays}d ago';
     }
 
-    return '${date.day}/${date.month}/${date.year}';
+    return 'Earlier';
   }
 
   // ============================================================
-  // UPDATED LOGOUT
+  // LOGOUT
   // ============================================================
 
   Future<void> _logout() async {
@@ -2994,21 +2995,17 @@ class _HomePageState extends State<HomePage>
       },
     );
 
-    // Do nothing if the user cancels or this page is no longer active.
     if (shouldLogout != true || !mounted) {
       return;
     }
 
     try {
-      // Sign out from Firebase first.
       await _auth.signOut();
 
       if (!mounted) {
         return;
       }
 
-      // Remove HomePage and all previously pushed pages.
-      // The public LandingPage becomes the only page in the stack.
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute<void>(
           builder: (_) => const LandingPage(),
@@ -3070,13 +3067,13 @@ class _PawLinkBackgroundPainter extends CustomPainter {
     );
 
     final List<_FloatingPaw> paws = [
-      _FloatingPaw(0.10, 0.17, 31, 0.00),
-      _FloatingPaw(0.84, 0.14, 25, 0.18),
-      _FloatingPaw(0.25, 0.46, 20, 0.34),
-      _FloatingPaw(0.73, 0.52, 34, 0.51),
-      _FloatingPaw(0.12, 0.76, 25, 0.66),
-      _FloatingPaw(0.88, 0.79, 19, 0.82),
-      _FloatingPaw(0.49, 0.90, 23, 0.42),
+      const _FloatingPaw(0.10, 0.17, 31, 0.00),
+      const _FloatingPaw(0.84, 0.14, 25, 0.18),
+      const _FloatingPaw(0.25, 0.46, 20, 0.34),
+      const _FloatingPaw(0.73, 0.52, 34, 0.51),
+      const _FloatingPaw(0.12, 0.76, 25, 0.66),
+      const _FloatingPaw(0.88, 0.79, 19, 0.82),
+      const _FloatingPaw(0.49, 0.90, 23, 0.42),
     ];
 
     for (final _FloatingPaw paw in paws) {
@@ -3103,14 +3100,14 @@ class _PawLinkBackgroundPainter extends CustomPainter {
     }
 
     final List<_FloatingParticle> particles = [
-      _FloatingParticle(0.18, 0.28, 3.0, 0.05),
-      _FloatingParticle(0.42, 0.18, 2.5, 0.22),
-      _FloatingParticle(0.67, 0.30, 2.2, 0.37),
-      _FloatingParticle(0.91, 0.38, 2.7, 0.51),
-      _FloatingParticle(0.33, 0.63, 2.4, 0.66),
-      _FloatingParticle(0.61, 0.73, 2.8, 0.79),
-      _FloatingParticle(0.81, 0.91, 2.0, 0.91),
-      _FloatingParticle(0.07, 0.55, 2.5, 0.13),
+      const _FloatingParticle(0.18, 0.28, 3.0, 0.05),
+      const _FloatingParticle(0.42, 0.18, 2.5, 0.22),
+      const _FloatingParticle(0.67, 0.30, 2.2, 0.37),
+      const _FloatingParticle(0.91, 0.38, 2.7, 0.51),
+      const _FloatingParticle(0.33, 0.63, 2.4, 0.66),
+      const _FloatingParticle(0.61, 0.73, 2.8, 0.79),
+      const _FloatingParticle(0.81, 0.91, 2.0, 0.91),
+      const _FloatingParticle(0.07, 0.55, 2.5, 0.13),
     ];
 
     for (final _FloatingParticle particle in particles) {

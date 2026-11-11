@@ -24,6 +24,7 @@ class _LandingPageState extends State<LandingPage>
   static const Color deepTeal = Color(0xFF103B38);
 
   static const Color lightTeal = Color(0xFFE5F3EF);
+  static const Color warmOrange = Color(0xFFFF9F43);
 
   static const Color alertRed = Color(0xFFDC2626);
   static const Color lightRed = Color(0xFFFDECEC);
@@ -168,7 +169,6 @@ class _LandingPageState extends State<LandingPage>
           child: Stack(
             children: [
               _buildLiveBackground(),
-
               Scrollbar(
                 controller: _scrollController,
                 thumbVisibility: true,
@@ -322,6 +322,100 @@ class _LandingPageState extends State<LandingPage>
   }
 
   // ============================================================
+  // PAWLINK BRAND LOGO — MATCHES THE HOME PAGE
+  // ============================================================
+
+  BoxDecoration _logoClayDecoration({double radius = 15}) {
+    return BoxDecoration(
+      color: lightTeal,
+      borderRadius: BorderRadius.circular(radius),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.80)),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.055),
+          blurRadius: 20,
+          offset: const Offset(5, 8),
+        ),
+        BoxShadow(
+          color: Colors.white.withValues(alpha: 0.90),
+          blurRadius: 12,
+          offset: const Offset(-4, -4),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPawLinkLogo({bool compact = false}) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: compact ? 38 : 46,
+          height: compact ? 38 : 46,
+          decoration: _logoClayDecoration(radius: compact ? 12 : 15),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Icon(
+                Icons.shield_rounded,
+                color: warmOrange.withValues(alpha: 0.35),
+                size: compact ? 26 : 32,
+              ),
+              const Positioned(
+                bottom: 6,
+                child: Icon(
+                  Icons.pets_rounded,
+                  color: primaryTeal,
+                  size: 18,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(width: compact ? 8 : 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Paw',
+                  style: TextStyle(
+                    fontSize: 21,
+                    fontWeight: FontWeight.w900,
+                    color: primaryTeal,
+                    letterSpacing: -0.4,
+                  ),
+                ),
+                const Text(
+                  'Link',
+                  style: TextStyle(
+                    fontSize: 21,
+                    fontWeight: FontWeight.w900,
+                    color: warmOrange,
+                    letterSpacing: -0.4,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 1),
+            const Text(
+              'Community Pet Care',
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.w600,
+                color: grayText,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
   // NAVIGATION
   // ============================================================
 
@@ -334,49 +428,7 @@ class _LandingPageState extends State<LandingPage>
 
           return Row(
             children: [
-              Container(
-                width: 46,
-                height: 46,
-                decoration: BoxDecoration(
-                  color: primaryTeal,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x26000000),
-                      blurRadius: 10,
-                      offset: Offset(3, 5),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.pets_rounded,
-                  color: Colors.white,
-                  size: 25,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'PawLink',
-                    style: TextStyle(
-                      color: darkText,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  Text(
-                    'PET & STRAY MANAGEMENT',
-                    style: TextStyle(
-                      color: softGray,
-                      fontSize: 8,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8,
-                    ),
-                  ),
-                ],
-              ),
+              _buildPawLinkLogo(),
               const Spacer(),
               if (!isMobile) ...[
                 _navButton('About', () => _scrollToSection(_aboutKey)),
@@ -1817,9 +1869,8 @@ class _LandingPageState extends State<LandingPage>
 
   Widget _ctaText({bool left = false}) {
     return Column(
-      crossAxisAlignment: left
-          ? CrossAxisAlignment.start
-          : CrossAxisAlignment.center,
+      crossAxisAlignment:
+          left ? CrossAxisAlignment.start : CrossAxisAlignment.center,
       children: [
         Text(
           'Be part of PawLink.',
@@ -2279,8 +2330,8 @@ class _PawLinkCommunityPainter extends CustomPainter {
     final double radius = 10 + (progress * 28);
 
     final Paint ringPaint = Paint()
-      ..color = const Color(0xFFDC2626)
-          .withValues(alpha: 0.025 * (1 - progress))
+      ..color =
+          const Color(0xFFDC2626).withValues(alpha: 0.025 * (1 - progress))
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
 
