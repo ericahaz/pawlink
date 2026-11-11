@@ -300,7 +300,7 @@ class _LoginPageState extends State<LoginPage> {
           borderRadius: BorderRadius.circular(12),
         ),
         textStyle: const TextStyle(
-          fontSize: 12,
+          fontSize: 16,
           fontWeight: FontWeight.w800,
         ),
       ),
@@ -407,7 +407,7 @@ class _LoginPageState extends State<LoginPage> {
                     'PawLink',
                     style: TextStyle(
                       color: darkBackground ? Colors.white : primaryTeal,
-                      fontSize: 23,
+                      fontSize: 26,
                       fontWeight: FontWeight.w900,
                       letterSpacing: -0.5,
                     ),
@@ -418,7 +418,7 @@ class _LoginPageState extends State<LoginPage> {
                       color: darkBackground
                           ? Colors.white.withValues(alpha: 0.68)
                           : grayText,
-                      fontSize: 8.5,
+                      fontSize: 11.5,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 1.3,
                     ),
@@ -463,7 +463,7 @@ class _LoginPageState extends State<LoginPage> {
                 'WELCOME BACK, KA-PAWLINK',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 9.5,
+                  fontSize: 16,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.7,
                 ),
@@ -476,7 +476,7 @@ class _LoginPageState extends State<LoginPage> {
           'Your pets,\nyour community,\nconnected.',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 41,
+            fontSize: 42,
             height: 1.03,
             fontWeight: FontWeight.w900,
             letterSpacing: -1.2,
@@ -488,7 +488,7 @@ class _LoginPageState extends State<LoginPage> {
           'and help keep pets safe around the barangay.',
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.80),
-            fontSize: 14,
+            fontSize: 16,
             height: 1.5,
           ),
         ),
@@ -556,7 +556,7 @@ class _LoginPageState extends State<LoginPage> {
                   title,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 12.5,
+                    fontSize: 16.5,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -565,7 +565,7 @@ class _LoginPageState extends State<LoginPage> {
                   description,
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.66),
-                    fontSize: 10.5,
+                    fontSize: 16,
                     height: 1.25,
                   ),
                 ),
@@ -620,7 +620,7 @@ class _LoginPageState extends State<LoginPage> {
                   'Built for the community',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 12,
+                    fontSize: 16,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -629,7 +629,7 @@ class _LoginPageState extends State<LoginPage> {
                   'Every report can help a pet get home safely.',
                   style: TextStyle(
                     color: Color(0xB8FFFFFF),
-                    fontSize: 10.5,
+                    fontSize: 16,
                     height: 1.35,
                   ),
                 ),
@@ -646,7 +646,9 @@ class _LoginPageState extends State<LoginPage> {
   Widget _buildLoginCard() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(30),
+      padding: EdgeInsets.all(
+        MediaQuery.of(context).size.width < 380 ? 20 : 28,
+      ),
       decoration: BoxDecoration(
         color: cream,
         borderRadius: BorderRadius.circular(28),
@@ -702,7 +704,7 @@ class _LoginPageState extends State<LoginPage> {
               child: const Text(
                 'Forgot password?',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 16,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -760,7 +762,7 @@ class _LoginPageState extends State<LoginPage> {
             'Remember me',
             style: TextStyle(
               color: darkText,
-              fontSize: 12.5,
+              fontSize: 16.5,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -787,32 +789,12 @@ class _LoginPageState extends State<LoginPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: lightTeal,
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: [
-              BoxShadow(
-                color: primaryTeal.withValues(alpha: 0.08),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-          child: const Icon(
-            Icons.login_rounded,
-            color: primaryTeal,
-            size: 21,
-          ),
-        ),
         const SizedBox(height: 17),
         const Text(
           'Sign in',
           style: TextStyle(
             color: darkText,
-            fontSize: 30,
+            fontSize: 32,
             fontWeight: FontWeight.w900,
             letterSpacing: -0.6,
           ),
@@ -822,7 +804,7 @@ class _LoginPageState extends State<LoginPage> {
           'Pick up where you left off.',
           style: TextStyle(
             color: grayText,
-            fontSize: 13.5,
+            fontSize: 15.5,
             height: 1.4,
           ),
         ),
@@ -835,6 +817,11 @@ class _LoginPageState extends State<LoginPage> {
   Widget _buildEmailField() {
     return TextField(
       controller: emailController,
+      style: const TextStyle(
+        color: darkText,
+        fontSize: 16,
+        height: 1.4,
+      ),
       keyboardType: TextInputType.emailAddress,
       textInputAction: TextInputAction.next,
       autofillHints: const [
@@ -855,6 +842,11 @@ class _LoginPageState extends State<LoginPage> {
   Widget _buildPasswordField() {
     return TextField(
       controller: passwordController,
+      style: const TextStyle(
+        color: darkText,
+        fontSize: 16,
+        height: 1.4,
+      ),
       obscureText: _obscurePassword,
       textInputAction: TextInputAction.done,
       autofillHints: const [AutofillHints.password],
@@ -914,7 +906,7 @@ class _LoginPageState extends State<LoginPage> {
                   const Text(
                     'Continue to PawLink',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 16,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
@@ -962,7 +954,7 @@ class _LoginPageState extends State<LoginPage> {
             'New to PawLink? ',
             style: TextStyle(
               color: grayText,
-              fontSize: 12.5,
+              fontSize: 16.5,
             ),
           ),
           TextButton(
@@ -988,7 +980,7 @@ class _LoginPageState extends State<LoginPage> {
             child: const Text(
               'Create an account',
               style: TextStyle(
-                fontSize: 12.5,
+                fontSize: 16.5,
                 fontWeight: FontWeight.w900,
               ),
             ),
@@ -1023,7 +1015,7 @@ class _LoginPageState extends State<LoginPage> {
             'Your sign-in is handled securely through Firebase Authentication.',
             style: TextStyle(
               color: grayText,
-              fontSize: 10.5,
+              fontSize: 16,
               height: 1.45,
             ),
           ),
@@ -1061,7 +1053,7 @@ class _LoginPageState extends State<LoginPage> {
                 'WELCOME BACK, KA-PAWLINK',
                 style: TextStyle(
                   color: darkTeal,
-                  fontSize: 9.5,
+                  fontSize: 16,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.5,
                 ),
@@ -1081,7 +1073,7 @@ class _LoginPageState extends State<LoginPage> {
       textAlign: TextAlign.center,
       style: TextStyle(
         color: grayText.withValues(alpha: 0.75),
-        fontSize: 10.5,
+        fontSize: 16,
         height: 1.45,
       ),
     );
@@ -1094,7 +1086,7 @@ class _LoginPageState extends State<LoginPage> {
       text,
       style: const TextStyle(
         color: darkText,
-        fontSize: 12.5,
+        fontSize: 16.5,
         fontWeight: FontWeight.w800,
       ),
     );
@@ -1111,7 +1103,7 @@ class _LoginPageState extends State<LoginPage> {
       hintText: hint,
       hintStyle: const TextStyle(
         color: Color(0xFFA0A9A7),
-        fontSize: 13,
+        fontSize: 15,
       ),
       prefixIcon: Icon(
         icon,
@@ -1123,7 +1115,7 @@ class _LoginPageState extends State<LoginPage> {
       fillColor: Colors.white,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 15,
-        vertical: 16,
+        vertical: 18,
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
