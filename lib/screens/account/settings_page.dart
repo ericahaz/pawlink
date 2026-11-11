@@ -347,19 +347,20 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(
-            minWidth: 40,
+            minWidth: 24,
+            maxWidth: 24,
             minHeight: 44,
           ),
           alignment: Alignment.centerLeft,
           tooltip: 'Back',
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 28),
         const Expanded(
           child: Text(
             'Settings',
             style: TextStyle(
               fontSize: 22,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w900,
               color: darkText,
             ),
           ),

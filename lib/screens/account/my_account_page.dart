@@ -1,3 +1,4 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,7 @@ class MyAccountPage extends StatelessWidget {
         body: Center(
           child: Text(
             'Please sign in to view your account.',
-            style: TextStyle(color: darkText, fontSize: 15),
+            style: TextStyle(color: darkText, fontSize: 17),
           ),
         ),
       );
@@ -63,80 +64,73 @@ class MyAccountPage extends StatelessWidget {
                 final isDesktop = constraints.maxWidth >= 900;
 
                 return SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isDesktop ? 48 : 20,
-                    vertical: isDesktop ? 40 : 24,
-                  ),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 1100),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildHeader(context),
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // HEADER — aligned independently from the cards.
+                      _buildHeader(context),
 
-                          const SizedBox(height: 28),
+                      // PAGE CONTENT
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          isDesktop ? 24 : 12,
+                          isDesktop ? 24 : 20,
+                          isDesktop ? 24 : 12,
+                          isDesktop ? 32 : 20,
+                        ),
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints:
+                                const BoxConstraints(maxWidth: 1400),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildProfileCard(
+                                  context,
+                                  name: name,
+                                  email: email,
+                                  phone: phone,
+                                  user: user,
+                                  isDesktop: isDesktop,
+                                ),
 
-                          // ==================================================
-                          // PROFILE CARD
-                          // ==================================================
-                          _buildProfileCard(
-                            context,
-                            name: name,
-                            email: email,
-                            phone: phone,
-                            user: user,
-                            isDesktop: isDesktop,
+                                const SizedBox(height: 20),
+
+                                _buildStats(
+                                  petService: petService,
+                                  reportService: reportService,
+                                  isDesktop: isDesktop,
+                                ),
+
+                                const SizedBox(height: 20),
+
+                                _buildInformationCard(
+                                  name: name,
+                                  email: email,
+                                  phone: phone,
+                                  user: user,
+                                ),
+
+                                const SizedBox(height: 20),
+
+                                _buildAccountStatus(user),
+
+                                const SizedBox(height: 20),
+
+                                _buildSettingsCard(context),
+
+                                const SizedBox(height: 20),
+
+                                _buildLogoutCard(context),
+
+                                const SizedBox(height: 28),
+                              ],
+                            ),
                           ),
-
-                          const SizedBox(height: 24),
-
-                          // ==================================================
-                          // STATS
-                          // ==================================================
-                          _buildStats(
-                            petService: petService,
-                            reportService: reportService,
-                            isDesktop: isDesktop,
-                          ),
-
-                          const SizedBox(height: 24),
-
-                          // ==================================================
-                          // PERSONAL INFORMATION
-                          // ==================================================
-                          _buildInformationCard(
-                            name: name,
-                            email: email,
-                            phone: phone,
-                            user: user,
-                          ),
-
-                          const SizedBox(height: 24),
-
-                          // ==================================================
-                          // ACCOUNT STATUS
-                          // ==================================================
-                          _buildAccountStatus(user),
-
-                          const SizedBox(height: 24),
-
-                          // ==================================================
-                          // SETTINGS
-                          // ==================================================
-                          _buildSettingsCard(context),
-
-                          const SizedBox(height: 24),
-
-                          // ==================================================
-                          // LOG OUT
-                          // ==================================================
-                          _buildLogoutCard(context),
-
-                          const SizedBox(height: 32),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 );
               },
@@ -152,46 +146,49 @@ class MyAccountPage extends StatelessWidget {
   // ================================================================
 
   Widget _buildHeader(BuildContext context) {
-    return Row(
-      children: [
-        IconButton(
-          onPressed: () {
-            if (Navigator.canPop(context)) {
-              Navigator.pop(context);
-            } else {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const LandingPage(),
-                ),
-              );
-            }
-          },
-          icon: const Icon(
-            Icons.arrow_back,
-            color: darkText,
-            size: 24,
-          ),
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(
-            minWidth: 32,
-            minHeight: 40,
-          ),
-          alignment: Alignment.centerLeft,
-          tooltip: 'Back',
-        ),
-        const SizedBox(width: 12),
-        const Expanded(
-          child: Text(
-            'My Account',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
+    return Padding(
+      padding: const EdgeInsets.only(right: 12),
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: () {
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context);
+              } else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const LandingPage(),
+                  ),
+                );
+              }
+            },
+            icon: const Icon(
+              Icons.arrow_back,
               color: darkText,
+              size: 26,
+            ),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(
+              minWidth: 36,
+              minHeight: 44,
+            ),
+            alignment: Alignment.centerLeft,
+            tooltip: 'Back',
+          ),
+          const SizedBox(width: 10),
+          const Expanded(
+            child: Text(
+              'My Account',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                color: darkText,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -209,7 +206,7 @@ class MyAccountPage extends StatelessWidget {
   }) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(isDesktop ? 30 : 22),
+      padding: EdgeInsets.all(isDesktop ? 28 : 18),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -243,7 +240,7 @@ class MyAccountPage extends StatelessWidget {
                 Row(
                   children: [
                     _buildAvatar(name),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: _buildProfileText(
                         name: name,
@@ -253,7 +250,7 @@ class MyAccountPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 18),
                 SizedBox(
                   width: double.infinity,
                   child: _buildEditButton(context),
@@ -286,7 +283,7 @@ class MyAccountPage extends StatelessWidget {
         child: Text(
           initial,
           style: const TextStyle(
-            fontSize: 30,
+            fontSize: 32,
             fontWeight: FontWeight.w800,
             color: primaryTeal,
           ),
@@ -309,10 +306,10 @@ class MyAccountPage extends StatelessWidget {
       children: [
         Text(
           name,
-          maxLines: 1,
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
-            fontSize: 21,
+            fontSize: 22,
             fontWeight: FontWeight.w800,
             color: darkText,
           ),
@@ -320,16 +317,16 @@ class MyAccountPage extends StatelessWidget {
         const SizedBox(height: 5),
         Text(
           email,
-          maxLines: 1,
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 14, color: grayText),
+          style: const TextStyle(fontSize: 16, color: grayText),
         ),
         const SizedBox(height: 3),
         Text(
           phone,
-          maxLines: 1,
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 14, color: grayText),
+          style: const TextStyle(fontSize: 16, color: grayText),
         ),
       ],
     );
@@ -347,13 +344,16 @@ class MyAccountPage extends StatelessWidget {
           MaterialPageRoute(builder: (_) => const SettingsPage()),
         );
       },
-      icon: const Icon(Icons.edit_outlined, size: 18),
-      label: const Text('Edit Profile'),
+      icon: const Icon(Icons.edit_outlined, size: 20),
+      label: const Text(
+        'Edit Profile',
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+      ),
       style: ElevatedButton.styleFrom(
         backgroundColor: primaryTeal,
         foregroundColor: Colors.white,
         elevation: 0,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -532,7 +532,7 @@ class MyAccountPage extends StatelessWidget {
   Widget _buildSettingsCard(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: lightTeal,
         borderRadius: BorderRadius.circular(18),
@@ -543,8 +543,8 @@ class MyAccountPage extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 46,
-            height: 46,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(13),
@@ -552,6 +552,7 @@ class MyAccountPage extends StatelessWidget {
             child: const Icon(
               Icons.settings_outlined,
               color: primaryTeal,
+              size: 25,
             ),
           ),
           const SizedBox(width: 14),
@@ -562,15 +563,19 @@ class MyAccountPage extends StatelessWidget {
                 Text(
                   'Need to change something?',
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 17,
                     fontWeight: FontWeight.w800,
                     color: darkText,
                   ),
                 ),
-                SizedBox(height: 3),
+                SizedBox(height: 4),
                 Text(
                   'Update your personal details, password, and preferences.',
-                  style: TextStyle(fontSize: 13, color: grayText),
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: grayText,
+                    height: 1.4,
+                  ),
                 ),
               ],
             ),
@@ -584,7 +589,7 @@ class MyAccountPage extends StatelessWidget {
             },
             icon: const Icon(
               Icons.arrow_forward_ios_rounded,
-              size: 18,
+              size: 20,
               color: primaryTeal,
             ),
           ),
@@ -600,7 +605,7 @@ class MyAccountPage extends StatelessWidget {
   Widget _buildLogoutCard(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
@@ -610,11 +615,11 @@ class MyAccountPage extends StatelessWidget {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final isSmall = constraints.maxWidth < 500;
+          final isSmall = constraints.maxWidth < 550;
 
           final iconBox = Container(
-            width: 46,
-            height: 46,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               color: alertRed.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(13),
@@ -622,6 +627,7 @@ class MyAccountPage extends StatelessWidget {
             child: const Icon(
               Icons.logout_rounded,
               color: alertRed,
+              size: 25,
             ),
           );
 
@@ -632,15 +638,19 @@ class MyAccountPage extends StatelessWidget {
                 Text(
                   'Log Out',
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 17,
                     fontWeight: FontWeight.w800,
                     color: darkText,
                   ),
                 ),
-                SizedBox(height: 3),
+                SizedBox(height: 4),
                 Text(
                   'Sign out of your PawLink account on this device.',
-                  style: TextStyle(fontSize: 13, color: grayText),
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: grayText,
+                    height: 1.4,
+                  ),
                 ),
               ],
             ),
@@ -650,14 +660,17 @@ class MyAccountPage extends StatelessWidget {
             onPressed: () {
               _showLogoutConfirmation(context);
             },
-            icon: const Icon(Icons.logout_rounded, size: 18),
-            label: const Text('Log Out'),
+            icon: const Icon(Icons.logout_rounded, size: 19),
+            label: const Text(
+              'Log Out',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+            ),
             style: OutlinedButton.styleFrom(
               foregroundColor: alertRed,
               side: const BorderSide(color: alertRed),
               padding: const EdgeInsets.symmetric(
                 horizontal: 18,
-                vertical: 13,
+                vertical: 14,
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -713,13 +726,18 @@ class MyAccountPage extends StatelessWidget {
             'Log out of PawLink?',
             style: TextStyle(
               color: darkText,
+              fontSize: 21,
               fontWeight: FontWeight.w800,
             ),
           ),
           content: const Text(
             'You will be returned to the PawLink landing page. '
             'You can sign in again anytime.',
-            style: TextStyle(color: grayText, height: 1.4),
+            style: TextStyle(
+              color: grayText,
+              fontSize: 16,
+              height: 1.5,
+            ),
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
@@ -732,7 +750,10 @@ class MyAccountPage extends StatelessWidget {
               },
               child: const Text(
                 'Cancel',
-                style: TextStyle(color: grayText),
+                style: TextStyle(
+                  color: grayText,
+                  fontSize: 15,
+                ),
               ),
             ),
             ElevatedButton(
@@ -749,7 +770,10 @@ class MyAccountPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: const Text('Log Out'),
+              child: const Text(
+                'Log Out',
+                style: TextStyle(fontSize: 15),
+              ),
             ),
           ],
         );
@@ -770,9 +794,7 @@ class MyAccountPage extends StatelessWidget {
       }
 
       // Remove every dashboard/account route from the navigation stack.
-      //
-      // This prevents the user from pressing the browser/app Back button
-      // and returning to the dashboard after logging out.
+      // This prevents returning to the dashboard after logging out.
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const LandingPage()),
         (route) => false,
@@ -834,7 +856,7 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
@@ -843,13 +865,13 @@ class _StatCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 46,
-            height: 46,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.09),
               borderRadius: BorderRadius.circular(13),
             ),
-            child: Icon(icon, color: color),
+            child: Icon(icon, color: color, size: 25),
           ),
           const SizedBox(width: 13),
           Expanded(
@@ -859,17 +881,17 @@ class _StatCard extends StatelessWidget {
                 Text(
                   value,
                   style: const TextStyle(
-                    fontSize: 23,
+                    fontSize: 25,
                     fontWeight: FontWeight.w800,
                     color: MyAccountPage.darkText,
                   ),
                 ),
                 Text(
                   label,
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 14,
                     color: MyAccountPage.grayText,
                   ),
                 ),
@@ -903,7 +925,7 @@ class _SectionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
@@ -915,8 +937,8 @@ class _SectionCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 42,
-                height: 42,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
                   color: MyAccountPage.lightTeal,
                   borderRadius: BorderRadius.circular(12),
@@ -924,6 +946,7 @@ class _SectionCard extends StatelessWidget {
                 child: Icon(
                   icon,
                   color: MyAccountPage.primaryTeal,
+                  size: 24,
                 ),
               ),
               const SizedBox(width: 12),
@@ -934,17 +957,18 @@ class _SectionCard extends StatelessWidget {
                     Text(
                       title,
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 19,
                         fontWeight: FontWeight.w800,
                         color: MyAccountPage.darkText,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 3),
                     Text(
                       subtitle,
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         color: MyAccountPage.grayText,
+                        height: 1.4,
                       ),
                     ),
                   ],
@@ -982,7 +1006,7 @@ class _InfoRow extends StatelessWidget {
       children: [
         Icon(
           icon,
-          size: 20,
+          size: 23,
           color: MyAccountPage.grayText,
         ),
         const SizedBox(width: 12),
@@ -993,15 +1017,15 @@ class _InfoRow extends StatelessWidget {
               Text(
                 label,
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 14,
                   color: MyAccountPage.grayText,
                 ),
               ),
-              const SizedBox(height: 3),
+              const SizedBox(height: 4),
               Text(
                 value,
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: MyAccountPage.darkText,
                 ),
@@ -1035,13 +1059,13 @@ class _StatusRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, color: color, size: 21),
+        Icon(icon, color: color, size: 23),
         const SizedBox(width: 12),
         Expanded(
           child: Text(
             title,
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 16,
               color: MyAccountPage.darkText,
               fontWeight: FontWeight.w600,
             ),
@@ -1052,7 +1076,7 @@ class _StatusRow extends StatelessWidget {
             value,
             textAlign: TextAlign.right,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 15,
               color: color,
               fontWeight: FontWeight.w700,
             ),
