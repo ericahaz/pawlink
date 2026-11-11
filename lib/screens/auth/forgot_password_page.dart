@@ -1,3 +1,4 @@
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -278,9 +279,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
-          // ======================================================
           // DECORATIVE CIRCLES
-          // ======================================================
 
           Positioned(
             top: -85,
@@ -308,23 +307,20 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             ),
           ),
 
-          // ======================================================
           // FLOATING LOCK
-          // ======================================================
+
           Positioned(
             top: 62,
             right: 50,
             child: Transform.rotate(angle: 0.08, child: _buildFloatingLock()),
           ),
 
-          // ======================================================
           // PAW
-          // ======================================================
+
           Positioned(bottom: 55, right: 48, child: _buildPawBubble()),
 
-          // ======================================================
           // CONTENT
-          // ======================================================
+
           Padding(
             padding: const EdgeInsets.all(50),
             child: Column(
@@ -336,7 +332,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   'Lost access?\nWe can help.',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 44,
+                    fontSize: 48,
                     fontWeight: FontWeight.w800,
                     height: 1.05,
                     letterSpacing: -1.2,
@@ -348,7 +344,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   'and Firebase will send a secure password reset link.',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.76),
-                    fontSize: 15,
+                    fontSize: 16,
                     height: 1.6,
                   ),
                 ),
@@ -398,7 +394,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         'Secure account recovery',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.68),
-                          fontSize: 12,
+                          fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -450,7 +446,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 'PawLink',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 25,
+                  fontSize: 28,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.5,
                 ),
@@ -501,7 +497,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             'ACCOUNT',
             style: TextStyle(
               color: darkText,
-              fontSize: 9,
+              fontSize: 12,
               fontWeight: FontWeight.w800,
               letterSpacing: 1,
             ),
@@ -511,7 +507,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             'RECOVERY',
             style: TextStyle(
               color: grayText,
-              fontSize: 9,
+              fontSize: 12,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.8,
             ),
@@ -585,7 +581,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       number,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.42),
-                        fontSize: 11,
+                        fontSize: 13,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -595,7 +591,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         title,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 14,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -607,7 +603,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   description,
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.62),
-                    fontSize: 11.5,
+                    fontSize: 13,
                     height: 1.4,
                   ),
                 ),
@@ -661,7 +657,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     'PawLink',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 25,
+                      fontSize: 28,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -670,7 +666,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     'Secure account recovery',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.7),
-                      fontSize: 12,
+                      fontSize: 14,
                     ),
                   ),
                 ],
@@ -749,7 +745,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           'Reset your password',
           style: TextStyle(
             color: darkText,
-            fontSize: 30,
+            fontSize: 32,
             fontWeight: FontWeight.w800,
             letterSpacing: -0.7,
           ),
@@ -758,7 +754,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         const Text(
           'No worries. Enter your account email and we will send '
           'you a secure reset link.',
-          style: TextStyle(color: grayText, fontSize: 13, height: 1.55),
+          style: TextStyle(color: grayText, fontSize: 15, height: 1.55),
         ),
       ],
     );
@@ -776,7 +772,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           'Email Address',
           style: TextStyle(
             color: darkText,
-            fontSize: 13,
+            fontSize: 15,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -826,7 +822,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 children: [
                   Text(
                     'Send Reset Link',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(width: 8),
                   Icon(Icons.arrow_forward_rounded, size: 18),
@@ -865,7 +861,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             child: Text(
               'If the email belongs to a PawLink account, Firebase '
               'will send a password reset message to that address.',
-              style: TextStyle(color: darkTeal, fontSize: 11, height: 1.5),
+              style: TextStyle(color: darkTeal, fontSize: 13, height: 1.5),
             ),
           ),
         ],
@@ -889,7 +885,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         icon: const Icon(Icons.arrow_back_rounded, size: 16),
         label: const Text(
           'Back to Login',
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
         ),
         style: TextButton.styleFrom(foregroundColor: primaryTeal),
       ),
@@ -912,7 +908,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             textAlign: TextAlign.center,
             style: TextStyle(
               color: darkTeal.withValues(alpha: 0.8),
-              fontSize: 10,
+              fontSize: 12,
             ),
           ),
         ),
@@ -927,7 +923,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   InputDecoration _inputDecoration() {
     return InputDecoration(
       hintText: 'Enter your email',
-      hintStyle: const TextStyle(color: Color(0xFF9AA3A3), fontSize: 13),
+      hintStyle: const TextStyle(color: Color(0xFF9AA3A3), fontSize: 15),
       prefixIcon: const Icon(Icons.email_outlined, color: grayText, size: 20),
       filled: true,
       fillColor: Colors.white,
