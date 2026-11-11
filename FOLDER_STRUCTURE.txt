@@ -1,0 +1,78 @@
+📁 app
+  📄 pawlink_app.dart
+📁 data
+  📄 app_data.dart
+📁 features
+  📁 activity_log
+    📁 pages
+      📄 activity_log.dart
+  📁 admin_account
+    📁 pages
+      📄 admin_account.dart
+  📁 barangay_support
+    📁 pages
+      📄 barangay_support.dart
+  📁 dashboard
+    📁 pages
+      📄 admin_page.dart
+      📄 dashboard_page.dart
+  📁 help_center
+    📁 pages
+      📄 help_center.dart
+  📁 legacy_barangay
+    📁 pages
+      📄 legacy_barangay_officials.dart
+  📁 login
+    📁 pages
+      📄 admin_login_page.dart
+    📁 widgets
+      📄 login_widgets.dart
+  📁 notifications
+    📁 pages
+      📄 notifications.dart
+  📁 owners_coowners
+    📁 pages
+      📄 owners_coowners.dart
+  📁 pet_categories
+    📁 pages
+      📄 pet_categories_page.dart
+  📁 pet_registration
+    📁 dialogs
+      📄 register_pet_dialog.dart
+  📁 pet_registry
+    📁 pages
+      📄 pet_registry_page.dart
+    📁 widgets
+      📄 pet_card.dart
+  📁 qr_registry
+    📁 pages
+      📄 qr_registry.dart
+  📁 registration
+    📁 dialogs
+      📄 admin_registration_dialog.dart
+  📁 reports
+    📁 pages
+      📄 reports.dart
+  📁 residents
+    📁 pages
+      📄 residents_page.dart
+  📁 support_inbox
+    📁 pages
+      📄 support_inbox.dart
+📁 layout
+  📁 admin_shell
+    📄 admin_shell.dart
+  📁 sidebar
+    📄 admin_sidebar.dart
+📄 main.dart
+📁 models
+  📄 pawlink_models.dart
+📁 shared
+  📁 animation
+    📄 live_background.dart
+  📁 dialogs
+    📄 record_dialogs.dart
+  📁 widgets
+    📄 common_widgets.dart
+📁 theme
+  📄 app_colors.dart
