@@ -20,6 +20,7 @@ class PetRecord {
   String qrId;
   String photoLabel;
   String safetyLevel;
+  List<String> photos;
 
   PetRecord({
     required this.id,
@@ -41,6 +42,7 @@ class PetRecord {
     required this.qrId,
     required this.photoLabel,
     this.safetyLevel = 'Safe',
+    this.photos = const [],
   });
 }
 

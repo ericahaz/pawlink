@@ -14,3 +14,8 @@ final ValueNotifier<int> adminPageRequest = ValueNotifier<int>(-1);
 void requestAdminPage(int index) => adminPageRequest.value = index;
 
 final List<AdminActivity> activities = [];
+
+String currentAdminName = 'Administrator';
+final Map<String, String> registeredAdmins = {
+  'admin@pawlink.com': 'Administrator Sanchez',
+};
