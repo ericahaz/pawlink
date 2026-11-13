@@ -1897,7 +1897,10 @@ Future<void> _showPetPhotoAlbum(
           ),
           const SizedBox(height: 16),
           if (qrEnabled)
-            QrCard(petId: petId)
+            QrCard(
+              petId: petId,
+              petName: _stringValue(data['petName']),
+            )
           else
             Container(
               width: double.infinity,

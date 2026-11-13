@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import 'pet_qr_print.dart';
+
 class QrCard extends StatelessWidget {
   final String petId;
+  final String petName;
   final bool qrEnabled;
 
   const QrCard({
     super.key,
     required this.petId,
+    this.petName = 'Unnamed Pet',
     this.qrEnabled = true,
   });
 
@@ -239,6 +243,15 @@ class QrCard extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Printable square or circular collar tag.
+          PetQrPrintButton(
+            petId: actualPetId,
+            petName: petName,
+            qrEnabled: qrEnabled,
           ),
         ],
       ),

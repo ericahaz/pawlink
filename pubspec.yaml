@@ -48,6 +48,8 @@ dependencies:
   # Image picking
   image_picker: ^1.2.1
   firebase_messaging: ^16.7.1
+  pdf: ^3.13.1
+  printing: ^5.15.1
 
 dev_dependencies:
   flutter_test:
@@ -60,3 +62,9 @@ flutter:
 
   assets:
     - assets/images/
+
+dependency_overrides:
+  pdf: ^3.13.1
+  printing: ^5.15.1
+  archive: ^4.4.0
+
