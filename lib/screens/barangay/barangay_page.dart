@@ -1,17 +1,42 @@
 import 'package:flutter/material.dart';
 
+import '../../seasonal/seasonal_controller.dart';
+
 import '../home/home_page.dart';
 import '../pets/my_pets_page.dart';
 import '../reports/report_page.dart';
 
-const primaryTeal = Color(0xFF0F766E);
-const darkTeal = Color(0xFF115E59);
-const lightTeal = Color(0xFFE7F5F2);
+Color get primaryTeal =>
+    SeasonalController.instance.activeTheme?.primary ??
+    const Color(0xFF0F766E);
+Color get darkTeal =>
+    SeasonalController.instance.activeTheme?.secondary ??
+    const Color(0xFF115E59);
+Color get lightTeal {
+  final theme = SeasonalController.instance.activeTheme;
+  if (theme == null) return const Color(0xFFE7F5F2);
+  return Color.alphaBlend(
+    theme.primary.withValues(alpha: 0.10),
+    theme.surface,
+  );
+}
 const alertRed = Color(0xFFDC2626);
-const warmBackground = Color(0xFFFFFBF5);
-const darkText = Color(0xFF243333);
-const grayText = Color(0xFF667373);
-const borderColor = Color(0xFFE3E5E3);
+Color get warmBackground =>
+    SeasonalController.instance.activeTheme?.background ??
+    const Color(0xFFFFFBF5);
+Color get darkText =>
+    SeasonalController.instance.activeTheme?.textPrimary ??
+    const Color(0xFF243333);
+Color get grayText =>
+    SeasonalController.instance.activeTheme?.textSecondary ??
+    const Color(0xFF667373);
+Color get borderColor =>
+    SeasonalController.instance.activeTheme?.border ??
+    const Color(0xFFE3E5E3);
+Color get surfaceColor =>
+    SeasonalController.instance.activeTheme?.surface ?? Colors.white;
+Color get onPrimaryColor =>
+    SeasonalController.instance.activeTheme?.onPrimary ?? Colors.white;
 
 class BarangayPage extends StatefulWidget {
   const BarangayPage({super.key});
@@ -82,7 +107,7 @@ class _BarangayPageState extends State<BarangayPage> {
   Widget _buildSidebar() {
     return Container(
       width: 250,
-      color: Colors.white,
+      color: surfaceColor,
       child: SafeArea(
         child: Column(
           children: [
@@ -97,10 +122,10 @@ class _BarangayPageState extends State<BarangayPage> {
                       color: primaryTeal,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.pets, color: Colors.white),
+                    child: Icon(Icons.pets, color: onPrimaryColor),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
+                  Text(
                     'PawLink',
                     style: TextStyle(
                       fontSize: 21,
@@ -169,7 +194,7 @@ class _BarangayPageState extends State<BarangayPage> {
                   color: lightTeal,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Row(
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Icon(Icons.info_outline, color: primaryTeal, size: 20),
@@ -203,7 +228,7 @@ class _BarangayPageState extends State<BarangayPage> {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: borderColor),
       ),
@@ -226,7 +251,7 @@ class _BarangayPageState extends State<BarangayPage> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: darkText,
                     fontWeight: FontWeight.w800,
                     fontSize: 16,
@@ -235,7 +260,7 @@ class _BarangayPageState extends State<BarangayPage> {
                 const SizedBox(height: 5),
                 Text(
                   description,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: grayText,
                     fontSize: 13,
                     height: 1.45,
@@ -277,7 +302,7 @@ class _BarangayPageState extends State<BarangayPage> {
                           icon: const Icon(Icons.arrow_back),
                         ),
                         const SizedBox(width: 4),
-                        const Text(
+                        Text(
                           'Barangay',
                           style: TextStyle(
                             color: darkText,
@@ -303,10 +328,10 @@ class _BarangayPageState extends State<BarangayPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'Barangay Support',
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: onPrimaryColor,
                                   fontSize: 27,
                                   fontWeight: FontWeight.w800,
                                 ),
@@ -315,7 +340,7 @@ class _BarangayPageState extends State<BarangayPage> {
                               Text(
                                 'A central place for community pet concerns, stray reports, and barangay assistance.',
                                 style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.90),
+                                  color: onPrimaryColor.withValues(alpha: 0.90),
                                   fontSize: 14,
                                   height: 1.5,
                                 ),
@@ -329,12 +354,12 @@ class _BarangayPageState extends State<BarangayPage> {
                             width: 72,
                             height: 72,
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.12),
+                              color: onPrimaryColor.withValues(alpha: 0.12),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.account_balance,
-                              color: Colors.white,
+                              color: onPrimaryColor,
                               size: 34,
                             ),
                           ),
@@ -345,7 +370,7 @@ class _BarangayPageState extends State<BarangayPage> {
 
                   const SizedBox(height: 26),
 
-                  const Text(
+                  Text(
                     'What can you report?',
                     style: TextStyle(
                       color: darkText,
@@ -419,14 +444,14 @@ class _BarangayPageState extends State<BarangayPage> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(22),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: surfaceColor,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: borderColor),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Need to make a report?',
                           style: TextStyle(
                             color: darkText,
@@ -435,7 +460,7 @@ class _BarangayPageState extends State<BarangayPage> {
                           ),
                         ),
                         const SizedBox(height: 7),
-                        const Text(
+                        Text(
                           'Use PawLink to send a lost pet, found pet, or stray/community report.',
                           style: TextStyle(
                             color: grayText,
@@ -462,6 +487,7 @@ class _BarangayPageState extends State<BarangayPage> {
                             ),
                             style: FilledButton.styleFrom(
                               backgroundColor: primaryTeal,
+                              foregroundColor: onPrimaryColor,
                               padding: const EdgeInsets.symmetric(vertical: 15),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -482,7 +508,7 @@ class _BarangayPageState extends State<BarangayPage> {
                       color: Colors.red.shade50,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Row(
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Icon(Icons.health_and_safety_outlined, color: alertRed),
@@ -528,7 +554,7 @@ class _BarangayPageState extends State<BarangayPage> {
     return NavigationBar(
       selectedIndex: _selectedIndex,
       onDestinationSelected: _changePage,
-      backgroundColor: Colors.white,
+      backgroundColor: surfaceColor,
       indicatorColor: lightTeal,
       destinations: const [
         NavigationDestination(

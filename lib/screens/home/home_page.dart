@@ -7,6 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../services/notification_service.dart';
+import '../../seasonal/seasonal_controller.dart';
+import '../../seasonal/seasonal_navigation.dart';
+import '../../seasonal/seasonal_theme.dart';
 import '../../services/pet_service.dart';
 import '../../services/report_service.dart';
 import '../account/my_account_page.dart';
@@ -38,23 +41,37 @@ class _HomePageState extends State<HomePage>
 
   late final AnimationController _backgroundAnimationController;
 
-  static const Color primaryTeal = Color(0xFF0A7E8C);
-  static const Color darkTeal = Color(0xFF075C65);
-  static const Color deepTeal = Color(0xFF064B52);
+  SeasonalTheme? get _activeSeasonalTheme =>
+      SeasonalController.instance.activeTheme;
 
-  static const Color lightTeal = Color(0xFFE5F4F5);
-  static const Color softerTeal = Color(0xFFF0F8F8);
+  Color get primaryTeal =>
+      _activeSeasonalTheme?.primary ?? const Color(0xFF0A7E8C);
+  Color get darkTeal =>
+      _activeSeasonalTheme?.secondary ?? const Color(0xFF075C65);
+  Color get deepTeal => Color.lerp(darkTeal, Colors.black, 0.18)!;
+
+  Color get lightTeal => Color.lerp(
+        _activeSeasonalTheme?.surface ?? Colors.white,
+        primaryTeal,
+        0.10,
+      )!;
+  Color get softerTeal => Color.lerp(lightTeal, Colors.white, 0.45)!;
 
   static const Color alertRed = Color(0xFFEE5253);
-  static const Color warmOrange = Color(0xFFFF9F43);
+  // Keep orange as a separate accent; seasonal secondary is used by darkTeal.
+  Color get warmOrange => const Color(0xFFFF9F43);
   static const Color foundGreen = Color(0xFF10AC84);
   static const Color qrBlue = Color(0xFF2E86DE);
 
-  static const Color warmBackground = Color(0xFFF8F9FA);
+  Color get warmBackground =>
+      _activeSeasonalTheme?.background ?? const Color(0xFFF8F9FA);
 
-  static const Color darkText = Color(0xFF263238);
-  static const Color grayText = Color(0xFF667085);
-  static const Color borderColor = Color(0xFFE5E7EB);
+  Color get darkText =>
+      _activeSeasonalTheme?.textPrimary ?? const Color(0xFF263238);
+  Color get grayText =>
+      _activeSeasonalTheme?.textSecondary ?? const Color(0xFF667085);
+  Color get borderColor =>
+      _activeSeasonalTheme?.border ?? const Color(0xFFE5E7EB);
 
   @override
   void initState() {
@@ -157,7 +174,7 @@ class _HomePageState extends State<HomePage>
                 color: warmOrange.withValues(alpha: 0.35),
                 size: compact ? 26 : 32,
               ),
-              const Positioned(
+              Positioned(
                 bottom: 6,
                 child: Icon(
                   Icons.pets_rounded,
@@ -176,7 +193,7 @@ class _HomePageState extends State<HomePage>
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
+                Text(
                   'Paw',
                   style: TextStyle(
                     fontSize: 21,
@@ -185,7 +202,7 @@ class _HomePageState extends State<HomePage>
                     letterSpacing: -0.4,
                   ),
                 ),
-                const Text(
+                Text(
                   'Link',
                   style: TextStyle(
                     fontSize: 21,
@@ -197,7 +214,7 @@ class _HomePageState extends State<HomePage>
               ],
             ),
             const SizedBox(height: 1),
-            const Text(
+            Text(
               'Community Pet Care',
               style: TextStyle(
                 fontSize: 9,
@@ -222,7 +239,11 @@ class _HomePageState extends State<HomePage>
       baseTheme.textTheme,
     );
 
-    return Theme(
+    return AnimatedBuilder(
+      animation: SeasonalController.instance,
+      builder: (context, _) {
+        final SeasonalTheme? seasonalTheme = _activeSeasonalTheme;
+        return Theme(
       data: baseTheme.copyWith(
         textTheme: poppinsTextTheme,
         primaryTextTheme: GoogleFonts.poppinsTextTheme(
@@ -232,17 +253,17 @@ class _HomePageState extends State<HomePage>
           primary: primaryTeal,
           secondary: warmOrange,
           error: alertRed,
-          surface: Colors.white,
+          surface: seasonalTheme?.surface ?? Colors.white,
         ),
         scaffoldBackgroundColor: warmBackground,
         appBarTheme: baseTheme.appBarTheme.copyWith(
-          backgroundColor: Colors.white,
+          backgroundColor: seasonalTheme?.surface ?? Colors.white,
           foregroundColor: darkText,
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: warmOrange,
-            foregroundColor: darkText,
+            backgroundColor: primaryTeal,
+            foregroundColor: seasonalTheme?.onPrimary ?? Colors.white,
             textStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600),
           ),
         ),
@@ -281,6 +302,8 @@ class _HomePageState extends State<HomePage>
           },
         ),
       ),
+        );
+      },
     );
   }
 
@@ -294,7 +317,7 @@ class _HomePageState extends State<HomePage>
       builder: (context, _) {
         return Stack(
           children: [
-            const Positioned.fill(
+            Positioned.fill(
               child: ColoredBox(color: warmBackground),
             ),
             Positioned.fill(
@@ -350,7 +373,7 @@ class _HomePageState extends State<HomePage>
 
   Widget _buildDesktopSidebar() {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
         border: Border(
           right: BorderSide(
@@ -429,6 +452,13 @@ class _HomePageState extends State<HomePage>
                     label: 'Help Center',
                     onTap: _openHelpCenter,
                   ),
+                  const SizedBox(height: 12),
+                  _buildSidebarSectionLabel('PERSONALIZE'),
+                  _buildSidebarItem(
+                    icon: Icons.palette_outlined,
+                    label: 'Seasonal Themes',
+                    onTap: _openSeasonalThemes,
+                  ),
                   const SizedBox(height: 20),
                   _buildSidebarSafetyCard(),
                   const SizedBox(height: 18),
@@ -452,7 +482,7 @@ class _HomePageState extends State<HomePage>
       padding: const EdgeInsets.fromLTRB(12, 7, 12, 8),
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w900,
           letterSpacing: 1.3,
@@ -506,7 +536,7 @@ class _HomePageState extends State<HomePage>
                   Container(
                     width: 7,
                     height: 7,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: primaryTeal,
                       shape: BoxShape.circle,
                     ),
@@ -555,7 +585,7 @@ class _HomePageState extends State<HomePage>
                 ),
               ),
               const SizedBox(width: 9),
-              const Expanded(
+              Expanded(
                 child: Text(
                   'Pet Safety',
                   style: TextStyle(
@@ -568,7 +598,7 @@ class _HomePageState extends State<HomePage>
             ],
           ),
           const SizedBox(height: 10),
-          const Text(
+          Text(
             'If a pet is marked red, do not approach. Report it to the barangay instead.',
             style: TextStyle(
               fontSize: 11,
@@ -582,6 +612,14 @@ class _HomePageState extends State<HomePage>
   }
 
   // ============================================================
+  // SEASONAL THEMES NAVIGATION
+  // ============================================================
+
+  void _openSeasonalThemes() {
+    SeasonalNavigation.openShop();
+  }
+
+  // ============================================================
   // MOBILE HEADER
   // ============================================================
 
@@ -590,7 +628,7 @@ class _HomePageState extends State<HomePage>
 
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
         border: Border(
           bottom: BorderSide(color: borderColor),
@@ -608,6 +646,14 @@ class _HomePageState extends State<HomePage>
               ),
             ),
           ),
+          IconButton(
+            tooltip: 'Seasonal Themes',
+            onPressed: _openSeasonalThemes,
+            icon: Icon(
+              Icons.palette_outlined,
+              color: primaryTeal,
+            ),
+          ),
           _buildNotificationButton(),
           const SizedBox(width: 4),
           CircleAvatar(
@@ -615,7 +661,7 @@ class _HomePageState extends State<HomePage>
             backgroundColor: lightTeal,
             child: Text(
               _getInitial(user?.email),
-              style: const TextStyle(
+              style: TextStyle(
                 color: primaryTeal,
                 fontWeight: FontWeight.w800,
                 fontSize: 13,
@@ -651,7 +697,7 @@ class _HomePageState extends State<HomePage>
             IconButton(
               tooltip: 'Notifications',
               onPressed: _showNotifications,
-              icon: const Icon(
+              icon: Icon(
                 Icons.notifications_none_rounded,
                 color: darkText,
               ),
@@ -779,7 +825,7 @@ class _HomePageState extends State<HomePage>
                   color: lightTeal,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -812,7 +858,7 @@ class _HomePageState extends State<HomePage>
                 ),
               ),
               const SizedBox(height: 7),
-              const Text(
+              Text(
                 'Keep your community pets connected and protected with secure QR IDs.',
                 style: TextStyle(
                   color: grayText,
@@ -844,7 +890,7 @@ class _HomePageState extends State<HomePage>
       width: double.infinity,
       padding: EdgeInsets.all(isDesktop ? 30 : 21),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [primaryTeal, darkTeal, deepTeal],
@@ -1212,7 +1258,7 @@ class _HomePageState extends State<HomePage>
                   children: [
                     Text(
                       label,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         color: grayText,
                         fontWeight: FontWeight.w700,
@@ -1221,7 +1267,7 @@ class _HomePageState extends State<HomePage>
                     const SizedBox(height: 1),
                     Text(
                       value,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 24,
                         color: darkText,
                         fontWeight: FontWeight.w900,
@@ -1258,7 +1304,7 @@ class _HomePageState extends State<HomePage>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
             Expanded(
               child: Column(
@@ -1407,7 +1453,7 @@ class _HomePageState extends State<HomePage>
                     const SizedBox(height: 5),
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w900,
                         color: darkText,
@@ -1416,7 +1462,7 @@ class _HomePageState extends State<HomePage>
                     const SizedBox(height: 3),
                     Text(
                       description,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         color: grayText,
                       ),
@@ -1431,7 +1477,7 @@ class _HomePageState extends State<HomePage>
                   color: warmBackground,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.arrow_forward_rounded,
                   size: 16,
                   color: grayText,
@@ -1516,14 +1562,14 @@ class _HomePageState extends State<HomePage>
                   color: lightTeal,
                   borderRadius: BorderRadius.circular(13),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.pets_rounded,
                   color: primaryTeal,
                   size: 22,
                 ),
               ),
               const SizedBox(width: 11),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1548,7 +1594,7 @@ class _HomePageState extends State<HomePage>
               ),
               TextButton(
                 onPressed: _openMyPets,
-                child: const Text(
+                child: Text(
                   'View all',
                   style: TextStyle(
                     color: primaryTeal,
@@ -1561,7 +1607,7 @@ class _HomePageState extends State<HomePage>
           ),
           const SizedBox(height: 17),
           if (loading)
-            const Padding(
+            Padding(
               padding: EdgeInsets.all(20),
               child: Center(
                 child: CircularProgressIndicator(color: primaryTeal),
@@ -1636,7 +1682,7 @@ class _HomePageState extends State<HomePage>
                       petName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w900,
                         color: darkText,
@@ -1647,7 +1693,7 @@ class _HomePageState extends State<HomePage>
                       breed,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         color: grayText,
                       ),
@@ -1684,7 +1730,7 @@ class _HomePageState extends State<HomePage>
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.chevron_right_rounded,
                   color: grayText,
                   size: 20,
@@ -1703,7 +1749,7 @@ class _HomePageState extends State<HomePage>
         width: 63,
         height: 63,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [lightTeal, softerTeal],
@@ -1722,7 +1768,7 @@ class _HomePageState extends State<HomePage>
                 size: 14,
               ),
             ),
-            const Icon(
+            Icon(
               Icons.pets_rounded,
               color: primaryTeal,
               size: 30,
@@ -1744,7 +1790,7 @@ class _HomePageState extends State<HomePage>
             width: 63,
             height: 63,
             color: lightTeal,
-            child: const Icon(
+            child: Icon(
               Icons.pets_rounded,
               color: primaryTeal,
               size: 30,
@@ -1760,7 +1806,7 @@ class _HomePageState extends State<HomePage>
       width: double.infinity,
       padding: const EdgeInsets.all(23),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [warmBackground, Color(0xFFFFF7ED)],
@@ -1783,14 +1829,14 @@ class _HomePageState extends State<HomePage>
                 ),
               ],
             ),
-            child: const Icon(
+            child: Icon(
               Icons.pets_rounded,
               color: primaryTeal,
               size: 34,
             ),
           ),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Your paw family starts here.',
             style: TextStyle(
               fontWeight: FontWeight.w900,
@@ -1799,7 +1845,7 @@ class _HomePageState extends State<HomePage>
             ),
           ),
           const SizedBox(height: 5),
-          const Text(
+          Text(
             'Create your first pet profile and give your pet a connected identity.',
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -1814,7 +1860,7 @@ class _HomePageState extends State<HomePage>
             icon: const Icon(Icons.add_rounded, size: 17),
             style: OutlinedButton.styleFrom(
               foregroundColor: primaryTeal,
-              side: const BorderSide(color: primaryTeal),
+              side: BorderSide(color: primaryTeal),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(11),
               ),
@@ -1846,7 +1892,7 @@ class _HomePageState extends State<HomePage>
         return Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
+            gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [lightTeal, softerTeal],
@@ -1868,7 +1914,7 @@ class _HomePageState extends State<HomePage>
             children: [
               _buildCommunityHeader(),
               const SizedBox(height: 15),
-              const Text(
+              Text(
                 'Found reports connected to your registered pets.',
                 style: TextStyle(
                   fontSize: 12,
@@ -1879,7 +1925,7 @@ class _HomePageState extends State<HomePage>
               const SizedBox(height: 17),
               _buildFoundReportCount(foundReports),
               const SizedBox(height: 14),
-              const Row(
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Icon(
@@ -1911,7 +1957,7 @@ class _HomePageState extends State<HomePage>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [lightTeal, softerTeal],
@@ -1926,7 +1972,7 @@ class _HomePageState extends State<HomePage>
         children: [
           _buildCommunityHeader(),
           const SizedBox(height: 15),
-          const Text(
+          Text(
             'Register a pet first to receive community found reports connected to its profile.',
             style: TextStyle(
               fontSize: 12,
@@ -1957,14 +2003,14 @@ class _HomePageState extends State<HomePage>
               ),
             ],
           ),
-          child: const Icon(
+          child: Icon(
             Icons.people_alt_outlined,
             color: primaryTeal,
             size: 22,
           ),
         ),
         const SizedBox(width: 11),
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -2019,7 +2065,7 @@ class _HomePageState extends State<HomePage>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Found reports',
                   style: TextStyle(
                     fontSize: 10,
@@ -2030,7 +2076,7 @@ class _HomePageState extends State<HomePage>
                 const SizedBox(height: 1),
                 Text(
                   '$count',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 23,
                     fontWeight: FontWeight.w900,
                     color: darkText,
@@ -2100,7 +2146,7 @@ class _HomePageState extends State<HomePage>
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -2159,7 +2205,7 @@ class _HomePageState extends State<HomePage>
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        border: const Border(
+        border: Border(
           top: BorderSide(color: borderColor),
         ),
         boxShadow: [
@@ -2390,14 +2436,14 @@ class _HomePageState extends State<HomePage>
                           color: lightTeal,
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.notifications_active_outlined,
                           color: primaryTeal,
                           size: 23,
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -2423,7 +2469,7 @@ class _HomePageState extends State<HomePage>
                       IconButton(
                         tooltip: 'Close',
                         onPressed: () => Navigator.pop(sheetContext),
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.close_rounded,
                           color: grayText,
                         ),
@@ -2488,7 +2534,7 @@ class _HomePageState extends State<HomePage>
                     },
                   ),
                   const SizedBox(height: 10),
-                  const Divider(height: 1, color: borderColor),
+                  Divider(height: 1, color: borderColor),
                   const SizedBox(height: 8),
                   Expanded(
                     child: StreamBuilder<
@@ -2498,7 +2544,7 @@ class _HomePageState extends State<HomePage>
                         if (snapshot.connectionState ==
                                 ConnectionState.waiting &&
                             !snapshot.hasData) {
-                          return const Center(
+                          return Center(
                             child: CircularProgressIndicator(
                               color: primaryTeal,
                             ),
@@ -2512,13 +2558,13 @@ class _HomePageState extends State<HomePage>
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.cloud_off_rounded,
                                     color: grayText,
                                     size: 42,
                                   ),
                                   const SizedBox(height: 12),
-                                  const Text(
+                                  Text(
                                     'Unable to load notifications',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
@@ -2528,7 +2574,7 @@ class _HomePageState extends State<HomePage>
                                     ),
                                   ),
                                   const SizedBox(height: 6),
-                                  const Text(
+                                  Text(
                                     'Please check your connection and try again.',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
@@ -2564,18 +2610,18 @@ class _HomePageState extends State<HomePage>
                                   Container(
                                     width: 82,
                                     height: 82,
-                                    decoration: const BoxDecoration(
+                                    decoration: BoxDecoration(
                                       color: lightTeal,
                                       shape: BoxShape.circle,
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.notifications_none_rounded,
                                       size: 39,
                                       color: primaryTeal,
                                     ),
                                   ),
                                   const SizedBox(height: 15),
-                                  const Text(
+                                  Text(
                                     'No notifications yet',
                                     style: TextStyle(
                                       fontSize: 16,
@@ -2584,7 +2630,7 @@ class _HomePageState extends State<HomePage>
                                     ),
                                   ),
                                   const SizedBox(height: 6),
-                                  const Text(
+                                  Text(
                                     'Updates about your pets and community reports will appear here.',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
@@ -2740,7 +2786,7 @@ class _HomePageState extends State<HomePage>
                                                       left: 6,
                                                     ),
                                                     decoration:
-                                                        const BoxDecoration(
+                                                        BoxDecoration(
                                                       color: primaryTeal,
                                                       shape: BoxShape.circle,
                                                     ),
@@ -2750,7 +2796,7 @@ class _HomePageState extends State<HomePage>
                                             const SizedBox(height: 5),
                                             Text(
                                               body,
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 11,
                                                 color: grayText,
                                                 height: 1.4,
@@ -2760,7 +2806,7 @@ class _HomePageState extends State<HomePage>
                                               const SizedBox(height: 5),
                                               Row(
                                                 children: [
-                                                  const Icon(
+                                                  Icon(
                                                     Icons.pets_rounded,
                                                     size: 12,
                                                     color: primaryTeal,
@@ -2769,7 +2815,7 @@ class _HomePageState extends State<HomePage>
                                                   Expanded(
                                                     child: Text(
                                                       petName,
-                                                      style: const TextStyle(
+                                                      style: TextStyle(
                                                         fontSize: 10,
                                                         fontWeight:
                                                             FontWeight.w800,
@@ -2784,7 +2830,7 @@ class _HomePageState extends State<HomePage>
                                               const SizedBox(height: 4),
                                               Row(
                                                 children: [
-                                                  const Icon(
+                                                  Icon(
                                                     Icons.location_on_outlined,
                                                     size: 12,
                                                     color: grayText,
@@ -2796,7 +2842,7 @@ class _HomePageState extends State<HomePage>
                                                       maxLines: 2,
                                                       overflow:
                                                           TextOverflow.ellipsis,
-                                                      style: const TextStyle(
+                                                      style: TextStyle(
                                                         fontSize: 10,
                                                         color: grayText,
                                                       ),
@@ -2810,7 +2856,7 @@ class _HomePageState extends State<HomePage>
                                               children: [
                                                 Text(
                                                   time,
-                                                  style: const TextStyle(
+                                                  style: TextStyle(
                                                     fontSize: 9,
                                                     color: grayText,
                                                     fontWeight: FontWeight.w600,

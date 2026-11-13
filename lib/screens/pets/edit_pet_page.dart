@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../services/pet_service.dart';
+import '../../seasonal/seasonal_controller.dart';
 
 class EditPetPage extends StatefulWidget {
   final String petId;
@@ -44,12 +45,33 @@ class _EditPetPageState extends State<EditPetPage> {
   // COLORS
   // ============================================================
 
-  static const Color primaryTeal = Color(0xFF0F766E);
-  static const Color darkText = Color(0xFF243333);
-  static const Color grayText = Color(0xFF667373);
-  static const Color lightTeal = Color(0xFFE7F5F2);
-  static const Color warmBackground = Color(0xFFFFFBF5);
-  static const Color borderColor = Color(0xFFE3E5E3);
+  static Color get primaryTeal =>
+      SeasonalController.instance.activeTheme?.primary ??
+      const Color(0xFF0F766E);
+  static Color get darkText =>
+      SeasonalController.instance.activeTheme?.textPrimary ??
+      const Color(0xFF243333);
+  static Color get grayText =>
+      SeasonalController.instance.activeTheme?.textSecondary ??
+      const Color(0xFF667373);
+  static Color get lightTeal {
+    final theme = SeasonalController.instance.activeTheme;
+    if (theme == null) return const Color(0xFFE7F5F2);
+    return Color.alphaBlend(
+      theme.primary.withValues(alpha: 0.10),
+      theme.surface,
+    );
+  }
+  static Color get warmBackground =>
+      SeasonalController.instance.activeTheme?.background ??
+      const Color(0xFFFFFBF5);
+  static Color get borderColor =>
+      SeasonalController.instance.activeTheme?.border ??
+      const Color(0xFFE3E5E3);
+  static Color get surfaceColor =>
+      SeasonalController.instance.activeTheme?.surface ?? Colors.white;
+  static Color get onPrimaryColor =>
+      SeasonalController.instance.activeTheme?.onPrimary ?? Colors.white;
   static const Color aggressiveRed = Color(0xFFDC2626);
 
 
@@ -134,7 +156,7 @@ class _EditPetPageState extends State<EditPetPage> {
                     Expanded(
                       child: Text(
                         breed,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: darkText,
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
@@ -143,7 +165,7 @@ class _EditPetPageState extends State<EditPetPage> {
                     ),
                     IconButton(
                       onPressed: () => Navigator.pop(dialogContext),
-                      icon: const Icon(Icons.close_rounded),
+                      icon: Icon(Icons.close_rounded),
                       color: grayText,
                     ),
                   ],
@@ -161,7 +183,7 @@ class _EditPetPageState extends State<EditPetPage> {
                       height: 280,
                       color: lightTeal,
                       alignment: Alignment.center,
-                      child: const Icon(
+                      child: Icon(
                         Icons.pets_rounded,
                         color: primaryTeal,
                         size: 64,
@@ -170,7 +192,7 @@ class _EditPetPageState extends State<EditPetPage> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Breed reference photo',
                   style: TextStyle(color: grayText, fontSize: 12),
                 ),
@@ -197,7 +219,7 @@ class _EditPetPageState extends State<EditPetPage> {
             height: 38,
             color: lightTeal,
             alignment: Alignment.center,
-            child: const Icon(Icons.pets_rounded, color: primaryTeal, size: 21),
+            child: Icon(Icons.pets_rounded, color: primaryTeal, size: 21),
           ),
         ),
       ),
@@ -216,7 +238,7 @@ class _EditPetPageState extends State<EditPetPage> {
               child: Text(
                 breed,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   color: darkText,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -237,25 +259,25 @@ class _EditPetPageState extends State<EditPetPage> {
       decoration: InputDecoration(
         labelText: 'Breed',
         hintText: 'Choose your pet breed',
-        prefixIcon: const Icon(Icons.category_outlined, color: primaryTeal),
+        prefixIcon: Icon(Icons.category_outlined, color: primaryTeal),
         filled: true,
-        fillColor: Colors.white,
-        labelStyle: const TextStyle(color: grayText),
+        fillColor: surfaceColor,
+        labelStyle: TextStyle(color: grayText),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: borderColor),
+          borderSide: BorderSide(color: borderColor),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: borderColor),
+          borderSide: BorderSide(color: borderColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: primaryTeal, width: 1.5),
+          borderSide: BorderSide(color: primaryTeal, width: 1.5),
         ),
       ),
       items: [
-        const DropdownMenuItem<String>(
+        DropdownMenuItem<String>(
           enabled: false,
           child: Text(
             'CAT BREEDS',
@@ -267,7 +289,7 @@ class _EditPetPageState extends State<EditPetPage> {
           ),
         ),
         ..._buildBreedItems(_catBreeds),
-        const DropdownMenuItem<String>(
+        DropdownMenuItem<String>(
           enabled: false,
           child: Text(
             'DOG BREEDS',
@@ -279,7 +301,7 @@ class _EditPetPageState extends State<EditPetPage> {
           ),
         ),
         ..._buildBreedItems(_dogBreeds),
-        const DropdownMenuItem<String>(
+        DropdownMenuItem<String>(
           enabled: false,
           child: Text(
             'OTHER OPTIONS',
@@ -500,9 +522,9 @@ class _EditPetPageState extends State<EditPetPage> {
         scrolledUnderElevation: 0,
         leading: IconButton(
           onPressed: _isSaving ? null : () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_rounded, color: darkText),
+          icon: Icon(Icons.arrow_back_rounded, color: darkText),
         ),
-        title: const Text(
+        title: Text(
           'Edit Pet Information',
           style: TextStyle(
             color: darkText,
@@ -511,7 +533,7 @@ class _EditPetPageState extends State<EditPetPage> {
         ),
       ),
       body: _isLoading
-          ? const Center(
+          ? Center(
               child: CircularProgressIndicator(color: primaryTeal),
             )
           : LayoutBuilder(
@@ -563,7 +585,7 @@ class _EditPetPageState extends State<EditPetPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Update your pet profile',
           style: TextStyle(
             fontSize: 25,
@@ -572,7 +594,7 @@ class _EditPetPageState extends State<EditPetPage> {
           ),
         ),
         const SizedBox(height: 6),
-        const Text(
+        Text(
           'Keep your pet information accurate so the community '
           'can identify and contact you when needed.',
           style: TextStyle(
@@ -608,7 +630,7 @@ class _EditPetPageState extends State<EditPetPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Update the pet photo',
                       style: TextStyle(
                         color: darkText,
@@ -617,7 +639,7 @@ class _EditPetPageState extends State<EditPetPage> {
                       ),
                     ),
                     const SizedBox(height: 5),
-                    const Text(
+                    Text(
                       'Use a clear and recent photo to help the '
                       'community identify your pet.',
                       style: TextStyle(
@@ -629,7 +651,7 @@ class _EditPetPageState extends State<EditPetPage> {
                     const SizedBox(height: 12),
                     OutlinedButton.icon(
                       onPressed: _isSaving ? null : _pickImage,
-                      icon: const Icon(Icons.upload_outlined, size: 18),
+                      icon: Icon(Icons.upload_outlined, size: 18),
                       label: Text(
                         _imageBytes == null
                             ? 'Change Photo'
@@ -637,7 +659,7 @@ class _EditPetPageState extends State<EditPetPage> {
                       ),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: primaryTeal,
-                        side: const BorderSide(color: primaryTeal),
+                        side: BorderSide(color: primaryTeal),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -692,7 +714,7 @@ class _EditPetPageState extends State<EditPetPage> {
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(color: borderColor),
               ),
-              child: const Center(
+              child: Center(
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
                   color: primaryTeal,
@@ -716,7 +738,7 @@ class _EditPetPageState extends State<EditPetPage> {
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: borderColor),
       ),
-      child: const Icon(
+      child: Icon(
         Icons.pets_rounded,
         color: primaryTeal,
         size: 40,
@@ -802,25 +824,25 @@ class _EditPetPageState extends State<EditPetPage> {
             isExpanded: true,
             decoration: InputDecoration(
               labelText: 'Sex',
-              prefixIcon: const Icon(
+              prefixIcon: Icon(
                 Icons.pets_rounded,
                 color: primaryTeal,
                 size: 21,
               ),
               filled: true,
-              fillColor: Colors.white,
-              labelStyle: const TextStyle(color: grayText),
+              fillColor: surfaceColor,
+              labelStyle: TextStyle(color: grayText),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(13),
-                borderSide: const BorderSide(color: borderColor),
+                borderSide: BorderSide(color: borderColor),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(13),
-                borderSide: const BorderSide(color: borderColor),
+                borderSide: BorderSide(color: borderColor),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(13),
-                borderSide: const BorderSide(
+                borderSide: BorderSide(
                   color: primaryTeal,
                   width: 1.5,
                 ),
@@ -922,7 +944,7 @@ class _EditPetPageState extends State<EditPetPage> {
             title: 'Protected Information',
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Some pet information is kept unchanged to protect '
             'the identity of the pet profile and its QR code.',
             style: TextStyle(
@@ -994,7 +1016,7 @@ class _EditPetPageState extends State<EditPetPage> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: darkText,
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -1003,7 +1025,7 @@ class _EditPetPageState extends State<EditPetPage> {
                 const SizedBox(height: 3),
                 Text(
                   description,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: grayText,
                     fontSize: 11,
                     height: 1.35,
@@ -1012,7 +1034,7 @@ class _EditPetPageState extends State<EditPetPage> {
               ],
             ),
           ),
-          const Icon(
+          Icon(
             Icons.lock_outline_rounded,
             color: grayText,
             size: 17,
@@ -1032,19 +1054,19 @@ class _EditPetPageState extends State<EditPetPage> {
       child: ElevatedButton.icon(
         onPressed: _isSaving ? null : _saveChanges,
         icon: _isSaving
-            ? const SizedBox(
+            ? SizedBox(
                 width: 19,
                 height: 19,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Colors.white,
+                  color: onPrimaryColor,
                 ),
               )
-            : const Icon(Icons.save_outlined),
+            : Icon(Icons.save_outlined),
         label: Text(_isSaving ? 'Saving Changes...' : 'Save Changes'),
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryTeal,
-          foregroundColor: Colors.white,
+          foregroundColor: onPrimaryColor,
           disabledBackgroundColor: primaryTeal.withValues(alpha: 0.55),
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
@@ -1073,7 +1095,7 @@ class _EditPetPageState extends State<EditPetPage> {
       enabled: !_isSaving,
       keyboardType: keyboardType,
       validator: validator,
-      style: const TextStyle(
+      style: TextStyle(
         color: darkText,
         fontSize: 14,
         fontWeight: FontWeight.w600,
@@ -1083,34 +1105,34 @@ class _EditPetPageState extends State<EditPetPage> {
         hintText: hint,
         prefixIcon: Icon(icon, color: primaryTeal, size: 21),
         filled: true,
-        fillColor: Colors.white,
-        labelStyle: const TextStyle(color: grayText),
-        hintStyle: const TextStyle(
+        fillColor: surfaceColor,
+        labelStyle: TextStyle(color: grayText),
+        hintStyle: TextStyle(
           color: Color(0xFF9A9F9F),
           fontSize: 13,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: borderColor),
+          borderSide: BorderSide(color: borderColor),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: borderColor),
+          borderSide: BorderSide(color: borderColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: primaryTeal,
             width: 1.5,
           ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: aggressiveRed),
+          borderSide: BorderSide(color: aggressiveRed),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: aggressiveRed,
             width: 1.5,
           ),
@@ -1128,7 +1150,7 @@ class _EditPetPageState extends State<EditPetPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: borderColor),
         boxShadow: const [
@@ -1165,7 +1187,7 @@ class _EditPetPageState extends State<EditPetPage> {
         const SizedBox(width: 10),
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             color: darkText,
             fontSize: 16,
             fontWeight: FontWeight.w900,

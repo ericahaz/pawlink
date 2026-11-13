@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../seasonal/seasonal_controller.dart';
 import '../../services/pet_service.dart';
 import '../../services/report_service.dart';
 import '../landing/landing_page.dart';
@@ -11,14 +12,47 @@ import 'settings_page.dart';
 class MyAccountPage extends StatelessWidget {
   const MyAccountPage({super.key});
 
-  static const Color primaryTeal = Color(0xFF0F766E);
-  static const Color darkTeal = Color(0xFF115E59);
-  static const Color lightTeal = Color(0xFFE7F5F2);
+  // Dynamic colors based on the currently selected seasonal theme.
+  static Color get primaryTeal =>
+      SeasonalController.instance.activeTheme?.primary ??
+      const Color(0xFF0F766E);
+
+  static Color get darkTeal =>
+      SeasonalController.instance.activeTheme?.secondary ??
+      const Color(0xFF115E59);
+
+  static Color get lightTeal {
+    final theme = SeasonalController.instance.activeTheme;
+    if (theme == null) return const Color(0xFFE7F5F2);
+    return Color.alphaBlend(
+      theme.primary.withValues(alpha: 0.10),
+      theme.surface,
+    );
+  }
+
   static const Color alertRed = Color(0xFFDC2626);
-  static const Color warmBackground = Color(0xFFFFFBF5);
-  static const Color darkText = Color(0xFF243333);
-  static const Color grayText = Color(0xFF667373);
-  static const Color borderColor = Color(0xFFE3E5E3);
+
+  static Color get warmBackground =>
+      SeasonalController.instance.activeTheme?.background ??
+      const Color(0xFFFFFBF5);
+
+  static Color get darkText =>
+      SeasonalController.instance.activeTheme?.textPrimary ??
+      const Color(0xFF243333);
+
+  static Color get grayText =>
+      SeasonalController.instance.activeTheme?.textSecondary ??
+      const Color(0xFF667373);
+
+  static Color get borderColor =>
+      SeasonalController.instance.activeTheme?.border ??
+      const Color(0xFFE3E5E3);
+
+  static Color get surfaceColor =>
+      SeasonalController.instance.activeTheme?.surface ?? Colors.white;
+
+  static Color get onPrimaryColor =>
+      SeasonalController.instance.activeTheme?.onPrimary ?? Colors.white;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +61,7 @@ class MyAccountPage extends StatelessWidget {
     final reportService = ReportService();
 
     if (user == null) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: warmBackground,
         body: Center(
           child: Text(
@@ -68,10 +102,7 @@ class MyAccountPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // HEADER — aligned independently from the cards.
                       _buildHeader(context),
-
-                      // PAGE CONTENT
                       Padding(
                         padding: EdgeInsets.fromLTRB(
                           isDesktop ? 24 : 12,
@@ -81,8 +112,7 @@ class MyAccountPage extends StatelessWidget {
                         ),
                         child: Center(
                           child: ConstrainedBox(
-                            constraints:
-                                const BoxConstraints(maxWidth: 1400),
+                            constraints: const BoxConstraints(maxWidth: 1400),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -94,36 +124,25 @@ class MyAccountPage extends StatelessWidget {
                                   user: user,
                                   isDesktop: isDesktop,
                                 ),
-
                                 const SizedBox(height: 20),
-
                                 _buildStats(
                                   petService: petService,
                                   reportService: reportService,
                                   isDesktop: isDesktop,
                                 ),
-
                                 const SizedBox(height: 20),
-
                                 _buildInformationCard(
                                   name: name,
                                   email: email,
                                   phone: phone,
                                   user: user,
                                 ),
-
                                 const SizedBox(height: 20),
-
                                 _buildAccountStatus(user),
-
                                 const SizedBox(height: 20),
-
                                 _buildSettingsCard(context),
-
                                 const SizedBox(height: 20),
-
                                 _buildLogoutCard(context),
-
                                 const SizedBox(height: 28),
                               ],
                             ),
@@ -163,7 +182,7 @@ class MyAccountPage extends StatelessWidget {
                 );
               }
             },
-            icon: const Icon(
+            icon: Icon(
               Icons.arrow_back,
               color: darkText,
               size: 26,
@@ -177,7 +196,7 @@ class MyAccountPage extends StatelessWidget {
             tooltip: 'Back',
           ),
           const SizedBox(width: 10),
-          const Expanded(
+          Expanded(
             child: Text(
               'My Account',
               style: TextStyle(
@@ -208,7 +227,7 @@ class MyAccountPage extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.all(isDesktop ? 28 : 18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: borderColor),
         boxShadow: [
@@ -282,7 +301,7 @@ class MyAccountPage extends StatelessWidget {
       child: Center(
         child: Text(
           initial,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.w800,
             color: primaryTeal,
@@ -308,7 +327,7 @@ class MyAccountPage extends StatelessWidget {
           name,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w800,
             color: darkText,
@@ -319,14 +338,14 @@ class MyAccountPage extends StatelessWidget {
           email,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 16, color: grayText),
+          style: TextStyle(fontSize: 16, color: grayText),
         ),
         const SizedBox(height: 3),
         Text(
           phone,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 16, color: grayText),
+          style: TextStyle(fontSize: 16, color: grayText),
         ),
       ],
     );
@@ -351,7 +370,7 @@ class MyAccountPage extends StatelessWidget {
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor: primaryTeal,
-        foregroundColor: Colors.white,
+        foregroundColor: onPrimaryColor,
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         shape: RoundedRectangleBorder(
@@ -514,7 +533,7 @@ class MyAccountPage extends StatelessWidget {
             color: user.emailVerified ? primaryTeal : alertRed,
           ),
           const Divider(height: 24),
-          const _StatusRow(
+          _StatusRow(
             title: 'Authentication',
             value: 'Firebase Authentication',
             icon: Icons.security_outlined,
@@ -546,17 +565,17 @@ class MyAccountPage extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: surfaceColor,
               borderRadius: BorderRadius.circular(13),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.settings_outlined,
               color: primaryTeal,
               size: 25,
             ),
           ),
           const SizedBox(width: 14),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -568,7 +587,7 @@ class MyAccountPage extends StatelessWidget {
                     color: darkText,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   'Update your personal details, password, and preferences.',
                   style: TextStyle(
@@ -587,7 +606,7 @@ class MyAccountPage extends StatelessWidget {
                 MaterialPageRoute(builder: (_) => const SettingsPage()),
               );
             },
-            icon: const Icon(
+            icon: Icon(
               Icons.arrow_forward_ios_rounded,
               size: 20,
               color: primaryTeal,
@@ -607,7 +626,7 @@ class MyAccountPage extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: alertRed.withValues(alpha: 0.18),
@@ -631,7 +650,7 @@ class MyAccountPage extends StatelessWidget {
             ),
           );
 
-          final text = const Expanded(
+          final text = Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -643,7 +662,7 @@ class MyAccountPage extends StatelessWidget {
                     color: darkText,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   'Sign out of your PawLink account on this device.',
                   style: TextStyle(
@@ -721,8 +740,8 @@ class MyAccountPage extends StatelessWidget {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: Colors.white,
-          title: const Text(
+          backgroundColor: surfaceColor,
+          title: Text(
             'Log out of PawLink?',
             style: TextStyle(
               color: darkText,
@@ -730,7 +749,7 @@ class MyAccountPage extends StatelessWidget {
               fontWeight: FontWeight.w800,
             ),
           ),
-          content: const Text(
+          content: Text(
             'You will be returned to the PawLink landing page. '
             'You can sign in again anytime.',
             style: TextStyle(
@@ -748,7 +767,7 @@ class MyAccountPage extends StatelessWidget {
               onPressed: () {
                 Navigator.pop(dialogContext);
               },
-              child: const Text(
+              child: Text(
                 'Cancel',
                 style: TextStyle(
                   color: grayText,
@@ -759,7 +778,6 @@ class MyAccountPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 Navigator.pop(dialogContext);
-
                 await _logout(context);
               },
               style: ElevatedButton.styleFrom(
@@ -858,7 +876,7 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MyAccountPage.surfaceColor,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: MyAccountPage.borderColor),
       ),
@@ -880,7 +898,7 @@ class _StatCard extends StatelessWidget {
               children: [
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 25,
                     fontWeight: FontWeight.w800,
                     color: MyAccountPage.darkText,
@@ -890,7 +908,7 @@ class _StatCard extends StatelessWidget {
                   label,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     color: MyAccountPage.grayText,
                   ),
@@ -927,7 +945,7 @@ class _SectionCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: MyAccountPage.surfaceColor,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: MyAccountPage.borderColor),
       ),
@@ -956,7 +974,7 @@ class _SectionCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 19,
                         fontWeight: FontWeight.w800,
                         color: MyAccountPage.darkText,
@@ -965,7 +983,7 @@ class _SectionCard extends StatelessWidget {
                     const SizedBox(height: 3),
                     Text(
                       subtitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         color: MyAccountPage.grayText,
                         height: 1.4,
@@ -1016,7 +1034,7 @@ class _InfoRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   color: MyAccountPage.grayText,
                 ),
@@ -1024,7 +1042,7 @@ class _InfoRow extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: MyAccountPage.darkText,
@@ -1064,7 +1082,7 @@ class _StatusRow extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               color: MyAccountPage.darkText,
               fontWeight: FontWeight.w600,

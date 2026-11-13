@@ -5,6 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'seasonal/seasonal_controller.dart';
+import 'seasonal/seasonal_theme.dart';
+import 'seasonal/seasonal_overlay.dart';
+import 'seasonal/seasonal_navigation.dart';
+import 'seasonal/seasonal_shop_page.dart';
+
 import 'firebase_options.dart';
 import 'screens/landing/landing_page.dart';
 import 'screens/public/public_pet_page.dart';
@@ -28,6 +34,7 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await SeasonalController.instance.initialize();
 
   runApp(const PawLink());
 }
@@ -73,39 +80,41 @@ class PawLink extends StatelessWidget {
       ThemeData.light().textTheme,
     );
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'PawLink',
-      theme: _buildTheme(textTheme),
+    return AnimatedBuilder(
+      animation: SeasonalController.instance,
+      builder: (context, _) {
+        final activeTheme = SeasonalController.instance.activeTheme;
 
-      // ======================================================
-      // INITIAL URL ROUTING
-      //
-      // Public pet profile: /p/PET-ID
-      // Joint-owner invitation: /invite/INVITATION-ID
-      // Barangay Admin: /admin/barangay
-      // ======================================================
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'PawLink',
+          navigatorKey: pawLinkNavigatorKey,
+          theme: _buildTheme(textTheme, activeTheme),
+          themeAnimationDuration: const Duration(milliseconds: 350),
+          builder: (context, child) => SeasonalOverlay(
+            child: child ?? const SizedBox.shrink(),
+          ),
 
-      onGenerateInitialRoutes: (initialRoute) {
-        final String path = kIsWeb ? Uri.base.path : initialRoute;
+          // Initial URL routing.
+          onGenerateInitialRoutes: (initialRoute) {
+            final String path = kIsWeb ? Uri.base.path : initialRoute;
 
-        debugPrint('PAWLINK DEBUG: initialRoute = $initialRoute');
-        debugPrint('PAWLINK DEBUG: browser path = ${Uri.base.path}');
-        debugPrint('PAWLINK DEBUG: selected path = $path');
+            debugPrint('PAWLINK DEBUG: initialRoute = $initialRoute');
+            debugPrint('PAWLINK DEBUG: browser path = ${Uri.base.path}');
+            debugPrint('PAWLINK DEBUG: selected path = $path');
 
-        return <Route<dynamic>>[
-          _routeForPath(path),
-        ];
-      },
+            return <Route<dynamic>>[
+              _routeForPath(path),
+            ];
+          },
 
-      // ======================================================
-      // NORMAL NAMED ROUTING
-      // ======================================================
-
-      onGenerateRoute: (settings) {
-        return _routeForPath(
-          settings.name ?? '/',
-          settings: settings,
+          // Normal named routing.
+          onGenerateRoute: (settings) {
+            return _routeForPath(
+              settings.name ?? '/',
+              settings: settings,
+            );
+          },
         );
       },
     );
@@ -178,6 +187,18 @@ class PawLink extends StatelessWidget {
     }
 
     // --------------------------------------------------------
+    // SEASONAL THEME SHOP
+    // URL format: /themes
+    // --------------------------------------------------------
+
+    if (segments.length == 1 && segments[0].toLowerCase() == 'themes') {
+      return MaterialPageRoute<dynamic>(
+        settings: settings ?? RouteSettings(name: path),
+        builder: (_) => const SeasonalShopPage(),
+      );
+    }
+
+    // --------------------------------------------------------
     // DEFAULT APPLICATION PAGE
     //
     // Logged-in users -> HomePage
@@ -194,25 +215,44 @@ class PawLink extends StatelessWidget {
   // GLOBAL THEME
   // ==========================================================
 
-  ThemeData _buildTheme(TextTheme textTheme) {
+  ThemeData _buildTheme(
+    TextTheme textTheme,
+    SeasonalTheme? seasonalTheme,
+  ) {
+    // Fall back to PawLink's original teal-and-orange brand palette.
+    final primary = seasonalTheme?.primary ?? PawLinkColors.teal;
+    final secondary = seasonalTheme?.secondary ?? PawLinkColors.orange;
+    final background = seasonalTheme?.background ?? PawLinkColors.background;
+    final surface = seasonalTheme?.surface ?? PawLinkColors.surface;
+    final onPrimary = seasonalTheme?.onPrimary ?? PawLinkColors.deepTeal;
+    final textPrimary = seasonalTheme?.textPrimary ?? PawLinkColors.textPrimary;
+    final textSecondary =
+        seasonalTheme?.textSecondary ?? PawLinkColors.textSecondary;
+    final border = seasonalTheme?.border ?? PawLinkColors.border;
+    final softSurface = Color.alphaBlend(
+      primary.withValues(alpha: 0.08),
+      surface,
+    );
+
     final baseTheme = ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: PawLinkColors.teal,
+        seedColor: primary,
         brightness: Brightness.light,
-        primary: PawLinkColors.teal,
-        secondary: PawLinkColors.orange,
-        surface: PawLinkColors.surface,
+        primary: primary,
+        onPrimary: onPrimary,
+        secondary: secondary,
+        surface: surface,
         error: PawLinkColors.lost,
       ),
     );
 
     return baseTheme.copyWith(
-      scaffoldBackgroundColor: PawLinkColors.background,
+      scaffoldBackgroundColor: background,
       textTheme: textTheme.apply(
-        bodyColor: PawLinkColors.textPrimary,
-        displayColor: PawLinkColors.textPrimary,
+        bodyColor: textPrimary,
+        displayColor: textPrimary,
       ),
       primaryTextTheme: GoogleFonts.poppinsTextTheme(
         baseTheme.primaryTextTheme,
@@ -220,8 +260,8 @@ class PawLink extends StatelessWidget {
       visualDensity: VisualDensity.adaptivePlatformDensity,
       splashFactory: InkRipple.splashFactory,
       appBarTheme: AppBarTheme(
-        backgroundColor: PawLinkColors.background,
-        foregroundColor: PawLinkColors.textPrimary,
+        backgroundColor: background,
+        foregroundColor: textPrimary,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
@@ -229,37 +269,28 @@ class PawLink extends StatelessWidget {
         titleTextStyle: GoogleFonts.poppins(
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: PawLinkColors.deepTeal,
+          color: primary,
         ),
-        iconTheme: const IconThemeData(
-          color: PawLinkColors.deepTeal,
-          size: 23,
-        ),
+        iconTheme: IconThemeData(color: primary, size: 23),
       ),
       cardTheme: CardThemeData(
-        color: PawLinkColors.surface,
+        color: surface,
         elevation: 0,
         margin: EdgeInsets.zero,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
-          side: const BorderSide(
-            color: PawLinkColors.border,
-            width: 1,
-          ),
+          side: BorderSide(color: border, width: 1),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: PawLinkColors.orange,
-          foregroundColor: PawLinkColors.deepTeal,
-          disabledBackgroundColor: PawLinkColors.border,
-          disabledForegroundColor: PawLinkColors.textSecondary,
+          backgroundColor: primary,
+          foregroundColor: onPrimary,
+          disabledBackgroundColor: border,
+          disabledForegroundColor: textSecondary,
           elevation: 0,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 22,
-            vertical: 15,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 15),
           minimumSize: const Size(48, 48),
           textStyle: GoogleFonts.poppins(
             fontSize: 14,
@@ -272,15 +303,9 @@ class PawLink extends StatelessWidget {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: PawLinkColors.teal,
-          side: const BorderSide(
-            color: PawLinkColors.teal,
-            width: 1.2,
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 14,
-          ),
+          foregroundColor: primary,
+          side: BorderSide(color: primary, width: 1.2),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           minimumSize: const Size(48, 48),
           textStyle: GoogleFonts.poppins(
             fontSize: 14,
@@ -293,7 +318,7 @@ class PawLink extends StatelessWidget {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: PawLinkColors.teal,
+          foregroundColor: primary,
           textStyle: GoogleFonts.poppins(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -305,52 +330,43 @@ class PawLink extends StatelessWidget {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: PawLinkColors.inputBackground,
+        fillColor: softSurface,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 16,
         ),
         hintStyle: GoogleFonts.poppins(
           fontSize: 13,
-          color: PawLinkColors.textSecondary,
+          color: textSecondary,
           fontWeight: FontWeight.w400,
         ),
         labelStyle: GoogleFonts.poppins(
           fontSize: 13,
-          color: PawLinkColors.textSecondary,
+          color: textSecondary,
           fontWeight: FontWeight.w500,
         ),
         floatingLabelStyle: GoogleFonts.poppins(
           fontSize: 13,
-          color: PawLinkColors.teal,
+          color: primary,
           fontWeight: FontWeight.w600,
         ),
-        prefixIconColor: PawLinkColors.textSecondary,
-        suffixIconColor: PawLinkColors.textSecondary,
+        prefixIconColor: textSecondary,
+        suffixIconColor: textSecondary,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: PawLinkColors.border,
-          ),
+          borderSide: BorderSide(color: border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: PawLinkColors.border,
-          ),
+          borderSide: BorderSide(color: border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: PawLinkColors.teal,
-            width: 1.6,
-          ),
+          borderSide: BorderSide(color: primary, width: 1.6),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: PawLinkColors.lost,
-          ),
+          borderSide: const BorderSide(color: PawLinkColors.lost),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -360,71 +376,64 @@ class PawLink extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: PawLinkColors.surface,
-        selectedItemColor: PawLinkColors.teal,
-        unselectedItemColor: PawLinkColors.textSecondary,
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: surface,
+        selectedItemColor: primary,
+        unselectedItemColor: textSecondary,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: PawLinkColors.surface,
-        indicatorColor: PawLinkColors.softTeal,
+        backgroundColor: surface,
+        indicatorColor: softSurface,
         elevation: 0,
         height: 70,
         labelTextStyle: WidgetStateProperty.resolveWith<TextStyle?>(
           (states) {
             final selected = states.contains(WidgetState.selected);
-
             return GoogleFonts.poppins(
               fontSize: 11,
               fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-              color:
-                  selected ? PawLinkColors.teal : PawLinkColors.textSecondary,
+              color: selected ? primary : textSecondary,
             );
           },
         ),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: PawLinkColors.orange,
-        foregroundColor: PawLinkColors.deepTeal,
+        backgroundColor: secondary,
+        foregroundColor: onPrimary,
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
         ),
       ),
-      dividerTheme: const DividerThemeData(
-        color: PawLinkColors.border,
+      dividerTheme: DividerThemeData(
+        color: border,
         thickness: 1,
         space: 1,
       ),
       chipTheme: baseTheme.chipTheme.copyWith(
-        backgroundColor: PawLinkColors.softTeal,
-        selectedColor: PawLinkColors.teal.withValues(alpha: 0.12),
+        backgroundColor: softSurface,
+        selectedColor: primary.withValues(alpha: 0.12),
         labelStyle: GoogleFonts.poppins(
           fontSize: 12,
           fontWeight: FontWeight.w500,
-          color: PawLinkColors.deepTeal,
+          color: textPrimary,
         ),
-        side: const BorderSide(
-          color: PawLinkColors.border,
-        ),
+        side: BorderSide(color: border),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
       ),
-      progressIndicatorTheme: const ProgressIndicatorThemeData(
-        color: PawLinkColors.teal,
-        linearTrackColor: PawLinkColors.border,
-        circularTrackColor: PawLinkColors.border,
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: primary,
+        linearTrackColor: border,
+        circularTrackColor: border,
       ),
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith<Color?>(
           (states) {
-            if (states.contains(WidgetState.selected)) {
-              return PawLinkColors.teal;
-            }
-
+            if (states.contains(WidgetState.selected)) return primary;
             return null;
           },
         ),
@@ -434,7 +443,7 @@ class PawLink extends StatelessWidget {
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: PawLinkColors.deepTeal,
+        backgroundColor: textPrimary,
         contentTextStyle: GoogleFonts.poppins(
           fontSize: 13,
           color: Colors.white,
@@ -444,7 +453,7 @@ class PawLink extends StatelessWidget {
         ),
       ),
       dialogTheme: DialogThemeData(
-        backgroundColor: PawLinkColors.surface,
+        backgroundColor: surface,
         surfaceTintColor: Colors.transparent,
         elevation: 4,
         shape: RoundedRectangleBorder(
@@ -453,17 +462,17 @@ class PawLink extends StatelessWidget {
         titleTextStyle: GoogleFonts.poppins(
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: PawLinkColors.deepTeal,
+          color: primary,
         ),
         contentTextStyle: GoogleFonts.poppins(
           fontSize: 14,
           height: 1.5,
-          color: PawLinkColors.textSecondary,
+          color: textSecondary,
         ),
       ),
       tooltipTheme: TooltipThemeData(
         decoration: BoxDecoration(
-          color: PawLinkColors.deepTeal,
+          color: textPrimary,
           borderRadius: BorderRadius.circular(8),
         ),
         textStyle: GoogleFonts.poppins(
@@ -494,20 +503,20 @@ class AuthGate extends StatelessWidget {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            backgroundColor: PawLinkColors.background,
+          return Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             body: Center(
               child: CircularProgressIndicator(
-                color: PawLinkColors.teal,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
           );
         }
 
         if (snapshot.hasError) {
-          return const Scaffold(
-            backgroundColor: PawLinkColors.background,
-            body: Center(
+          return Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            body: const Center(
               child: Padding(
                 padding: EdgeInsets.all(24),
                 child: Text(

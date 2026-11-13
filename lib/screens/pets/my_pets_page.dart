@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../seasonal/seasonal_controller.dart';
+
 import '../../services/pet_service.dart';
 import 'pet_profile_page.dart';
 import 'register_pet_page.dart';
@@ -21,16 +23,44 @@ class _MyPetsPageState extends State<MyPetsPage> {
 
   String _searchText = '';
 
-  static const Color primaryTeal = Color(0xFF0F766E);
-  static const Color darkTeal = Color(0xFF115E59);
-  static const Color deepTeal = Color(0xFF103B38);
-  static const Color lightTeal = Color(0xFFE7F5F2);
-  static const Color softerTeal = Color(0xFFF0F8F6);
+  static Color get primaryTeal =>
+      SeasonalController.instance.activeTheme?.primary ??
+      Color(0xFF0F766E);
+  static Color get darkTeal =>
+      SeasonalController.instance.activeTheme?.secondary ??
+      Color(0xFF115E59);
+  static Color get deepTeal {
+    final theme = SeasonalController.instance.activeTheme;
+    if (theme == null) return Color(0xFF103B38);
+    return Color.lerp(theme.secondary, theme.primary, 0.28) ?? theme.secondary;
+  }
+  static Color get lightTeal {
+    final theme = SeasonalController.instance.activeTheme;
+    if (theme == null) return Color(0xFFE7F5F2);
+    return Color.alphaBlend(theme.primary.withValues(alpha: 0.10), theme.surface);
+  }
+  static Color get softerTeal {
+    final theme = SeasonalController.instance.activeTheme;
+    if (theme == null) return Color(0xFFF0F8F6);
+    return Color.alphaBlend(theme.primary.withValues(alpha: 0.055), theme.surface);
+  }
   static const Color alertRed = Color(0xFFDC2626);
-  static const Color warmBackground = Color(0xFFFFFBF5);
-  static const Color darkText = Color(0xFF243333);
-  static const Color grayText = Color(0xFF667373);
-  static const Color borderColor = Color(0xFFE3E5E3);
+  static Color get warmBackground =>
+      SeasonalController.instance.activeTheme?.background ??
+      Color(0xFFFFFBF5);
+  static Color get darkText =>
+      SeasonalController.instance.activeTheme?.textPrimary ??
+      Color(0xFF243333);
+  static Color get grayText =>
+      SeasonalController.instance.activeTheme?.textSecondary ??
+      Color(0xFF667373);
+  static Color get borderColor =>
+      SeasonalController.instance.activeTheme?.border ??
+      Color(0xFFE3E5E3);
+  static Color get surfaceColor =>
+      SeasonalController.instance.activeTheme?.surface ?? Colors.white;
+  static Color get onPrimaryColor =>
+      SeasonalController.instance.activeTheme?.onPrimary ?? Colors.white;
 
   @override
   void initState() {
@@ -65,7 +95,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
   void _openRegisterPet() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const RegisterPetPage()),
+      MaterialPageRoute(builder: (_) => RegisterPetPage()),
     );
   }
 
@@ -109,7 +139,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
 
       _scrollController.animateTo(
         safeOffset,
-        duration: const Duration(milliseconds: 180),
+        duration: Duration(milliseconds: 180),
         curve: Curves.easeOut,
       );
     }
@@ -142,7 +172,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
 
             if (snapshot.connectionState == ConnectionState.waiting &&
                 !snapshot.hasData) {
-              return const Center(
+              return Center(
                 child: CircularProgressIndicator(color: primaryTeal),
               );
             }
@@ -166,7 +196,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
                   thumbVisibility: isDesktop,
                   child: SingleChildScrollView(
                     controller: _scrollController,
-                    physics: const ClampingScrollPhysics(),
+                    physics: ClampingScrollPhysics(),
                     padding: EdgeInsets.fromLTRB(
                       isDesktop ? 40 : 18,
                       24,
@@ -175,16 +205,16 @@ class _MyPetsPageState extends State<MyPetsPage> {
                     ),
                     child: Center(
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 1200),
+                        constraints: BoxConstraints(maxWidth: 1200),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _buildHeroHeader(allPets),
-                            const SizedBox(height: 20),
+                            SizedBox(height: 20),
                             _buildStats(allPets),
-                            const SizedBox(height: 22),
+                            SizedBox(height: 22),
                             _buildSearch(),
-                            const SizedBox(height: 24),
+                            SizedBox(height: 24),
                             if (allPets.isEmpty)
                               _buildEmptyState()
                             else if (pets.isEmpty)
@@ -194,9 +224,9 @@ class _MyPetsPageState extends State<MyPetsPage> {
                                 pets.length,
                                 _searchText.isEmpty,
                               ),
-                              const SizedBox(height: 14),
+                              SizedBox(height: 14),
                               _buildPetGrid(pets, constraints.maxWidth),
-                              const SizedBox(height: 22),
+                              SizedBox(height: 22),
                               _buildRegisterPrompt(),
                             ],
                           ],
@@ -215,7 +245,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: surfaceColor,
       elevation: 0,
       surfaceTintColor: Colors.transparent,
       titleSpacing: 18,
@@ -229,12 +259,12 @@ class _MyPetsPageState extends State<MyPetsPage> {
               borderRadius: BorderRadius.circular(11),
               border: Border.all(color: primaryTeal.withValues(alpha: 0.08)),
             ),
-            child: const Center(
+            child: Center(
               child: Icon(Icons.pets_rounded, color: primaryTeal, size: 21),
             ),
           ),
-          const SizedBox(width: 10),
-          const Text(
+          SizedBox(width: 10),
+          Text(
             'My Pets',
             style: TextStyle(
               color: darkText,
@@ -244,7 +274,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
           ),
         ],
       ),
-      iconTheme: const IconThemeData(color: darkText),
+      iconTheme: IconThemeData(color: darkText),
     );
   }
 
@@ -252,10 +282,10 @@ class _MyPetsPageState extends State<MyPetsPage> {
     return FloatingActionButton.extended(
       onPressed: _openRegisterPet,
       backgroundColor: primaryTeal,
-      foregroundColor: Colors.white,
+      foregroundColor: onPrimaryColor,
       elevation: 4,
-      icon: const Icon(Icons.add_rounded),
-      label: const Text(
+      icon: Icon(Icons.add_rounded),
+      label: Text(
         'Register Pet',
         style: TextStyle(fontWeight: FontWeight.w800),
       ),
@@ -269,9 +299,9 @@ class _MyPetsPageState extends State<MyPetsPage> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(22),
+      padding: EdgeInsets.all(22),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [deepTeal, darkTeal],
@@ -281,7 +311,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
           BoxShadow(
             color: darkTeal.withValues(alpha: 0.14),
             blurRadius: 22,
-            offset: const Offset(0, 10),
+            offset: Offset(0, 10),
           ),
         ],
       ),
@@ -294,7 +324,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
               width: 125,
               height: 125,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+                color: onPrimaryColor.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
               ),
             ),
@@ -306,7 +336,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
               width: 95,
               height: 95,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.04),
+                color: onPrimaryColor.withValues(alpha: 0.04),
                 shape: BoxShape.circle,
               ),
             ),
@@ -315,26 +345,26 @@ class _MyPetsPageState extends State<MyPetsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(
+                padding: EdgeInsets.symmetric(
                   horizontal: 10,
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.10),
+                  color: onPrimaryColor.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(30),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.10),
+                    color: onPrimaryColor.withValues(alpha: 0.10),
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.favorite_rounded, color: Colors.white, size: 14),
+                    Icon(Icons.favorite_rounded, color: onPrimaryColor, size: 14),
                     SizedBox(width: 6),
                     Text(
                       'PAWLINK PET CARE',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: onPrimaryColor,
                         fontSize: 10,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 1,
@@ -343,47 +373,47 @@ class _MyPetsPageState extends State<MyPetsPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 15),
+              SizedBox(height: 15),
               Text(
                 petCount == 0
                     ? 'Start your pet\'s PawLink journey.'
                     : 'Your pets, all in one place.',
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: onPrimaryColor,
                   fontSize: 25,
                   height: 1.15,
                   fontWeight: FontWeight.w900,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Text(
                 petCount == 0
                     ? 'Register a pet to create a profile and connect it to a unique QR code.'
                     : 'Keep their profiles updated, manage safety information, and access their QR profiles anytime.',
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.76),
+                  color: onPrimaryColor.withValues(alpha: 0.76),
                   fontSize: 13,
                   height: 1.5,
                 ),
               ),
               if (petCount == 0) ...[
-                const SizedBox(height: 17),
+                SizedBox(height: 17),
                 ElevatedButton.icon(
                   onPressed: _openRegisterPet,
-                  icon: const Icon(Icons.add_rounded, size: 19),
-                  label: const Text('Register Your First Pet'),
+                  icon: Icon(Icons.add_rounded, size: 19),
+                  label: Text('Register Your First Pet'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
+                    backgroundColor: surfaceColor,
                     foregroundColor: darkTeal,
                     elevation: 0,
-                    padding: const EdgeInsets.symmetric(
+                    padding: EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 12,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    textStyle: const TextStyle(fontWeight: FontWeight.w800),
+                    textStyle: TextStyle(fontWeight: FontWeight.w800),
                   ),
                 ),
               ],
@@ -427,7 +457,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
         icon: Icons.qr_code_2_rounded,
         label: 'QR Profiles',
         value: qrCount.toString(),
-        background: const Color(0xFFF3F7F6),
+        background: softerTeal,
         iconColor: darkTeal,
       ),
       _buildStatCard(
@@ -436,17 +466,17 @@ class _MyPetsPageState extends State<MyPetsPage> {
         value: safetyAlerts.toString(),
         background: safetyAlerts > 0
             ? alertRed.withValues(alpha: 0.055)
-            : const Color(0xFFF5F7F5),
-        iconColor: safetyAlerts > 0 ? alertRed : const Color(0xFF15803D),
+            : softerTeal,
+        iconColor: safetyAlerts > 0 ? alertRed : Color(0xFF15803D),
       ),
     ];
 
     return Row(
       children: [
         Expanded(child: cards[0]),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         Expanded(child: cards[1]),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         Expanded(child: cards[2]),
       ],
     );
@@ -460,16 +490,16 @@ class _MyPetsPageState extends State<MyPetsPage> {
     required Color iconColor,
   }) {
     return Container(
-      padding: const EdgeInsets.all(13),
+      padding: EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(17),
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.025),
             blurRadius: 12,
-            offset: const Offset(0, 5),
+            offset: Offset(0, 5),
           ),
         ],
       ),
@@ -484,7 +514,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
             ),
             child: Center(child: Icon(icon, color: iconColor, size: 20)),
           ),
-          const SizedBox(width: 9),
+          SizedBox(width: 9),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -493,7 +523,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: darkText,
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
@@ -503,7 +533,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: grayText,
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
@@ -520,13 +550,13 @@ class _MyPetsPageState extends State<MyPetsPage> {
   Widget _buildSearch() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: primaryTeal.withValues(alpha: 0.035),
             blurRadius: 14,
-            offset: const Offset(0, 5),
+            offset: Offset(0, 5),
           ),
         ],
       ),
@@ -535,26 +565,26 @@ class _MyPetsPageState extends State<MyPetsPage> {
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           hintText: 'Search by pet name or breed',
-          hintStyle: const TextStyle(color: grayText, fontSize: 13),
+          hintStyle: TextStyle(color: grayText, fontSize: 13),
           prefixIcon: Container(
             width: 45,
-            margin: const EdgeInsets.only(left: 6, top: 6, bottom: 6),
+            margin: EdgeInsets.only(left: 6, top: 6, bottom: 6),
             decoration: BoxDecoration(
               color: lightTeal,
               borderRadius: BorderRadius.circular(11),
             ),
-            child: const Center(
+            child: Center(
               child: Icon(Icons.search_rounded, color: primaryTeal, size: 20),
             ),
           ),
-          prefixIconConstraints: const BoxConstraints(
+          prefixIconConstraints: BoxConstraints(
             minWidth: 57,
             minHeight: 50,
           ),
           suffixIcon: _searchText.isNotEmpty
               ? IconButton(
                   onPressed: _searchController.clear,
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.close_rounded,
                     color: grayText,
                     size: 19,
@@ -562,22 +592,22 @@ class _MyPetsPageState extends State<MyPetsPage> {
                 )
               : null,
           filled: true,
-          fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(
+          fillColor: surfaceColor,
+          contentPadding: EdgeInsets.symmetric(
             horizontal: 15,
             vertical: 15,
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: borderColor),
+            borderSide: BorderSide(color: borderColor),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: borderColor),
+            borderSide: BorderSide(color: borderColor),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: primaryTeal, width: 1.4),
+            borderSide: BorderSide(color: primaryTeal, width: 1.4),
           ),
         ),
       ),
@@ -594,30 +624,30 @@ class _MyPetsPageState extends State<MyPetsPage> {
             color: lightTeal,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: const Center(
+          child: Center(
             child: Icon(Icons.grid_view_rounded, color: primaryTeal, size: 19),
           ),
         ),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         Text(
           showingAll ? 'Your pet profiles' : 'Search results',
-          style: const TextStyle(
+          style: TextStyle(
             color: darkText,
             fontSize: 16,
             fontWeight: FontWeight.w900,
           ),
         ),
-        const Spacer(),
+        Spacer(),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+          padding: EdgeInsets.symmetric(horizontal: 9, vertical: 5),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: surfaceColor,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: borderColor),
           ),
           child: Text(
             '$count ${count == 1 ? 'pet' : 'pets'}',
-            style: const TextStyle(
+            style: TextStyle(
               color: grayText,
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -644,7 +674,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
       return Column(
         children: pets.map((pet) {
           return Padding(
-            padding: const EdgeInsets.only(bottom: 14),
+            padding: EdgeInsets.only(bottom: 14),
             child: _buildPetCard(pet, compact: true),
           );
         }).toList(),
@@ -653,7 +683,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
 
     return GridView.builder(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+      physics: NeverScrollableScrollPhysics(),
       itemCount: pets.length,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: columns,
@@ -683,7 +713,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
     final safetyInfo = _getSafetyInfo(safetyTag);
 
     return Material(
-      color: Colors.white,
+      color: surfaceColor,
       borderRadius: BorderRadius.circular(20),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -697,7 +727,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.035),
                 blurRadius: 16,
-                offset: const Offset(0, 7),
+                offset: Offset(0, 7),
               ),
             ],
           ),
@@ -750,7 +780,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
         ),
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(15, 13, 15, 13),
+            padding: EdgeInsets.fromLTRB(15, 13, 15, 13),
             child: _buildPetInformation(
               name: name,
               breed: breed,
@@ -779,7 +809,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
     required bool qrEnabled,
   }) {
     return Padding(
-      padding: const EdgeInsets.all(10),
+      padding: EdgeInsets.all(10),
       child: Row(
         children: [
           SizedBox(
@@ -790,10 +820,10 @@ class _MyPetsPageState extends State<MyPetsPage> {
               child: _buildPetImage(photoUrl, safetyInfo: safetyInfo),
             ),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
+              padding: EdgeInsets.symmetric(vertical: 5),
               child: _buildPetInformation(
                 name: name,
                 breed: breed,
@@ -831,30 +861,30 @@ class _MyPetsPageState extends State<MyPetsPage> {
                 name,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
                   color: darkText,
                 ),
               ),
             ),
-            const SizedBox(width: 7),
+            SizedBox(width: 7),
             _buildStatus(status, isAlive),
           ],
         ),
-        const SizedBox(height: 6),
+        SizedBox(height: 6),
         Text(
           breed,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
+          style: TextStyle(
             color: grayText,
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
         ),
         if (age.isNotEmpty || color.isNotEmpty) ...[
-          const SizedBox(height: 9),
+          SizedBox(height: 9),
           Wrap(
             spacing: 6,
             runSpacing: 5,
@@ -865,11 +895,11 @@ class _MyPetsPageState extends State<MyPetsPage> {
             ],
           ),
         ],
-        const Spacer(),
+        Spacer(),
         Row(
           children: [
             _buildSafetyBadge(safetyInfo),
-            const Spacer(),
+            Spacer(),
             if (qrEnabled)
               Container(
                 width: 30,
@@ -878,7 +908,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
                   color: lightTeal,
                   borderRadius: BorderRadius.circular(9),
                 ),
-                child: const Center(
+                child: Center(
                   child: Icon(
                     Icons.qr_code_2_rounded,
                     color: primaryTeal,
@@ -886,8 +916,8 @@ class _MyPetsPageState extends State<MyPetsPage> {
                   ),
                 ),
               ),
-            const SizedBox(width: 8),
-            const Icon(
+            SizedBox(width: 8),
+            Icon(
               Icons.arrow_forward_ios_rounded,
               size: 12,
               color: grayText,
@@ -900,9 +930,9 @@ class _MyPetsPageState extends State<MyPetsPage> {
 
   Widget _buildInfoChip(IconData icon, String text) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F8F7),
+        color: softerTeal,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: borderColor),
       ),
@@ -910,12 +940,12 @@ class _MyPetsPageState extends State<MyPetsPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 12, color: grayText),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           Text(
             text,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               color: grayText,
               fontSize: 10,
               fontWeight: FontWeight.w600,
@@ -928,7 +958,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
 
   Widget _buildSafetyBadge(Map<String, dynamic> safetyInfo) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
         color: safetyInfo['background'] as Color,
         borderRadius: BorderRadius.circular(9),
@@ -941,7 +971,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
             size: 13,
             color: safetyInfo['color'] as Color,
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           Text(
             safetyInfo['label'] as String,
             style: TextStyle(
@@ -964,7 +994,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
     if (photoUrl.isEmpty) {
       image = Container(
         color: lightTeal,
-        child: const Center(
+        child: Center(
           child: Icon(Icons.pets_rounded, color: primaryTeal, size: 58),
         ),
       );
@@ -977,7 +1007,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
         errorBuilder: (context, error, stackTrace) {
           return Container(
             color: lightTeal,
-            child: const Center(
+            child: Center(
               child: Icon(Icons.pets_rounded, color: primaryTeal, size: 58),
             ),
           );
@@ -987,7 +1017,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
 
           return Container(
             color: lightTeal,
-            child: const Center(
+            child: Center(
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 color: primaryTeal,
@@ -1011,12 +1041,12 @@ class _MyPetsPageState extends State<MyPetsPage> {
           right: 10,
           bottom: 10,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+            padding: EdgeInsets.symmetric(horizontal: 9, vertical: 6),
             decoration: BoxDecoration(
               color: Colors.black.withValues(alpha: 0.48),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.open_in_new_rounded, color: Colors.white, size: 12),
@@ -1039,15 +1069,15 @@ class _MyPetsPageState extends State<MyPetsPage> {
 
   Widget _buildImageSafetyBadge(Map<String, dynamic> safetyInfo) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 9, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.93),
+        color: onPrimaryColor.withValues(alpha: 0.93),
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 8,
-            offset: const Offset(0, 3),
+            offset: Offset(0, 3),
           ),
         ],
       ),
@@ -1059,7 +1089,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
             size: 13,
             color: safetyInfo['color'] as Color,
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           Text(
             safetyInfo['label'] as String,
             style: TextStyle(
@@ -1088,28 +1118,28 @@ class _MyPetsPageState extends State<MyPetsPage> {
     if (tag == 'caution' || tag == 'yellow') {
       return {
         'label': 'Caution',
-        'color': const Color(0xFFB7791F),
-        'background': const Color(0xFFFFF8E7),
+        'color': Color(0xFFB7791F),
+        'background': Color(0xFFFFF8E7),
         'icon': Icons.info_rounded,
       };
     }
 
     return {
       'label': 'Safe',
-      'color': const Color(0xFF15803D),
-      'background': const Color(0xFFEFF8EF),
+      'color': Color(0xFF15803D),
+      'background': Color(0xFFEFF8EF),
       'icon': Icons.verified_rounded,
     };
   }
 
   Widget _buildStatus(String status, bool alive) {
-    final color = alive ? const Color(0xFF15803D) : alertRed;
+    final color = alive ? Color(0xFF15803D) : alertRed;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color:
-            alive ? const Color(0xFFEFF8EF) : alertRed.withValues(alpha: 0.08),
+            alive ? Color(0xFFEFF8EF) : alertRed.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -1123,7 +1153,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
               shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(width: 5),
+          SizedBox(width: 5),
           Text(
             alive ? 'Alive' : 'Deceased',
             style: TextStyle(
@@ -1140,7 +1170,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
   Widget _buildRegisterPrompt() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(17),
+      padding: EdgeInsets.all(17),
       decoration: BoxDecoration(
         color: softerTeal,
         borderRadius: BorderRadius.circular(18),
@@ -1152,10 +1182,10 @@ class _MyPetsPageState extends State<MyPetsPage> {
             width: 43,
             height: 43,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: surfaceColor,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Center(
+            child: Center(
               child: Icon(
                 Icons.add_circle_outline_rounded,
                 color: primaryTeal,
@@ -1163,8 +1193,8 @@ class _MyPetsPageState extends State<MyPetsPage> {
               ),
             ),
           ),
-          const SizedBox(width: 12),
-          const Expanded(
+          SizedBox(width: 12),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1184,14 +1214,14 @@ class _MyPetsPageState extends State<MyPetsPage> {
               ],
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           TextButton(
             onPressed: _openRegisterPet,
             style: TextButton.styleFrom(
               foregroundColor: primaryTeal,
-              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 8),
+              padding: EdgeInsets.symmetric(horizontal: 9, vertical: 8),
             ),
-            child: const Text(
+            child: Text(
               'Register',
               style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900),
             ),
@@ -1204,16 +1234,16 @@ class _MyPetsPageState extends State<MyPetsPage> {
   Widget _buildEmptyState() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(28),
+      padding: EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.025),
             blurRadius: 18,
-            offset: const Offset(0, 7),
+            offset: Offset(0, 7),
           ),
         ],
       ),
@@ -1226,12 +1256,12 @@ class _MyPetsPageState extends State<MyPetsPage> {
               color: lightTeal,
               borderRadius: BorderRadius.circular(24),
             ),
-            child: const Center(
+            child: Center(
               child: Icon(Icons.pets_rounded, color: primaryTeal, size: 42),
             ),
           ),
-          const SizedBox(height: 17),
-          const Text(
+          SizedBox(height: 17),
+          Text(
             'No pets registered yet',
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -1240,26 +1270,26 @@ class _MyPetsPageState extends State<MyPetsPage> {
               color: darkText,
             ),
           ),
-          const SizedBox(height: 7),
-          const Text(
+          SizedBox(height: 7),
+          Text(
             'Give your pet a digital identity with a PawLink profile and unique QR code.',
             textAlign: TextAlign.center,
             style: TextStyle(color: grayText, fontSize: 13, height: 1.5),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           ElevatedButton.icon(
             onPressed: _openRegisterPet,
-            icon: const Icon(Icons.add_rounded, size: 19),
-            label: const Text('Register a Pet'),
+            icon: Icon(Icons.add_rounded, size: 19),
+            label: Text('Register a Pet'),
             style: ElevatedButton.styleFrom(
               backgroundColor: primaryTeal,
-              foregroundColor: Colors.white,
+              foregroundColor: onPrimaryColor,
               elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 13),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              textStyle: const TextStyle(fontWeight: FontWeight.w800),
+              textStyle: TextStyle(fontWeight: FontWeight.w800),
             ),
           ),
         ],
@@ -1270,9 +1300,9 @@ class _MyPetsPageState extends State<MyPetsPage> {
   Widget _buildNoSearchResults() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(30),
+      padding: EdgeInsets.all(30),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: borderColor),
       ),
@@ -1282,15 +1312,15 @@ class _MyPetsPageState extends State<MyPetsPage> {
             width: 62,
             height: 62,
             decoration: BoxDecoration(
-              color: const Color(0xFFF5F7F6),
+              color: softerTeal,
               borderRadius: BorderRadius.circular(18),
             ),
-            child: const Center(
+            child: Center(
               child: Icon(Icons.search_off_rounded, color: grayText, size: 31),
             ),
           ),
-          const SizedBox(height: 13),
-          const Text(
+          SizedBox(height: 13),
+          Text(
             'No matching pets',
             style: TextStyle(
               fontSize: 17,
@@ -1298,17 +1328,17 @@ class _MyPetsPageState extends State<MyPetsPage> {
               color: darkText,
             ),
           ),
-          const SizedBox(height: 5),
-          const Text(
+          SizedBox(height: 5),
+          Text(
             'Try another pet name or breed.',
             textAlign: TextAlign.center,
             style: TextStyle(color: grayText, fontSize: 13),
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           TextButton.icon(
             onPressed: _searchController.clear,
-            icon: const Icon(Icons.refresh_rounded, size: 17),
-            label: const Text('Clear search'),
+            icon: Icon(Icons.refresh_rounded, size: 17),
+            label: Text('Clear search'),
             style: TextButton.styleFrom(foregroundColor: primaryTeal),
           ),
         ],
@@ -1322,13 +1352,13 @@ class _MyPetsPageState extends State<MyPetsPage> {
 
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         child: Container(
           width: double.infinity,
-          constraints: const BoxConstraints(maxWidth: 550),
-          padding: const EdgeInsets.all(25),
+          constraints: BoxConstraints(maxWidth: 550),
+          padding: EdgeInsets.all(25),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: surfaceColor,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: alertRed.withValues(alpha: 0.15),
@@ -1344,7 +1374,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
                   color: alertRed.withValues(alpha: 0.07),
                   borderRadius: BorderRadius.circular(17),
                 ),
-                child: const Center(
+                child: Center(
                   child: Icon(
                     Icons.error_outline_rounded,
                     color: alertRed,
@@ -1352,8 +1382,8 @@ class _MyPetsPageState extends State<MyPetsPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 13),
-              const Text(
+              SizedBox(height: 13),
+              Text(
                 'Unable to load your pets.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -1362,8 +1392,8 @@ class _MyPetsPageState extends State<MyPetsPage> {
                   fontSize: 16,
                 ),
               ),
-              const SizedBox(height: 5),
-              const Text(
+              SizedBox(height: 5),
+              Text(
                 'We encountered a problem loading your pet profiles.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -1371,12 +1401,12 @@ class _MyPetsPageState extends State<MyPetsPage> {
                   fontSize: 13,
                 ),
               ),
-              const SizedBox(height: 18),
+              SizedBox(height: 18),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFF5F5),
+                  color: Color(0xFFFFF5F5),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: alertRed.withValues(alpha: 0.12),
@@ -1384,23 +1414,23 @@ class _MyPetsPageState extends State<MyPetsPage> {
                 ),
                 child: SelectableText(
                   errorMessage,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Color(0xFF991B1B),
                     fontSize: 12,
                     height: 1.5,
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               ElevatedButton.icon(
                 onPressed: () {
                   setState(() {});
                 },
-                icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Retry'),
+                icon: Icon(Icons.refresh_rounded),
+                label: Text('Retry'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryTeal,
-                  foregroundColor: Colors.white,
+                  foregroundColor: onPrimaryColor,
                 ),
               ),
             ],

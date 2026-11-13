@@ -26,6 +26,10 @@ dependencies:
   #Fonts
   google_fonts: ^6.3.0
 
+  # Seasonal theme background music and saved preferences
+  audioplayers: ^6.5.1
+  shared_preferences: ^2.5.3
+
   #Fonts
   mobile_scanner: ^7.0.0
 
@@ -62,9 +66,10 @@ flutter:
 
   assets:
     - assets/images/breeds/
+    - assets/music/
+    - assets/music/pawlink_music.mp3/
 
 dependency_overrides:
   pdf: ^3.13.1
   printing: ^5.15.1
   archive: ^4.4.0
-

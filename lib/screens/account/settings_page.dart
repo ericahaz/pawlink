@@ -1,7 +1,9 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../seasonal/seasonal_controller.dart';
 import 'my_account_page.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -12,14 +14,46 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  static const Color primaryTeal = Color(0xFF0F766E);
-  static const Color darkTeal = Color(0xFF115E59);
-  static const Color lightTeal = Color(0xFFE7F5F2);
+  static Color get primaryTeal =>
+      SeasonalController.instance.activeTheme?.primary ??
+      const Color(0xFF0F766E);
+
+  static Color get darkTeal =>
+      SeasonalController.instance.activeTheme?.secondary ??
+      const Color(0xFF115E59);
+
+  static Color get lightTeal {
+    final theme = SeasonalController.instance.activeTheme;
+    if (theme == null) return const Color(0xFFE7F5F2);
+    return Color.alphaBlend(
+      theme.primary.withValues(alpha: 0.10),
+      theme.surface,
+    );
+  }
+
   static const Color alertRed = Color(0xFFDC2626);
-  static const Color warmBackground = Color(0xFFFFFBF5);
-  static const Color darkText = Color(0xFF243333);
-  static const Color grayText = Color(0xFF667373);
-  static const Color borderColor = Color(0xFFE3E5E3);
+
+  static Color get warmBackground =>
+      SeasonalController.instance.activeTheme?.background ??
+      const Color(0xFFFFFBF5);
+
+  static Color get darkText =>
+      SeasonalController.instance.activeTheme?.textPrimary ??
+      const Color(0xFF243333);
+
+  static Color get grayText =>
+      SeasonalController.instance.activeTheme?.textSecondary ??
+      const Color(0xFF667373);
+
+  static Color get borderColor =>
+      SeasonalController.instance.activeTheme?.border ??
+      const Color(0xFFE3E5E3);
+
+  static Color get surfaceColor =>
+      SeasonalController.instance.activeTheme?.surface ?? Colors.white;
+
+  static Color get onPrimaryColor =>
+      SeasonalController.instance.activeTheme?.onPrimary ?? Colors.white;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -209,7 +243,7 @@ class _SettingsPageState extends State<SettingsPage> {
               onPressed: () => Navigator.pop(context, true),
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryTeal,
-                foregroundColor: Colors.white,
+                foregroundColor: onPrimaryColor,
               ),
               child: const Text('Sign Out'),
             ),
@@ -269,7 +303,7 @@ class _SettingsPageState extends State<SettingsPage> {
       backgroundColor: warmBackground,
       body: SafeArea(
         child: _loading
-            ? const Center(child: CircularProgressIndicator(color: primaryTeal))
+            ? Center(child: CircularProgressIndicator(color: primaryTeal))
             : LayoutBuilder(
                 builder: (context, constraints) {
                   final isDesktop = constraints.maxWidth >= 900;
@@ -320,10 +354,6 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  // ================================================================
-  // HEADER WITH BACK BUTTON
-  // ================================================================
-
   Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
@@ -340,7 +370,7 @@ class _SettingsPageState extends State<SettingsPage> {
               );
             }
           },
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back,
             color: darkText,
             size: 24,
@@ -355,7 +385,7 @@ class _SettingsPageState extends State<SettingsPage> {
           tooltip: 'Back',
         ),
         const SizedBox(width: 28),
-        const Expanded(
+        Expanded(
           child: Text(
             'Settings',
             style: TextStyle(
@@ -424,19 +454,19 @@ class _SettingsPageState extends State<SettingsPage> {
             child: ElevatedButton.icon(
               onPressed: _saving ? null : _saveProfile,
               icon: _saving
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 17,
                       height: 17,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: Colors.white,
+                        color: onPrimaryColor,
                       ),
                     )
                   : const Icon(Icons.save_outlined, size: 18),
               label: Text(_saving ? 'Saving...' : 'Save Changes'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryTeal,
-                foregroundColor: Colors.white,
+                foregroundColor: onPrimaryColor,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
@@ -461,7 +491,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }) {
     return TextField(
       controller: controller,
-      style: const TextStyle(fontSize: 16, color: darkText),
+      style: TextStyle(fontSize: 16, color: darkText),
       decoration: InputDecoration(
         labelStyle: const TextStyle(fontSize: 15),
         hintStyle: const TextStyle(fontSize: 14),
@@ -473,18 +503,18 @@ class _SettingsPageState extends State<SettingsPage> {
         hintText: hint,
         prefixIcon: Icon(icon),
         filled: true,
-        fillColor: const Color(0xFFF9FAF9),
+        fillColor: surfaceColor,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: borderColor),
+          borderSide: BorderSide(color: borderColor),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: borderColor),
+          borderSide: BorderSide(color: borderColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: primaryTeal, width: 1.5),
+          borderSide: BorderSide(color: primaryTeal, width: 1.5),
         ),
       ),
     );
@@ -496,7 +526,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return TextField(
       enabled: false,
       controller: TextEditingController(text: email),
-      style: const TextStyle(fontSize: 16, color: grayText),
+      style: TextStyle(fontSize: 16, color: grayText),
       decoration: InputDecoration(
         labelStyle: const TextStyle(fontSize: 15),
         helperStyle: const TextStyle(fontSize: 13),
@@ -508,10 +538,10 @@ class _SettingsPageState extends State<SettingsPage> {
         helperText: 'Your login email is managed by Firebase Authentication.',
         prefixIcon: const Icon(Icons.email_outlined),
         filled: true,
-        fillColor: const Color(0xFFF1F3F2),
+        fillColor: surfaceColor,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: borderColor),
+          borderSide: BorderSide(color: borderColor),
         ),
       ),
     );
@@ -543,7 +573,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ? 'Your email address is verified.'
                 : 'Your email address has not been verified.',
             trailing: user?.emailVerified == true
-                ? const Icon(Icons.check_circle_outline, color: primaryTeal)
+                ? Icon(Icons.check_circle_outline, color: primaryTeal)
                 : TextButton(
                     onPressed: _sendVerificationEmail,
                     child: const Text('Verify'),
@@ -628,11 +658,11 @@ class _SettingsPageState extends State<SettingsPage> {
               color: lightTeal,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Row(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(Icons.info_outline, size: 19, color: primaryTeal),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     'Only information intended for the public pet profile should be shown when a QR code is scanned. Private account information should remain protected.',
@@ -709,7 +739,7 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: darkText,
@@ -718,7 +748,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     color: grayText,
                     height: 1.4,
@@ -760,7 +790,7 @@ class _SettingsCard extends StatelessWidget {
         MediaQuery.of(context).size.width >= 900 ? 24 : 16,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _SettingsPageState.surfaceColor,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: _SettingsPageState.borderColor),
         boxShadow: [
@@ -792,7 +822,7 @@ class _SettingsCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
                         color: _SettingsPageState.darkText,
@@ -801,7 +831,7 @@ class _SettingsCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         color: _SettingsPageState.grayText,
                       ),
@@ -868,7 +898,7 @@ class _ActionTile extends StatelessWidget {
                   const SizedBox(height: 3),
                   Text(
                     subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: _SettingsPageState.grayText,
                       height: 1.35,

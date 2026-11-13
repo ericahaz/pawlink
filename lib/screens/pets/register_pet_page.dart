@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../services/pet_service.dart';
+import '../../seasonal/seasonal_controller.dart';
 
 class RegisterPetPage extends StatefulWidget {
   const RegisterPetPage({super.key});
@@ -40,13 +41,42 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
 
   // COLORS
 
-  static const Color primaryTeal = Color(0xFF0F766E);
-  static const Color darkText = Color(0xFF243333);
-  static const Color grayText = Color(0xFF667373);
-  static const Color lightTeal = Color(0xFFE7F5F2);
-  static const Color warmBackground = Color(0xFFFFFBF5);
-  static const Color borderColor = Color(0xFFE3E5E3);
+  static Color get primaryTeal =>
+      SeasonalController.instance.activeTheme?.primary ??
+      const Color(0xFF0F766E);
 
+  static Color get darkText =>
+      SeasonalController.instance.activeTheme?.textPrimary ??
+      const Color(0xFF243333);
+
+  static Color get grayText =>
+      SeasonalController.instance.activeTheme?.textSecondary ??
+      const Color(0xFF667373);
+
+  static Color get lightTeal {
+    final theme = SeasonalController.instance.activeTheme;
+    if (theme == null) return const Color(0xFFE7F5F2);
+    return Color.alphaBlend(
+      theme.primary.withValues(alpha: 0.10),
+      theme.surface,
+    );
+  }
+
+  static Color get warmBackground =>
+      SeasonalController.instance.activeTheme?.background ??
+      const Color(0xFFFFFBF5);
+
+  static Color get borderColor =>
+      SeasonalController.instance.activeTheme?.border ??
+      const Color(0xFFE3E5E3);
+
+  static Color get surfaceColor =>
+      SeasonalController.instance.activeTheme?.surface ?? Colors.white;
+
+  static Color get onPrimaryColor =>
+      SeasonalController.instance.activeTheme?.onPrimary ?? Colors.white;
+
+  // Safety indicators retain their semantic colors across seasonal themes.
   static const Color safeGreen = Color(0xFF16A34A);
   static const Color cautionYellow = Color(0xFFF59E0B);
   static const Color aggressiveRed = Color(0xFFDC2626);
@@ -124,7 +154,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -133,7 +163,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                     Expanded(
                       child: Text(
                         breed,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: darkText,
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
@@ -142,12 +172,12 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                     ),
                     IconButton(
                       onPressed: () => Navigator.pop(dialogContext),
-                      icon: const Icon(Icons.close_rounded),
+                      icon: Icon(Icons.close_rounded),
                       color: grayText,
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(14),
                   child: Image.asset(
@@ -160,7 +190,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                       height: 280,
                       color: lightTeal,
                       alignment: Alignment.center,
-                      child: const Icon(
+                      child: Icon(
                         Icons.pets_rounded,
                         color: primaryTeal,
                         size: 64,
@@ -168,8 +198,8 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                const Text(
+                SizedBox(height: 8),
+                Text(
                   'Breed reference photo',
                   style: TextStyle(color: grayText, fontSize: 12),
                 ),
@@ -196,7 +226,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
             height: 38,
             color: lightTeal,
             alignment: Alignment.center,
-            child: const Icon(Icons.pets_rounded, color: primaryTeal, size: 21),
+            child: Icon(Icons.pets_rounded, color: primaryTeal, size: 21),
           ),
         ),
       ),
@@ -210,12 +240,12 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
         child: Row(
           children: [
             _breedThumbnail(breed),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             Expanded(
               child: Text(
                 breed,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   color: darkText,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -235,7 +265,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
       menuMaxHeight: 420,
       decoration: _dropdownDecoration('Breed', Icons.category_outlined),
       items: [
-        const DropdownMenuItem<String>(
+        DropdownMenuItem<String>(
           enabled: false,
           child: Text(
             'CAT BREEDS',
@@ -247,7 +277,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
           ),
         ),
         ..._buildBreedItems(_catBreeds),
-        const DropdownMenuItem<String>(
+        DropdownMenuItem<String>(
           enabled: false,
           child: Text(
             'DOG BREEDS',
@@ -259,7 +289,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
           ),
         ),
         ..._buildBreedItems(_dogBreeds),
-        const DropdownMenuItem<String>(
+        DropdownMenuItem<String>(
           enabled: false,
           child: Text(
             'OTHER OPTIONS',
@@ -466,7 +496,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('Pet registered successfully!'),
         ),
       );
@@ -510,9 +540,9 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
         scrolledUnderElevation: 0,
         leading: IconButton(
           onPressed: _isSaving ? null : () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_rounded, color: darkText),
+          icon: Icon(Icons.arrow_back_rounded, color: darkText),
         ),
-        title: const Text(
+        title: Text(
           'Register a Pet',
           style: TextStyle(
             color: darkText,
@@ -533,24 +563,24 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
             ),
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 850),
+                constraints: BoxConstraints(maxWidth: 850),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildIntro(),
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20),
                       _buildPhotoSection(),
-                      const SizedBox(height: 18),
+                      SizedBox(height: 18),
                       _buildPetInformation(),
-                      const SizedBox(height: 18),
+                      SizedBox(height: 18),
                       _buildSafetySection(),
-                      const SizedBox(height: 18),
+                      SizedBox(height: 18),
                       _buildOwnerInformation(),
-                      const SizedBox(height: 18),
+                      SizedBox(height: 18),
                       _buildQrInformation(),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                       _buildRegisterButton(),
                     ],
                   ),
@@ -568,7 +598,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
   // ============================================================
 
   Widget _buildIntro() {
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
@@ -606,8 +636,8 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
             icon: Icons.photo_camera_outlined,
             title: 'Pet Photos',
           ),
-          const SizedBox(height: 8),
-          const Text(
+          SizedBox(height: 8),
+          Text(
             'Select up to 4 clear photos of your pet. '
             'The first photo will be the main profile picture. '
             'Each photo must be 5 MB or smaller.',
@@ -617,19 +647,19 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
               height: 1.5,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           if (_photoBytes.isEmpty)
             _buildEmptyPhotoPlaceholder()
           else
             _buildPhotoGalleryPreview(),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: _isSaving || _photoBytes.length >= _maxPhotos
                   ? null
                   : _pickImages,
-              icon: const Icon(Icons.add_photo_alternate_outlined, size: 19),
+              icon: Icon(Icons.add_photo_alternate_outlined, size: 19),
               label: Text(
                 _photoBytes.isEmpty
                     ? 'Choose Photos'
@@ -640,8 +670,8 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
               style: OutlinedButton.styleFrom(
                 foregroundColor: primaryTeal,
                 disabledForegroundColor: grayText,
-                side: const BorderSide(color: primaryTeal),
-                padding: const EdgeInsets.symmetric(vertical: 13),
+                side: BorderSide(color: primaryTeal),
+                padding: EdgeInsets.symmetric(vertical: 13),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -656,13 +686,13 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
   Widget _buildEmptyPhotoPlaceholder() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 16),
+      padding: EdgeInsets.symmetric(vertical: 26, horizontal: 16),
       decoration: BoxDecoration(
         color: lightTeal,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: borderColor),
       ),
-      child: const Column(
+      child: Column(
         children: [
           Icon(
             Icons.add_a_photo_outlined,
@@ -700,7 +730,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: _photoBytes.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            separatorBuilder: (_, __) => SizedBox(width: 12),
             itemBuilder: (context, index) {
               return SizedBox(
                 width: 118,
@@ -722,7 +752,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                         left: 6,
                         bottom: 6,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(
+                          padding: EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 5,
                           ),
@@ -730,10 +760,10 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                             color: primaryTeal,
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Main Photo',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: onPrimaryColor,
                               fontSize: 10,
                               fontWeight: FontWeight.w800,
                             ),
@@ -747,11 +777,11 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                       top: 5,
                       child: Material(
                         color: Colors.black.withValues(alpha: 0.65),
-                        shape: const CircleBorder(),
+                        shape: CircleBorder(),
                         child: InkWell(
-                          customBorder: const CircleBorder(),
+                          customBorder: CircleBorder(),
                           onTap: _isSaving ? null : () => _removePhoto(index),
-                          child: const Padding(
+                          child: Padding(
                             padding: EdgeInsets.all(6),
                             child: Icon(
                               Icons.close_rounded,
@@ -768,10 +798,10 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
             },
           ),
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         Text(
           '${_photoBytes.length} of $_maxPhotos photos selected',
-          style: const TextStyle(
+          style: TextStyle(
             color: grayText,
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -794,7 +824,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
             icon: Icons.pets_rounded,
             title: 'Pet Information',
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: 18),
           _buildTextField(
             controller: _petNameController,
             label: 'Pet Name',
@@ -807,10 +837,10 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
               return null;
             },
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           _buildBreedDropdown(),
           if (_selectedBreed == 'Other') ...[
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
             _buildTextField(
               controller: _otherBreedController,
               label: 'Enter Other Breed',
@@ -825,7 +855,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
               },
             ),
           ],
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           _buildTextField(
             controller: _colorController,
             label: 'Color',
@@ -838,7 +868,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
               return null;
             },
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           _buildTextField(
             controller: _ageController,
             label: 'Age',
@@ -851,11 +881,11 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
               return null;
             },
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           DropdownButtonFormField<String>(
             value: _sex,
             decoration: _dropdownDecoration('Sex', Icons.pets_rounded),
-            items: const [
+            items: [
               DropdownMenuItem(value: 'unknown', child: Text('Unknown')),
               DropdownMenuItem(value: 'male', child: Text('Male')),
               DropdownMenuItem(value: 'female', child: Text('Female')),
@@ -867,7 +897,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                     setState(() => _sex = value);
                   },
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           _buildTextField(
             controller: _identifyingMarksController,
             label: 'Identifying Marks',
@@ -885,19 +915,19 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
       labelText: label,
       prefixIcon: Icon(icon, color: primaryTeal, size: 21),
       filled: true,
-      fillColor: Colors.white,
-      labelStyle: const TextStyle(color: grayText),
+      fillColor: surfaceColor,
+      labelStyle: TextStyle(color: grayText),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(13),
-        borderSide: const BorderSide(color: borderColor),
+        borderSide: BorderSide(color: borderColor),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(13),
-        borderSide: const BorderSide(color: borderColor),
+        borderSide: BorderSide(color: borderColor),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(13),
-        borderSide: const BorderSide(color: primaryTeal, width: 1.5),
+        borderSide: BorderSide(color: primaryTeal, width: 1.5),
       ),
     );
   }
@@ -915,8 +945,8 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
             icon: Icons.shield_outlined,
             title: 'Safety Level',
           ),
-          const SizedBox(height: 8),
-          const Text(
+          SizedBox(height: 8),
+          Text(
             'Choose a safety tag that can help people know how '
             'to respond if they encounter your pet.',
             style: TextStyle(
@@ -925,7 +955,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
               height: 1.45,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildSafetyOption(
             value: 'safe',
             icon: Icons.check_circle_rounded,
@@ -933,7 +963,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
             description: 'Normal behavior. No special warning.',
             color: safeGreen,
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           _buildSafetyOption(
             value: 'caution',
             icon: Icons.warning_amber_rounded,
@@ -941,7 +971,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
             description: 'Pet may be frightened, nervous, or defensive.',
             color: cautionYellow,
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           _buildSafetyOption(
             value: 'aggressive',
             icon: Icons.do_not_touch_rounded,
@@ -950,16 +980,16 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                 'Do not approach. Notify the barangay if assistance is needed.',
             color: aggressiveRed,
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           if (_safetyTag == 'aggressive')
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(13),
+              padding: EdgeInsets.all(13),
               decoration: BoxDecoration(
                 color: aggressiveRed.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(13),
               ),
-              child: const Row(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Icon(
@@ -1003,9 +1033,9 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
       borderRadius: BorderRadius.circular(15),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(14),
+        padding: EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: selected ? color.withValues(alpha: 0.08) : Colors.white,
+          color: selected ? color.withValues(alpha: 0.08) : surfaceColor,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
             color: selected ? color : borderColor,
@@ -1015,7 +1045,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
         child: Row(
           children: [
             Icon(icon, color: color, size: 24),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1028,10 +1058,10 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(height: 3),
+                  SizedBox(height: 3),
                   Text(
                     description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: grayText,
                       fontSize: 11,
                       height: 1.35,
@@ -1070,7 +1100,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
             icon: Icons.person_outline_rounded,
             title: 'Owner Information',
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: 18),
           _buildTextField(
             controller: _ownerNameController,
             label: 'Owner Name',
@@ -1083,7 +1113,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
               return null;
             },
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           _buildTextField(
             controller: _ownerContactController,
             label: 'Contact Number',
@@ -1118,14 +1148,14 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
               color: lightTeal,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.qr_code_2_rounded,
               color: primaryTeal,
               size: 25,
             ),
           ),
-          const SizedBox(width: 13),
-          const Expanded(
+          SizedBox(width: 13),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1166,23 +1196,23 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
       child: ElevatedButton.icon(
         onPressed: _isSaving ? null : _registerPet,
         icon: _isSaving
-            ? const SizedBox(
+            ? SizedBox(
                 width: 19,
                 height: 19,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Colors.white,
+                  color: onPrimaryColor,
                 ),
               )
-            : const Icon(Icons.add_circle_outline_rounded),
+            : Icon(Icons.add_circle_outline_rounded),
         label: Text(
           _isSaving ? 'Registering Pet...' : 'Create Pet Profile',
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryTeal,
-          foregroundColor: Colors.white,
+          foregroundColor: onPrimaryColor,
           disabledBackgroundColor: primaryTeal.withValues(alpha: 0.55),
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
@@ -1209,7 +1239,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
       enabled: !_isSaving,
       keyboardType: keyboardType,
       validator: validator,
-      style: const TextStyle(
+      style: TextStyle(
         color: darkText,
         fontSize: 14,
         fontWeight: FontWeight.w600,
@@ -1219,34 +1249,34 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
         hintText: hint,
         prefixIcon: Icon(icon, color: primaryTeal, size: 21),
         filled: true,
-        fillColor: Colors.white,
-        labelStyle: const TextStyle(color: grayText),
-        hintStyle: const TextStyle(
+        fillColor: surfaceColor,
+        labelStyle: TextStyle(color: grayText),
+        hintStyle: TextStyle(
           color: Color(0xFF9A9F9F),
           fontSize: 13,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: borderColor),
+          borderSide: BorderSide(color: borderColor),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: borderColor),
+          borderSide: BorderSide(color: borderColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: primaryTeal,
             width: 1.5,
           ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(color: aggressiveRed),
+          borderSide: BorderSide(color: aggressiveRed),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: aggressiveRed,
             width: 1.5,
           ),
@@ -1262,12 +1292,12 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
   Widget _buildCard({required Widget child}) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: borderColor),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
             color: Color(0x0D000000),
             blurRadius: 18,
@@ -1298,10 +1328,10 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
           ),
           child: Icon(icon, color: primaryTeal, size: 20),
         ),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             color: darkText,
             fontSize: 16,
             fontWeight: FontWeight.w900,

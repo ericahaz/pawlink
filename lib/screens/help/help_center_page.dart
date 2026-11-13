@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../seasonal/seasonal_controller.dart';
+
 class HelpCenterPage extends StatefulWidget {
   const HelpCenterPage({super.key});
 
@@ -17,14 +19,46 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
   // PAWLINK COLORS
   // ============================================================
 
-  static const Color primaryTeal = Color(0xFF0F766E);
-  static const Color darkTeal = Color(0xFF115E59);
-  static const Color lightTeal = Color(0xFFE7F5F2);
+  static Color get primaryTeal =>
+      SeasonalController.instance.activeTheme?.primary ??
+      Color(0xFF0F766E);
+
+  static Color get darkTeal =>
+      SeasonalController.instance.activeTheme?.secondary ??
+      Color(0xFF115E59);
+
+  static Color get lightTeal {
+    final theme = SeasonalController.instance.activeTheme;
+    if (theme == null) return Color(0xFFE7F5F2);
+    return Color.alphaBlend(
+      theme.primary.withValues(alpha: 0.10),
+      theme.surface,
+    );
+  }
+
   static const Color alertRed = Color(0xFFDC2626);
-  static const Color warmBackground = Color(0xFFFFFBF5);
-  static const Color darkText = Color(0xFF243333);
-  static const Color grayText = Color(0xFF667373);
-  static const Color borderColor = Color(0xFFE3E5E3);
+
+  static Color get warmBackground =>
+      SeasonalController.instance.activeTheme?.background ??
+      Color(0xFFFFFBF5);
+
+  static Color get darkText =>
+      SeasonalController.instance.activeTheme?.textPrimary ??
+      Color(0xFF243333);
+
+  static Color get grayText =>
+      SeasonalController.instance.activeTheme?.textSecondary ??
+      Color(0xFF667373);
+
+  static Color get borderColor =>
+      SeasonalController.instance.activeTheme?.border ??
+      Color(0xFFE3E5E3);
+
+  static Color get surfaceColor =>
+      SeasonalController.instance.activeTheme?.surface ?? Colors.white;
+
+  static Color get onPrimaryColor =>
+      SeasonalController.instance.activeTheme?.onPrimary ?? Colors.white;
 
   // ============================================================
   // PAWLINK ADMIN EMAIL
@@ -60,7 +94,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
   // FAQ DATA
   // ============================================================
 
-  final List<Map<String, String>> _faqs = const [
+  final List<Map<String, String>> _faqs = [
     {
       'question': 'How do I register my pet?',
       'answer':
@@ -211,7 +245,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
 
     _scrollController.animateTo(
       targetPosition,
-      duration: const Duration(milliseconds: 180),
+      duration: Duration(milliseconds: 180),
       curve: Curves.easeOut,
     );
   }
@@ -228,7 +262,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
 
     _scrollController.animateTo(
       targetPosition,
-      duration: const Duration(milliseconds: 350),
+      duration: Duration(milliseconds: 350),
       curve: Curves.easeOutCubic,
     );
   }
@@ -261,7 +295,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
         emailUri = Uri(
           scheme: 'mailto',
           path: adminEmail,
-          queryParameters: const {
+          queryParameters: {
             'subject': 'PawLink Help Center Inquiry',
             'body': 'Hello PawLink Admin,\n\nI need assistance with:\n\n',
           },
@@ -292,11 +326,11 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: Colors.white,
+          backgroundColor: surfaceColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          title: const Row(
+          title: Row(
             children: [
               Icon(
                 Icons.email_outlined,
@@ -314,7 +348,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
               ),
             ],
           ),
-          content: const Text(
+          content: Text(
             'Your device could not open an email application automatically.\n\n'
             'Please send your message to:\n\n'
             'pawlink.help@gmail.com',
@@ -328,7 +362,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
               onPressed: () {
                 Navigator.of(dialogContext).pop();
               },
-              child: const Text(
+              child: Text(
                 'Close',
                 style: TextStyle(
                   color: primaryTeal,
@@ -453,11 +487,11 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: Colors.white,
+          backgroundColor: surfaceColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          contentPadding: const EdgeInsets.fromLTRB(
+          contentPadding: EdgeInsets.fromLTRB(
             28,
             28,
             28,
@@ -473,14 +507,14 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                   color: lightTeal,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.check_circle_rounded,
                   color: primaryTeal,
                   size: 38,
                 ),
               ),
-              const SizedBox(height: 20),
-              const Text(
+              SizedBox(height: 20),
+              Text(
                 'Request Submitted',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -489,8 +523,8 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(height: 10),
-              const Text(
+              SizedBox(height: 10),
+              Text(
                 'Your concern has been sent to the PawLink support system. '
                 'The admin can review your request and respond to it.',
                 textAlign: TextAlign.center,
@@ -500,7 +534,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                   height: 1.5,
                 ),
               ),
-              const SizedBox(height: 22),
+              SizedBox(height: 22),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
@@ -509,15 +543,15 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                   },
                   style: FilledButton.styleFrom(
                     backgroundColor: primaryTeal,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
+                    foregroundColor: onPrimaryColor,
+                    padding: EdgeInsets.symmetric(
                       vertical: 14,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Done',
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
@@ -549,8 +583,8 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
         content: Text(message),
         backgroundColor: isError ? alertRed : primaryTeal,
         behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 4),
+        margin: EdgeInsets.all(16),
+        duration: Duration(seconds: 4),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -571,7 +605,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_rounded,
             color: darkText,
           ),
@@ -579,7 +613,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
             Navigator.of(context).pop();
           },
         ),
-        title: const Text(
+        title: Text(
           'Help Center',
           style: TextStyle(
             color: darkText,
@@ -604,20 +638,20 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
               ),
               child: Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(
+                  constraints: BoxConstraints(
                     maxWidth: 1050,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildHeader(),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                       _buildContactOptions(isMobile),
-                      const SizedBox(height: 30),
+                      SizedBox(height: 30),
                       _buildFaqSection(),
-                      const SizedBox(height: 30),
+                      SizedBox(height: 30),
                       _buildContactForm(),
-                      const SizedBox(height: 40),
+                      SizedBox(height: 40),
                     ],
                   ),
                 ),
@@ -636,9 +670,9 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
   Widget _buildHeader() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(26),
+      padding: EdgeInsets.all(26),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           colors: [
             darkTeal,
             primaryTeal,
@@ -658,14 +692,14 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
               color: Colors.white.withValues(alpha: 0.16),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.support_agent_rounded,
               color: Colors.white,
               size: 31,
             ),
           ),
-          const SizedBox(width: 18),
-          const Expanded(
+          SizedBox(width: 18),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -720,7 +754,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
       return Column(
         children: [
           cards[0],
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           cards[1],
         ],
       );
@@ -729,7 +763,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
     return Row(
       children: [
         Expanded(child: cards[0]),
-        const SizedBox(width: 16),
+        SizedBox(width: 16),
         Expanded(child: cards[1]),
       ],
     );
@@ -743,16 +777,16 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
     required VoidCallback onPressed,
   }) {
     return Container(
-      padding: const EdgeInsets.all(22),
+      padding: EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.035),
             blurRadius: 14,
-            offset: const Offset(0, 5),
+            offset: Offset(0, 5),
           ),
         ],
       ),
@@ -772,33 +806,33 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
               size: 25,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               color: darkText,
               fontSize: 17,
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 7),
+          SizedBox(height: 7),
           Text(
             description,
-            style: const TextStyle(
+            style: TextStyle(
               color: grayText,
               fontSize: 13,
               height: 1.45,
             ),
           ),
-          const SizedBox(height: 17),
+          SizedBox(height: 17),
           OutlinedButton(
             onPressed: onPressed,
             style: OutlinedButton.styleFrom(
               foregroundColor: primaryTeal,
-              side: const BorderSide(
+              side: BorderSide(
                 color: primaryTeal,
               ),
-              padding: const EdgeInsets.symmetric(
+              padding: EdgeInsets.symmetric(
                 horizontal: 17,
                 vertical: 12,
               ),
@@ -808,7 +842,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
             ),
             child: Text(
               buttonText,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -826,7 +860,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Frequently Asked Questions',
           style: TextStyle(
             color: darkText,
@@ -834,29 +868,29 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
             fontWeight: FontWeight.w800,
           ),
         ),
-        const SizedBox(height: 7),
-        const Text(
+        SizedBox(height: 7),
+        Text(
           'Quick answers to common PawLink questions.',
           style: TextStyle(
             color: grayText,
             fontSize: 13,
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         ..._faqs.map(
           (faq) => Container(
-            margin: const EdgeInsets.only(bottom: 10),
+            margin: EdgeInsets.only(bottom: 10),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: surfaceColor,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: borderColor),
             ),
             child: ExpansionTile(
-              tilePadding: const EdgeInsets.symmetric(
+              tilePadding: EdgeInsets.symmetric(
                 horizontal: 18,
                 vertical: 2,
               ),
-              childrenPadding: const EdgeInsets.fromLTRB(
+              childrenPadding: EdgeInsets.fromLTRB(
                 18,
                 0,
                 18,
@@ -872,7 +906,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
               ),
               title: Text(
                 faq['question']!,
-                style: const TextStyle(
+                style: TextStyle(
                   color: darkText,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -883,7 +917,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     faq['answer']!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: grayText,
                       fontSize: 13,
                       height: 1.55,
@@ -905,16 +939,16 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
   Widget _buildContactForm() {
     return Container(
       key: _contactFormKey,
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.035),
             blurRadius: 14,
-            offset: const Offset(0, 5),
+            offset: Offset(0, 5),
           ),
         ],
       ),
@@ -932,13 +966,13 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                     color: lightTeal,
                     borderRadius: BorderRadius.circular(13),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.message_outlined,
                     color: primaryTeal,
                   ),
                 ),
-                const SizedBox(width: 14),
-                const Expanded(
+                SizedBox(width: 14),
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -963,13 +997,13 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
 
             // ----------------------------------------------------
             // CATEGORY
             // ----------------------------------------------------
 
-            const Text(
+            Text(
               'Category',
               style: TextStyle(
                 color: darkText,
@@ -977,7 +1011,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 7),
+            SizedBox(height: 7),
 
             DropdownButtonFormField<String>(
               initialValue: _selectedCategory,
@@ -985,7 +1019,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                 'Select a category',
                 Icons.category_outlined,
               ),
-              items: const [
+              items: [
                 DropdownMenuItem(
                   value: 'General Concern',
                   child: Text('General Concern'),
@@ -1030,13 +1064,13 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                     },
             ),
 
-            const SizedBox(height: 18),
+            SizedBox(height: 18),
 
             // ----------------------------------------------------
             // SUBJECT
             // ----------------------------------------------------
 
-            const Text(
+            Text(
               'Subject',
               style: TextStyle(
                 color: darkText,
@@ -1044,7 +1078,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 7),
+            SizedBox(height: 7),
 
             TextFormField(
               controller: _subjectController,
@@ -1067,13 +1101,13 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
               },
             ),
 
-            const SizedBox(height: 18),
+            SizedBox(height: 18),
 
             // ----------------------------------------------------
             // MESSAGE
             // ----------------------------------------------------
 
-            const Text(
+            Text(
               'Message',
               style: TextStyle(
                 color: darkText,
@@ -1081,7 +1115,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 7),
+            SizedBox(height: 7),
 
             TextFormField(
               controller: _messageController,
@@ -1106,7 +1140,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
               },
             ),
 
-            const SizedBox(height: 22),
+            SizedBox(height: 22),
 
             // ----------------------------------------------------
             // SUBMIT BUTTON
@@ -1118,9 +1152,9 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                 onPressed: _isSubmitting ? null : _submitSupportRequest,
                 style: FilledButton.styleFrom(
                   backgroundColor: primaryTeal,
-                  foregroundColor: Colors.white,
+                  foregroundColor: onPrimaryColor,
                   disabledBackgroundColor: primaryTeal.withValues(alpha: 0.55),
-                  padding: const EdgeInsets.symmetric(
+                  padding: EdgeInsets.symmetric(
                     vertical: 15,
                   ),
                   shape: RoundedRectangleBorder(
@@ -1128,7 +1162,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                   ),
                 ),
                 icon: _isSubmitting
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
@@ -1136,22 +1170,22 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                           color: Colors.white,
                         ),
                       )
-                    : const Icon(
+                    : Icon(
                         Icons.send_rounded,
                         size: 19,
                       ),
                 label: Text(
                   _isSubmitting ? 'Submitting...' : 'Submit Support Request',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
             ),
 
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
 
-            const Center(
+            Center(
               child: Text(
                 'Your request will be associated with your PawLink account.',
                 textAlign: TextAlign.center,
@@ -1177,8 +1211,8 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
   ) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(
-        color: Color(0xFF9AA5A3),
+      hintStyle: TextStyle(
+        color: grayText.withValues(alpha: 0.7),
         fontSize: 13,
       ),
       prefixIcon: Icon(
@@ -1188,38 +1222,38 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
       ),
       filled: true,
       fillColor: warmBackground,
-      contentPadding: const EdgeInsets.symmetric(
+      contentPadding: EdgeInsets.symmetric(
         horizontal: 14,
         vertical: 14,
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(
+        borderSide: BorderSide(
           color: borderColor,
         ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(
+        borderSide: BorderSide(
           color: borderColor,
         ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(
+        borderSide: BorderSide(
           color: primaryTeal,
           width: 1.5,
         ),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(
+        borderSide: BorderSide(
           color: alertRed,
         ),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(
+        borderSide: BorderSide(
           color: alertRed,
           width: 1.5,
         ),
@@ -1243,7 +1277,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
 
       Scrollable.ensureVisible(
         formContext,
-        duration: const Duration(milliseconds: 550),
+        duration: Duration(milliseconds: 550),
         curve: Curves.easeOutCubic,
         alignment: 0.08,
       );
