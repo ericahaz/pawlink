@@ -1887,35 +1887,24 @@ Future<void> _showPetPhotoAlbum(
 
     final bool qrEnabled = data['qrEnabled'] == true;
 
-    return _buildCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionTitle(
-            icon: Icons.qr_code_2_rounded,
-            title: 'Pet QR Profile',
-          ),
-          const SizedBox(height: 16),
-          if (qrEnabled)
-            QrCard(
-              petId: petId,
-              petName: _stringValue(data['petName']),
-            )
-          else
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: warmBackground,
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: borderColor),
-              ),
-              child: const Text(
-                'QR profile is currently unavailable.',
-                style: TextStyle(color: grayText, fontSize: 13),
-              ),
-            ),
-        ],
+    if (qrEnabled) {
+      return QrCard(
+        petId: petId,
+        petName: _stringValue(data['petName']),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: warmBackground,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: borderColor),
+      ),
+      child: const Text(
+        'QR profile is currently unavailable.',
+        style: TextStyle(color: grayText, fontSize: 13),
       ),
     );
   }

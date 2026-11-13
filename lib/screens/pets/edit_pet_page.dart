@@ -23,6 +23,7 @@ class _EditPetPageState extends State<EditPetPage> {
 
   final TextEditingController _petNameController = TextEditingController();
   final TextEditingController _breedController = TextEditingController();
+  final TextEditingController _otherBreedController = TextEditingController();
   final TextEditingController _colorController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
   final TextEditingController _identifyingMarksController =
@@ -31,6 +32,7 @@ class _EditPetPageState extends State<EditPetPage> {
   final TextEditingController _ownerContactController = TextEditingController();
 
   String _sex = 'unknown';
+  String? _selectedBreed;
 
   Uint8List? _imageBytes;
   String _existingPhotoUrl = '';
@@ -50,6 +52,265 @@ class _EditPetPageState extends State<EditPetPage> {
   static const Color borderColor = Color(0xFFE3E5E3);
   static const Color aggressiveRed = Color(0xFFDC2626);
 
+
+  // Breed choices shown in the Breed dropdown.
+  static const List<String> _catBreeds = [
+    'Persian',
+    'Siamese',
+    'British Shorthair',
+    'Maine Coon',
+    'Ragdoll',
+    'Bengal',
+    'Scottish Fold',
+    'American Shorthair',
+    'Sphynx',
+    'Russian Blue',
+    'Exotic Shorthair',
+    'Himalayan',
+    'Abyssinian',
+    'Domestic Shorthair (Puspin)',
+    'Domestic Longhair',
+  ];
+
+  static const List<String> _dogBreeds = [
+    'Shih Tzu',
+    'Pomeranian',
+    'Chihuahua',
+    'Labrador Retriever',
+    'Golden Retriever',
+    'German Shepherd',
+    'Beagle',
+    'Poodle',
+    'Dachshund',
+    'Siberian Husky',
+    'French Bulldog',
+    'Rottweiler',
+    'Yorkshire Terrier',
+    'Aspin',
+    'Corgi',
+  ];
+
+  static const List<String> _otherBreedChoices = [
+    'Mixed Breed',
+    'Unknown',
+    'Other',
+  ];
+
+  static List<String> get _allBreedChoices => [
+        ..._catBreeds,
+        ..._dogBreeds,
+        ..._otherBreedChoices,
+      ];
+
+  // Breed reference pictures are loaded from the app's local assets.
+  // Add the matching JPG files under assets/images/breeds/.
+  String _breedImageAsset(String breed) {
+    final String fileName = breed
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
+        .replaceAll(RegExp(r'^_|_$'), '');
+
+    return 'assets/images/breeds/$fileName.jpg';
+  }
+
+  // Tap a breed thumbnail to view its reference photo in a larger preview.
+  void _showBreedImagePreview(String breed) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return Dialog(
+          backgroundColor: warmBackground,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        breed,
+                        style: const TextStyle(
+                          color: darkText,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(dialogContext),
+                      icon: const Icon(Icons.close_rounded),
+                      color: grayText,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: Image.asset(
+                    _breedImageAsset(breed),
+                    width: 280,
+                    height: 280,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 280,
+                      height: 280,
+                      color: lightTeal,
+                      alignment: Alignment.center,
+                      child: const Icon(
+                        Icons.pets_rounded,
+                        color: primaryTeal,
+                        size: 64,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Breed reference photo',
+                  style: TextStyle(color: grayText, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _breedThumbnail(String breed) {
+    return GestureDetector(
+      onTap: () => _showBreedImagePreview(breed),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.asset(
+          _breedImageAsset(breed),
+          width: 38,
+          height: 38,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => Container(
+            width: 38,
+            height: 38,
+            color: lightTeal,
+            alignment: Alignment.center,
+            child: const Icon(Icons.pets_rounded, color: primaryTeal, size: 21),
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<DropdownMenuItem<String>> _buildBreedItems(List<String> breeds) {
+    return breeds.map((breed) {
+      return DropdownMenuItem<String>(
+        value: breed,
+        child: Row(
+          children: [
+            _breedThumbnail(breed),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                breed,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: darkText,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  Widget _buildBreedDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _selectedBreed,
+      isExpanded: true,
+      menuMaxHeight: 420,
+      decoration: InputDecoration(
+        labelText: 'Breed',
+        hintText: 'Choose your pet breed',
+        prefixIcon: const Icon(Icons.category_outlined, color: primaryTeal),
+        filled: true,
+        fillColor: Colors.white,
+        labelStyle: const TextStyle(color: grayText),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(13),
+          borderSide: const BorderSide(color: borderColor),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(13),
+          borderSide: const BorderSide(color: borderColor),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(13),
+          borderSide: const BorderSide(color: primaryTeal, width: 1.5),
+        ),
+      ),
+      items: [
+        const DropdownMenuItem<String>(
+          enabled: false,
+          child: Text(
+            'CAT BREEDS',
+            style: TextStyle(
+              color: primaryTeal,
+              fontWeight: FontWeight.w900,
+              fontSize: 11,
+            ),
+          ),
+        ),
+        ..._buildBreedItems(_catBreeds),
+        const DropdownMenuItem<String>(
+          enabled: false,
+          child: Text(
+            'DOG BREEDS',
+            style: TextStyle(
+              color: primaryTeal,
+              fontWeight: FontWeight.w900,
+              fontSize: 11,
+            ),
+          ),
+        ),
+        ..._buildBreedItems(_dogBreeds),
+        const DropdownMenuItem<String>(
+          enabled: false,
+          child: Text(
+            'OTHER OPTIONS',
+            style: TextStyle(
+              color: primaryTeal,
+              fontWeight: FontWeight.w900,
+              fontSize: 11,
+            ),
+          ),
+        ),
+        ..._buildBreedItems(_otherBreedChoices),
+      ],
+      onChanged: _isSaving
+          ? null
+          : (value) {
+              setState(() {
+                _selectedBreed = value;
+                if (value != 'Other') {
+                  _otherBreedController.clear();
+                }
+              });
+            },
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return 'Please choose a breed.';
+        }
+        return null;
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -60,6 +321,7 @@ class _EditPetPageState extends State<EditPetPage> {
   void dispose() {
     _petNameController.dispose();
     _breedController.dispose();
+    _otherBreedController.dispose();
     _colorController.dispose();
     _ageController.dispose();
     _identifyingMarksController.dispose();
@@ -88,6 +350,12 @@ class _EditPetPageState extends State<EditPetPage> {
       setState(() {
         _petNameController.text = _stringValue(data['petName']);
         _breedController.text = _stringValue(data['breed']);
+        final String savedBreed = _breedController.text.trim();
+        _selectedBreed = _allBreedChoices.contains(savedBreed)
+            ? savedBreed
+            : (savedBreed.isEmpty ? null : 'Other');
+        _otherBreedController.text =
+            _selectedBreed == 'Other' ? savedBreed : '';
         _colorController.text = _stringValue(data['color']);
         _ageController.text = _stringValue(data['age']);
         _identifyingMarksController.text =
@@ -182,7 +450,9 @@ class _EditPetPageState extends State<EditPetPage> {
       await _petService.updatePet(
         petId: widget.petId,
         petName: _petNameController.text,
-        breed: _breedController.text,
+        breed: _selectedBreed == 'Other'
+            ? _otherBreedController.text.trim()
+            : (_selectedBreed ?? ''),
         color: _colorController.text,
         age: _ageController.text,
         identifyingMarks: _identifyingMarksController.text,
@@ -481,18 +751,23 @@ class _EditPetPageState extends State<EditPetPage> {
             },
           ),
           const SizedBox(height: 14),
-          _buildTextField(
-            controller: _breedController,
-            label: 'Breed',
-            hint: 'Example: Aspin, Puspin, Shih Tzu',
-            icon: Icons.category_outlined,
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Please enter the breed.';
-              }
-              return null;
-            },
-          ),
+          _buildBreedDropdown(),
+          if (_selectedBreed == 'Other') ...[
+            const SizedBox(height: 14),
+            _buildTextField(
+              controller: _otherBreedController,
+              label: 'Enter Other Breed',
+              hint: 'Type your pet breed',
+              icon: Icons.edit_outlined,
+              validator: (value) {
+                if (_selectedBreed == 'Other' &&
+                    (value == null || value.trim().isEmpty)) {
+                  return 'Please enter your pet breed.';
+                }
+                return null;
+              },
+            ),
+          ],
           const SizedBox(height: 14),
           _buildTextField(
             controller: _colorController,
