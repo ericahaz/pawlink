@@ -135,6 +135,45 @@ class _SettingsPageState extends State<SettingsPage> {
       return;
     }
 
+    // Ask for confirmation before saving the updated personal details.
+    final shouldSave = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text(
+            'Save Changes?',
+            style: TextStyle(fontWeight: FontWeight.w800),
+          ),
+          content: const Text(
+            'Are you sure you want to save your updated personal details?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: grayText),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryTeal,
+                foregroundColor: onPrimaryColor,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text('Save Changes'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldSave != true || !mounted) return;
+
     setState(() {
       _saving = true;
     });
