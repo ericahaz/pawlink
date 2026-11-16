@@ -68,11 +68,6 @@ class _MyPetsPageState extends State<MyPetsPage> {
 
     _searchController.addListener(_onSearchChanged);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _keyboardFocusNode.requestFocus();
-      }
-    });
   }
 
   void _onSearchChanged() {
@@ -150,12 +145,26 @@ class _MyPetsPageState extends State<MyPetsPage> {
     return Scaffold(
       backgroundColor: warmBackground,
       appBar: _buildAppBar(),
-      floatingActionButton: _buildFloatingActionButton(),
       body: Focus(
         focusNode: _keyboardFocusNode,
         onKeyEvent: (node, event) {
-          _handleKeyboardEvent(event);
-          return KeyEventResult.handled;
+          final isScrollKey = event.logicalKey == LogicalKeyboardKey.arrowDown ||
+              event.logicalKey == LogicalKeyboardKey.arrowUp ||
+              event.logicalKey == LogicalKeyboardKey.pageDown ||
+              event.logicalKey == LogicalKeyboardKey.pageUp ||
+              event.logicalKey == LogicalKeyboardKey.home ||
+              event.logicalKey == LogicalKeyboardKey.end ||
+              event.logicalKey == LogicalKeyboardKey.space;
+
+          final isEditingText =
+              FocusManager.instance.primaryFocus?.context?.widget is EditableText;
+
+          if (!isEditingText && isScrollKey && event is KeyDownEvent) {
+            _handleKeyboardEvent(event);
+            return KeyEventResult.handled;
+          }
+
+          return KeyEventResult.ignored;
         },
         child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
           stream: _petService.getMyPetsStream(),
@@ -245,52 +254,23 @@ class _MyPetsPageState extends State<MyPetsPage> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: surfaceColor,
+      backgroundColor: warmBackground,
       elevation: 0,
+      scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
       titleSpacing: 18,
-      title: Row(
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: lightTeal,
-              borderRadius: BorderRadius.circular(11),
-              border: Border.all(color: primaryTeal.withValues(alpha: 0.08)),
-            ),
-            child: Center(
-              child: Icon(Icons.pets_rounded, color: primaryTeal, size: 21),
-            ),
-          ),
-          SizedBox(width: 10),
-          Text(
-            'My Pets',
-            style: TextStyle(
-              color: darkText,
-              fontWeight: FontWeight.w900,
-              fontSize: 20,
-            ),
-          ),
-        ],
+      title: Text(
+        'My Pets',
+        style: TextStyle(
+          color: darkText,
+          fontWeight: FontWeight.w900,
+          fontSize: 24,
+        ),
       ),
       iconTheme: IconThemeData(color: darkText),
     );
   }
 
-  Widget _buildFloatingActionButton() {
-    return FloatingActionButton.extended(
-      onPressed: _openRegisterPet,
-      backgroundColor: primaryTeal,
-      foregroundColor: onPrimaryColor,
-      elevation: 4,
-      icon: Icon(Icons.add_rounded),
-      label: Text(
-        'Register Pet',
-        style: TextStyle(fontWeight: FontWeight.w800),
-      ),
-    );
-  }
 
   Widget _buildHeroHeader(
     List<QueryDocumentSnapshot<Map<String, dynamic>>> pets,
@@ -344,36 +324,6 @@ class _MyPetsPageState extends State<MyPetsPage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: onPrimaryColor.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border.all(
-                    color: onPrimaryColor.withValues(alpha: 0.10),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.favorite_rounded, color: onPrimaryColor, size: 14),
-                    SizedBox(width: 6),
-                    Text(
-                      'PAWLINK PET CARE',
-                      style: TextStyle(
-                        color: onPrimaryColor,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 15),
               Text(
                 petCount == 0
                     ? 'Start your pet\'s PawLink journey.'
@@ -396,27 +346,6 @@ class _MyPetsPageState extends State<MyPetsPage> {
                   height: 1.5,
                 ),
               ),
-              if (petCount == 0) ...[
-                SizedBox(height: 17),
-                ElevatedButton.icon(
-                  onPressed: _openRegisterPet,
-                  icon: Icon(Icons.add_rounded, size: 19),
-                  label: Text('Register Your First Pet'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: surfaceColor,
-                    foregroundColor: darkTeal,
-                    elevation: 0,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    textStyle: TextStyle(fontWeight: FontWeight.w800),
-                  ),
-                ),
-              ],
             ],
           ),
         ],
@@ -471,14 +400,32 @@ class _MyPetsPageState extends State<MyPetsPage> {
       ),
     ];
 
-    return Row(
-      children: [
-        Expanded(child: cards[0]),
-        SizedBox(width: 10),
-        Expanded(child: cards[1]),
-        SizedBox(width: 10),
-        Expanded(child: cards[2]),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isPhone = constraints.maxWidth < 620;
+
+        if (isPhone) {
+          return Column(
+            children: [
+              cards[0],
+              SizedBox(height: 10),
+              cards[1],
+              SizedBox(height: 10),
+              cards[2],
+            ],
+          );
+        }
+
+        return Row(
+          children: [
+            Expanded(child: cards[0]),
+            SizedBox(width: 12),
+            Expanded(child: cards[1]),
+            SizedBox(width: 12),
+            Expanded(child: cards[2]),
+          ],
+        );
+      },
     );
   }
 
@@ -512,7 +459,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
               color: background,
               borderRadius: BorderRadius.circular(11),
             ),
-            child: Center(child: Icon(icon, color: iconColor, size: 20)),
+            child: Center(child: Icon(icon, color: iconColor, size: 23)),
           ),
           SizedBox(width: 9),
           Expanded(
@@ -525,7 +472,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: darkText,
-                    fontSize: 18,
+                    fontSize: 22,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -1055,7 +1002,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
                   'View profile',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 9,
+                    fontSize: 11,
                     fontWeight: FontWeight.w700,
                   ),
                 ),

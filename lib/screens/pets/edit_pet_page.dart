@@ -1089,10 +1089,11 @@ class _EditPetPageState extends State<EditPetPage> {
     required IconData icon,
     required String? Function(String?) validator,
     TextInputType? keyboardType,
+    bool enabled = true,
   }) {
     return TextFormField(
       controller: controller,
-      enabled: !_isSaving,
+      enabled: !_isSaving && enabled,
       keyboardType: keyboardType,
       validator: validator,
       style: TextStyle(

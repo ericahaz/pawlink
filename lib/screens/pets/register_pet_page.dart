@@ -506,7 +506,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
           identifyingMarks: _identifyingMarksController.text.trim(),
           ownerName: _ownerNameController.text.trim(),
           ownerContact: _ownerContactController.text.trim(),
-          photoUrl: photoUrls.first,
+            photoUrl: photoUrls.first,
           photoUrls: photoUrls,
           safetyTag: _safetyTag,
         );
@@ -609,13 +609,15 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                       ],
                       SizedBox(height: 18),
                       if (isWide)
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(flex: 1, child: _buildSafetySection()),
-                            SizedBox(width: 20),
-                            Expanded(flex: 1, child: _buildOwnerInformation()),
-                          ],
+                        IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(flex: 1, child: _buildSafetySection()),
+                              SizedBox(width: 20),
+                              Expanded(flex: 1, child: _buildOwnerInformation()),
+                            ],
+                          ),
                         )
                       else ...[
                         _buildSafetySection(),
@@ -1311,10 +1313,11 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
     required IconData icon,
     required String? Function(String?) validator,
     TextInputType? keyboardType,
+    bool enabled = true,
   }) {
     return TextFormField(
       controller: controller,
-      enabled: !_isSaving,
+      enabled: !_isSaving && enabled,
       keyboardType: keyboardType,
       validator: validator,
       style: TextStyle(
