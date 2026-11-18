@@ -9,6 +9,43 @@ import '../../services/report_service.dart';
 import '../landing/landing_page.dart';
 import 'settings_page.dart';
 
+// ================================================================
+// DARK MODE HELPERS
+// ================================================================
+
+bool _isDarkMode(BuildContext context) =>
+    Theme.of(context).brightness == Brightness.dark;
+
+Color _pageBackground(BuildContext context) => _isDarkMode(context)
+    ? const Color(0xFF121A1B)
+    : MyAccountPage.warmBackground;
+
+Color _cardBackground(BuildContext context) => _isDarkMode(context)
+    ? const Color(0xFF1D292A)
+    : Colors.white;
+
+Color _primaryText(BuildContext context) =>
+    _isDarkMode(context) ? Colors.white : MyAccountPage.darkText;
+
+Color _secondaryText(BuildContext context) =>
+    _isDarkMode(context) ? Colors.white70 : MyAccountPage.grayText;
+
+Color _outlineColor(BuildContext context) => _isDarkMode(context)
+    ? const Color(0xFF344344)
+    : MyAccountPage.borderColor;
+
+Color _softTealBackground(BuildContext context) => _isDarkMode(context)
+    ? const Color(0xFF263738)
+    : MyAccountPage.lightTeal;
+
+Color _accentColor(BuildContext context) => _isDarkMode(context)
+    ? const Color(0xFF2DD4BF)
+    : MyAccountPage.primaryTeal;
+
+// ================================================================
+// MY ACCOUNT PAGE
+// ================================================================
+
 class MyAccountPage extends StatelessWidget {
   const MyAccountPage({super.key});
 
@@ -55,25 +92,28 @@ class MyAccountPage extends StatelessWidget {
       SeasonalController.instance.activeTheme?.onPrimary ?? Colors.white;
 
   @override
-  Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-    final petService = PetService();
-    final reportService = ReportService();
+Widget build(BuildContext context) {
+  final user = FirebaseAuth.instance.currentUser;
+  final petService = PetService();
+  final reportService = ReportService();
 
-    if (user == null) {
-      return Scaffold(
-        backgroundColor: warmBackground,
-        body: Center(
-          child: Text(
-            'Please sign in to view your account.',
-            style: TextStyle(color: darkText, fontSize: 17),
+  if (user == null) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: Center(
+        child: Text(
+          'Please sign in to view your account.',
+          style: TextStyle(
+            color: _primaryText(context),
+            fontSize: 17,
           ),
         ),
-      );
-    }
+      ),
+    );
+  }
 
     return Scaffold(
-      backgroundColor: warmBackground,
+      backgroundColor: _pageBackground(context),
       body: SafeArea(
         child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
           stream: FirebaseFirestore.instance
@@ -103,6 +143,8 @@ class MyAccountPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildHeader(context),
+
+                      // PAGE CONTENT
                       Padding(
                         padding: EdgeInsets.fromLTRB(
                           isDesktop ? 24 : 12,
@@ -184,7 +226,7 @@ class MyAccountPage extends StatelessWidget {
             },
             icon: Icon(
               Icons.arrow_back,
-              color: darkText,
+              color: _primaryText(context),
               size: 26,
             ),
             padding: EdgeInsets.zero,
@@ -202,7 +244,7 @@ class MyAccountPage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
-                color: darkText,
+                color: _primaryText(context),
               ),
             ),
           ),
@@ -227,12 +269,14 @@ class MyAccountPage extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.all(isDesktop ? 28 : 18),
       decoration: BoxDecoration(
-        color: surfaceColor,
+        color: _cardBackground(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: _outlineColor(context)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withValues(
+              alpha: _isDarkMode(context) ? 0.12 : 0.04,
+            ),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -241,10 +285,11 @@ class MyAccountPage extends StatelessWidget {
       child: isDesktop
           ? Row(
               children: [
-                _buildAvatar(name),
+                _buildAvatar(context, name),
                 const SizedBox(width: 20),
                 Expanded(
                   child: _buildProfileText(
+                    context,
                     name: name,
                     email: email,
                     phone: phone,
@@ -258,10 +303,11 @@ class MyAccountPage extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    _buildAvatar(name),
+                    _buildAvatar(context, name),
                     const SizedBox(width: 14),
                     Expanded(
                       child: _buildProfileText(
+                        context,
                         name: name,
                         email: email,
                         phone: phone,
@@ -283,7 +329,7 @@ class MyAccountPage extends StatelessWidget {
   // AVATAR
   // ================================================================
 
-  Widget _buildAvatar(String name) {
+  Widget _buildAvatar(BuildContext context, String name) {
     final initial =
         name.trim().isNotEmpty ? name.trim()[0].toUpperCase() : 'P';
 
@@ -291,10 +337,10 @@ class MyAccountPage extends StatelessWidget {
       width: 76,
       height: 76,
       decoration: BoxDecoration(
-        color: lightTeal,
+        color: _softTealBackground(context),
         shape: BoxShape.circle,
         border: Border.all(
-          color: primaryTeal.withValues(alpha: 0.15),
+          color: _accentColor(context).withValues(alpha: 0.25),
           width: 2,
         ),
       ),
@@ -304,7 +350,7 @@ class MyAccountPage extends StatelessWidget {
           style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.w800,
-            color: primaryTeal,
+            color: _accentColor(context),
           ),
         ),
       ),
@@ -315,42 +361,52 @@ class MyAccountPage extends StatelessWidget {
   // PROFILE TEXT
   // ================================================================
 
-  Widget _buildProfileText({
-    required String name,
-    required String email,
-    required String phone,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          name,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
-            color: darkText,
-          ),
+  Widget _buildProfileText(
+  BuildContext context, {
+  required String name,
+  required String email,
+  required String phone,
+}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        name,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.w800,
+          color: _primaryText(context),
         ),
-        const SizedBox(height: 5),
-        Text(
-          email,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontSize: 16, color: grayText),
+      ),
+      const SizedBox(height: 5),
+      Text(
+        email,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: 16,
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white70
+              : grayText,
         ),
-        const SizedBox(height: 3),
-        Text(
-          phone,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontSize: 16, color: grayText),
+      ),
+      const SizedBox(height: 3),
+      Text(
+        phone,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: 16,
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white70
+              : grayText,
         ),
-      ],
-    );
-  }
-
+      ),
+    ],
+  );
+}
   // ================================================================
   // EDIT PROFILE BUTTON
   // ================================================================
@@ -366,13 +422,19 @@ class MyAccountPage extends StatelessWidget {
       icon: const Icon(Icons.edit_outlined, size: 20),
       label: const Text(
         'Edit Profile',
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+        ),
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor: primaryTeal,
         foregroundColor: onPrimaryColor,
         elevation: 0,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 15,
+        ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -553,10 +615,10 @@ class MyAccountPage extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: lightTeal,
+        color: _softTealBackground(context),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: primaryTeal.withValues(alpha: 0.12),
+          color: _accentColor(context).withValues(alpha: 0.18),
         ),
       ),
       child: Row(
@@ -565,12 +627,12 @@ class MyAccountPage extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: surfaceColor,
+              color: _cardBackground(context),
               borderRadius: BorderRadius.circular(13),
             ),
             child: Icon(
               Icons.settings_outlined,
-              color: primaryTeal,
+              color: _accentColor(context),
               size: 25,
             ),
           ),
@@ -584,7 +646,7 @@ class MyAccountPage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
-                    color: darkText,
+                    color: _primaryText(context),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -592,7 +654,7 @@ class MyAccountPage extends StatelessWidget {
                   'Update your personal details, password, and preferences.',
                   style: TextStyle(
                     fontSize: 15,
-                    color: grayText,
+                    color: _secondaryText(context),
                     height: 1.4,
                   ),
                 ),
@@ -603,13 +665,15 @@ class MyAccountPage extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const SettingsPage()),
+                MaterialPageRoute(
+                  builder: (_) => const SettingsPage(),
+                ),
               );
             },
             icon: Icon(
               Icons.arrow_forward_ios_rounded,
               size: 20,
-              color: primaryTeal,
+              color: _accentColor(context),
             ),
           ),
         ],
@@ -626,10 +690,10 @@ class MyAccountPage extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: surfaceColor,
+        color: _cardBackground(context),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: alertRed.withValues(alpha: 0.18),
+          color: alertRed.withValues(alpha: 0.25),
         ),
       ),
       child: LayoutBuilder(
@@ -659,7 +723,7 @@ class MyAccountPage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
-                    color: darkText,
+                    color: _primaryText(context),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -667,7 +731,7 @@ class MyAccountPage extends StatelessWidget {
                   'Sign out of your PawLink account on this device.',
                   style: TextStyle(
                     fontSize: 15,
-                    color: grayText,
+                    color: _secondaryText(context),
                     height: 1.4,
                   ),
                 ),
@@ -682,11 +746,20 @@ class MyAccountPage extends StatelessWidget {
             icon: const Icon(Icons.logout_rounded, size: 19),
             label: const Text(
               'Log Out',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+              ),
             ),
             style: OutlinedButton.styleFrom(
-              foregroundColor: alertRed,
-              side: const BorderSide(color: alertRed),
+              foregroundColor: _isDarkMode(context)
+                  ? const Color(0xFFFF7777)
+                  : alertRed,
+              side: BorderSide(
+                color: _isDarkMode(context)
+                    ? const Color(0xFFFF7777)
+                    : alertRed,
+              ),
               padding: const EdgeInsets.symmetric(
                 horizontal: 18,
                 vertical: 14,
@@ -736,68 +809,74 @@ class MyAccountPage extends StatelessWidget {
   // ================================================================
 
   void _showLogoutConfirmation(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          backgroundColor: surfaceColor,
-          title: Text(
-            'Log out of PawLink?',
-            style: TextStyle(
-              color: darkText,
-              fontSize: 21,
-              fontWeight: FontWeight.w800,
-            ),
+  showDialog<void>(
+    context: context,
+    builder: (dialogContext) {
+      return AlertDialog(
+        backgroundColor:
+            Theme.of(dialogContext).cardColor,
+        title: Text(
+          'Log out of PawLink?',
+          style: TextStyle(
+            color: _primaryText(dialogContext),
+            fontSize: 21,
+            fontWeight: FontWeight.w800,
           ),
-          content: Text(
-            'You will be returned to the PawLink landing page. '
-            'You can sign in again anytime.',
-            style: TextStyle(
-              color: grayText,
-              fontSize: 16,
-              height: 1.5,
-            ),
+        ),
+        content: Text(
+          'You will be returned to the PawLink landing page. '
+          'You can sign in again anytime.',
+          style: TextStyle(
+            color: _secondaryText(dialogContext),
+            fontSize: 16,
+            height: 1.5,
           ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-          ),
-          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-              },
-              child: Text(
-                'Cancel',
-                style: TextStyle(
-                  color: grayText,
-                  fontSize: 15,
-                ),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(
+          16,
+          0,
+          16,
+          16,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+            },
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: _secondaryText(dialogContext),
+                fontSize: 15,
               ),
             ),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.pop(dialogContext);
-                await _logout(context);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: alertRed,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: const Text(
-                'Log Out',
-                style: TextStyle(fontSize: 15),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              await _logout(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: alertRed,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
-          ],
-        );
-      },
-    );
-  }
+            child: const Text(
+              'Log Out',
+              style: TextStyle(fontSize: 15),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
 
   // ================================================================
   // LOGOUT
@@ -811,10 +890,10 @@ class MyAccountPage extends StatelessWidget {
         return;
       }
 
-      // Remove every dashboard/account route from the navigation stack.
-      // This prevents returning to the dashboard after logging out.
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const LandingPage()),
+        MaterialPageRoute(
+          builder: (_) => const LandingPage(),
+        ),
         (route) => false,
       );
     } catch (e) {
@@ -876,9 +955,9 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: MyAccountPage.surfaceColor,
+        color: _cardBackground(context),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: MyAccountPage.borderColor),
+        border: Border.all(color: _outlineColor(context)),
       ),
       child: Row(
         children: [
@@ -889,7 +968,13 @@ class _StatCard extends StatelessWidget {
               color: color.withValues(alpha: 0.09),
               borderRadius: BorderRadius.circular(13),
             ),
-            child: Icon(icon, color: color, size: 25),
+            child: Icon(
+              icon,
+              color: _isDarkMode(context) && color == MyAccountPage.darkTeal
+                  ? const Color(0xFF2DD4BF)
+                  : color,
+              size: 25,
+            ),
           ),
           const SizedBox(width: 13),
           Expanded(
@@ -901,7 +986,7 @@ class _StatCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 25,
                     fontWeight: FontWeight.w800,
-                    color: MyAccountPage.darkText,
+                    color: _primaryText(context),
                   ),
                 ),
                 Text(
@@ -910,7 +995,7 @@ class _StatCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 14,
-                    color: MyAccountPage.grayText,
+                    color: _secondaryText(context),
                   ),
                 ),
               ],
@@ -945,9 +1030,9 @@ class _SectionCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: MyAccountPage.surfaceColor,
+        color: _cardBackground(context),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: MyAccountPage.borderColor),
+        border: Border.all(color: _outlineColor(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -958,12 +1043,12 @@ class _SectionCard extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: MyAccountPage.lightTeal,
+                  color: _softTealBackground(context),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   icon,
-                  color: MyAccountPage.primaryTeal,
+                  color: _accentColor(context),
                   size: 24,
                 ),
               ),
@@ -977,7 +1062,7 @@ class _SectionCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 19,
                         fontWeight: FontWeight.w800,
-                        color: MyAccountPage.darkText,
+                        color: _primaryText(context),
                       ),
                     ),
                     const SizedBox(height: 3),
@@ -985,7 +1070,7 @@ class _SectionCard extends StatelessWidget {
                       subtitle,
                       style: TextStyle(
                         fontSize: 14,
-                        color: MyAccountPage.grayText,
+                        color: _secondaryText(context),
                         height: 1.4,
                       ),
                     ),
@@ -1025,7 +1110,7 @@ class _InfoRow extends StatelessWidget {
         Icon(
           icon,
           size: 23,
-          color: MyAccountPage.grayText,
+          color: _secondaryText(context),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -1036,7 +1121,7 @@ class _InfoRow extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontSize: 14,
-                  color: MyAccountPage.grayText,
+                  color: _secondaryText(context),
                 ),
               ),
               const SizedBox(height: 4),
@@ -1045,7 +1130,7 @@ class _InfoRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: MyAccountPage.darkText,
+                  color: _primaryText(context),
                 ),
               ),
             ],
@@ -1075,16 +1160,25 @@ class _StatusRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final displayColor =
+        _isDarkMode(context) && color == MyAccountPage.darkTeal
+            ? const Color(0xFF2DD4BF)
+            : color;
+
     return Row(
       children: [
-        Icon(icon, color: color, size: 23),
+        Icon(
+          icon,
+          color: displayColor,
+          size: 23,
+        ),
         const SizedBox(width: 12),
         Expanded(
           child: Text(
             title,
             style: TextStyle(
               fontSize: 16,
-              color: MyAccountPage.darkText,
+              color: _primaryText(context),
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -1095,7 +1189,7 @@ class _StatusRow extends StatelessWidget {
             textAlign: TextAlign.right,
             style: TextStyle(
               fontSize: 15,
-              color: color,
+              color: displayColor,
               fontWeight: FontWeight.w700,
             ),
           ),

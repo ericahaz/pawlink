@@ -1,3 +1,5 @@
+
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -25,8 +27,6 @@ import 'screens/admin/barangay_admin_page.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Enable clean path URLs on Flutter Web.
-  // Example: /p/PET_ID instead of /#/p/PET_ID.
   if (kIsWeb) {
     usePathUrlStrategy();
   }
@@ -35,6 +35,9 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await SeasonalController.instance.initialize();
+
+  // Load saved theme preference before opening PawLink.
+  await PawLinkTheme.load();
 
   runApp(const PawLink());
 }
@@ -68,12 +71,41 @@ class PawLinkColors {
 }
 
 // ============================================================
+// PAWLINK THEME PREFERENCE
+// ============================================================
+
+class PawLinkTheme {
+  static final ValueNotifier<ThemeMode> mode =
+      ValueNotifier<ThemeMode>(ThemeMode.light);
+
+  static Future<void> load() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    mode.value = prefs.getBool('darkMode') == true
+        ? ThemeMode.dark
+        : ThemeMode.light;
+  }
+
+  static Future<void> setDarkMode(bool enabled) async {
+    mode.value = enabled ? ThemeMode.dark : ThemeMode.light;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('darkMode', enabled);
+  }
+}
+
+// ============================================================
 // PAWLINK APPLICATION
 // ============================================================
 
-class PawLink extends StatelessWidget {
+class PawLink extends StatefulWidget {
   const PawLink({super.key});
 
+  @override
+  State<PawLink> createState() => _PawLinkState();
+}
+
+class _PawLinkState extends State<PawLink> {
   @override
   Widget build(BuildContext context) {
     final textTheme = GoogleFonts.poppinsTextTheme(
@@ -85,41 +117,44 @@ class PawLink extends StatelessWidget {
       builder: (context, _) {
         final activeTheme = SeasonalController.instance.activeTheme;
 
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'PawLink',
-          navigatorKey: pawLinkNavigatorKey,
-          theme: _buildTheme(textTheme, activeTheme),
-          themeAnimationDuration: const Duration(milliseconds: 350),
-          builder: (context, child) => SeasonalOverlay(
-            child: child ?? const SizedBox.shrink(),
-          ),
+        return ValueListenableBuilder<ThemeMode>(
+          valueListenable: PawLinkTheme.mode,
+          builder: (context, themeMode, child) {
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              title: 'PawLink',
+              navigatorKey: pawLinkNavigatorKey,
+              theme: _buildTheme(textTheme, activeTheme),
+              darkTheme: _buildDarkTheme(textTheme),
+              themeMode: themeMode,
+              themeAnimationDuration: const Duration(milliseconds: 350),
+              builder: (context, child) => SeasonalOverlay(
+                child: child ?? const SizedBox.shrink(),
+              ),
+              onGenerateInitialRoutes: (initialRoute) {
+                final String path =
+                    kIsWeb ? Uri.base.path : initialRoute;
 
-          // Initial URL routing.
-          onGenerateInitialRoutes: (initialRoute) {
-            final String path = kIsWeb ? Uri.base.path : initialRoute;
+                debugPrint('PAWLINK DEBUG: initialRoute = $initialRoute');
+                debugPrint('PAWLINK DEBUG: browser path = ${Uri.base.path}');
+                debugPrint('PAWLINK DEBUG: selected path = $path');
 
-            debugPrint('PAWLINK DEBUG: initialRoute = $initialRoute');
-            debugPrint('PAWLINK DEBUG: browser path = ${Uri.base.path}');
-            debugPrint('PAWLINK DEBUG: selected path = $path');
-
-            return <Route<dynamic>>[
-              _routeForPath(path),
-            ];
-          },
-
-          // Normal named routing.
-          onGenerateRoute: (settings) {
-            return _routeForPath(
-              settings.name ?? '/',
-              settings: settings,
+                return <Route<dynamic>>[
+                  _routeForPath(path),
+                ];
+              },
+              onGenerateRoute: (settings) {
+                return _routeForPath(
+                  settings.name ?? '/',
+                  settings: settings,
+                );
+              },
             );
           },
         );
       },
     );
   }
-
   // ==========================================================
   // ROUTE HANDLER
   // ==========================================================
@@ -172,9 +207,6 @@ class PawLink extends StatelessWidget {
     // --------------------------------------------------------
     // BARANGAY ADMIN PAGE
     // URL format: /admin/barangay
-    //
-    // BarangayAdminPage checks the Firebase admin claim.
-    // The Firestore rules must also enforce admin permissions.
     // --------------------------------------------------------
 
     if (segments.length == 2 &&
@@ -212,7 +244,7 @@ class PawLink extends StatelessWidget {
   }
 
   // ==========================================================
-  // GLOBAL THEME
+  // LIGHT THEME
   // ==========================================================
 
   ThemeData _buildTheme(
@@ -392,10 +424,10 @@ class PawLink extends StatelessWidget {
           (states) {
             final selected = states.contains(WidgetState.selected);
             return GoogleFonts.poppins(
-              fontSize: 11,
-              fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-              color: selected ? primary : textSecondary,
-            );
+            fontSize: 11,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+            color: selected ? primary : textSecondary,
+);
           },
         ),
       ),
@@ -482,7 +514,288 @@ class PawLink extends StatelessWidget {
       ),
     );
   }
-}
+
+  // ==========================================================
+  // DARK THEME
+  // ==========================================================
+
+  ThemeData _buildDarkTheme(TextTheme textTheme) {
+    const darkBackground = Color(0xFF121A1B);
+    const darkSurface = Color(0xFF1D292A);
+    const darkSurfaceLight = Color(0xFF293A3B);
+    const darkBorder = Color(0xFF344344);
+
+    const darkText = Color(0xFFF1F5F5);
+    const secondaryText = Color(0xFFB0C0C0);
+
+    const primaryTeal = Color(0xFF2DD4BF);
+    const orange = Color(0xFFFFB15C);
+
+    final darkScheme = ColorScheme.fromSeed(
+      seedColor: PawLinkColors.teal,
+      brightness: Brightness.dark,
+      primary: primaryTeal,
+      secondary: orange,
+      surface: darkSurface,
+      error: const Color(0xFFFF6B6B),
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      colorScheme: darkScheme,
+      scaffoldBackgroundColor: darkBackground,
+
+      textTheme: GoogleFonts.poppinsTextTheme(textTheme).apply(
+        bodyColor: darkText,
+        displayColor: darkText,
+      ),
+
+      primaryTextTheme: GoogleFonts.poppinsTextTheme(),
+
+      visualDensity: VisualDensity.adaptivePlatformDensity,
+
+      appBarTheme: const AppBarTheme(
+        backgroundColor: darkBackground,
+        foregroundColor: darkText,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        centerTitle: false,
+      ),
+
+      cardTheme: CardThemeData(
+        color: darkSurface,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: const BorderSide(color: darkBorder),
+        ),
+      ),
+
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: orange,
+          foregroundColor: const Color(0xFF243333),
+          disabledBackgroundColor: darkBorder,
+          disabledForegroundColor: secondaryText,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 22,
+            vertical: 15,
+          ),
+          minimumSize: const Size(48, 48),
+          textStyle: GoogleFonts.poppins(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+      ),
+
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: primaryTeal,
+          side: const BorderSide(
+            color: primaryTeal,
+            width: 1.2,
+          ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 14,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+      ),
+
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: primaryTeal,
+          textStyle: GoogleFonts.poppins(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: darkSurfaceLight,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+        hintStyle: const TextStyle(color: secondaryText),
+        labelStyle: const TextStyle(color: secondaryText),
+        floatingLabelStyle: const TextStyle(color: primaryTeal),
+        prefixIconColor: secondaryText,
+        suffixIconColor: secondaryText,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: darkBorder),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: darkBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(
+            color: primaryTeal,
+            width: 1.6,
+          ),
+        ),
+      ),
+
+      bottomNavigationBarTheme:
+          const BottomNavigationBarThemeData(
+        backgroundColor: darkSurface,
+        selectedItemColor: primaryTeal,
+        unselectedItemColor: secondaryText,
+        type: BottomNavigationBarType.fixed,
+        elevation: 0,
+      ),
+
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: darkSurface,
+        indicatorColor: primaryTeal.withValues(alpha: 0.18),
+        elevation: 0,
+        height: 70,
+        labelTextStyle: WidgetStateProperty.all(
+          GoogleFonts.poppins(
+            fontSize: 11,
+            color: darkText,
+          ),
+        ),
+      ),
+
+      floatingActionButtonTheme:
+          FloatingActionButtonThemeData(
+        backgroundColor: orange,
+        foregroundColor: const Color(0xFF243333),
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+      ),
+
+      dividerTheme: const DividerThemeData(
+        color: darkBorder,
+        thickness: 1,
+        space: 1,
+      ),
+
+      chipTheme: ChipThemeData(
+        backgroundColor: darkSurfaceLight,
+        selectedColor: primaryTeal.withValues(alpha: 0.2),
+        labelStyle: const TextStyle(
+          color: darkText,
+          fontSize: 12,
+        ),
+        side: const BorderSide(color: darkBorder),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+
+      progressIndicatorTheme:
+          const ProgressIndicatorThemeData(
+        color: primaryTeal,
+        linearTrackColor: darkBorder,
+        circularTrackColor: darkBorder,
+      ),
+
+      checkboxTheme: CheckboxThemeData(
+        fillColor: WidgetStateProperty.resolveWith<Color?>(
+          (states) {
+            if (states.contains(WidgetState.selected)) {
+              return primaryTeal;
+            }
+            return darkSurfaceLight;
+          },
+        ),
+        checkColor: WidgetStateProperty.all(darkBackground),
+      ),
+
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith<Color?>(
+          (states) {
+            if (states.contains(WidgetState.selected)) {
+              return primaryTeal;
+            }
+            return secondaryText;
+          },
+        ),
+        trackColor: WidgetStateProperty.resolveWith<Color?>(
+          (states) {
+            if (states.contains(WidgetState.selected)) {
+              return primaryTeal.withValues(alpha: 0.3);
+            }
+            return darkSurfaceLight;
+          },
+        ),
+      ),
+
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: darkSurfaceLight,
+        contentTextStyle: GoogleFonts.poppins(
+          fontSize: 13,
+          color: darkText,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+
+      dialogTheme: DialogThemeData(
+        backgroundColor: darkSurface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(22),
+        ),
+        titleTextStyle: GoogleFonts.poppins(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: darkText,
+        ),
+        contentTextStyle: GoogleFonts.poppins(
+          fontSize: 14,
+          height: 1.5,
+          color: secondaryText,
+        ),
+      ),
+
+      tooltipTheme: TooltipThemeData(
+        decoration: BoxDecoration(
+          color: darkSurfaceLight,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        textStyle: GoogleFonts.poppins(
+          fontSize: 12,
+          color: darkText,
+        ),
+      ),
+
+      listTileTheme: const ListTileThemeData(
+        textColor: darkText,
+        iconColor: primaryTeal,
+      ),
+
+       iconTheme: const IconThemeData(
+        color: secondaryText,
+      ),
+    );
+  } // End of _buildDarkTheme()
+
+} // End of _PawLinkStateEnd of _PawLinkState
 
 // ============================================================
 // AUTHENTICATION GATE
@@ -494,20 +807,23 @@ class PawLink extends StatelessWidget {
 // after login, registration, or FirebaseAuth.signOut().
 // ============================================================
 
-class AuthGate extends StatelessWidget {
+
+  class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            backgroundColor: theme.scaffoldBackgroundColor,
             body: Center(
               child: CircularProgressIndicator(
-                color: Theme.of(context).colorScheme.primary,
+                color: theme.colorScheme.primary,
               ),
             ),
           );
@@ -515,14 +831,15 @@ class AuthGate extends StatelessWidget {
 
         if (snapshot.hasError) {
           return Scaffold(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            body: const Center(
+            backgroundColor: theme.scaffoldBackgroundColor,
+            body: Center(
               child: Padding(
-                padding: EdgeInsets.all(24),
+                padding: const EdgeInsets.all(24),
                 child: Text(
                   'Unable to verify your session. '
                   'Please check your connection and restart the app.',
                   textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium,
                 ),
               ),
             ),

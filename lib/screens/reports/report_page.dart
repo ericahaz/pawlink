@@ -62,10 +62,58 @@ class _ReportPageState extends State<ReportPage> {
   static Color get borderColor =>
       SeasonalController.instance.activeTheme?.border ??
       Color(0xFFE3E5E3);
+
+      
   static Color get surfaceColor =>
       SeasonalController.instance.activeTheme?.surface ?? Colors.white;
   static Color get onPrimaryColor =>
       SeasonalController.instance.activeTheme?.onPrimary ?? Colors.white;
+      
+
+  // ============================================================
+  // DARK MODE COLORS
+  // ============================================================
+
+   bool get _isDarkMode =>
+      Theme.of(context).brightness == Brightness.dark;
+
+  Color get _pageBackground =>
+      _isDarkMode ? const Color(0xFF121A1B) : warmBackground;
+
+  Color get _cardBackground =>
+      _isDarkMode ? const Color(0xFF1D292A) : Colors.white;
+
+  Color get _primaryTextColor =>
+      _isDarkMode ? Colors.white : darkText;
+
+  Color get _secondaryTextColor =>
+      _isDarkMode ? Colors.white70 : grayText;
+
+  Color get _outlineColor =>
+      _isDarkMode ? const Color(0xFF344344) : borderColor;
+
+  Color get _softTealBackground =>
+      _isDarkMode ? const Color(0xFF263738) : lightTeal;
+
+  Color get _softerBackground =>
+      _isDarkMode ? const Color(0xFF202E2F) : const Color(0xFFF9FAF9);
+
+  Color get _accentColor =>
+      _isDarkMode ? const Color(0xFF2DD4BF) : primaryTeal;
+
+  Color get _dialogBackground =>
+      _isDarkMode ? const Color(0xFF1D292A) : Colors.white;
+
+  Color get _inputBackground =>
+      _isDarkMode ? const Color(0xFF263536) : const Color(0xFFF9FAF9);
+
+  Color get _softRedBackground =>
+      _isDarkMode ? const Color(0xFF382426) : const Color(0xFFFFF1F1);
+
+  Color get _softYellowBackground =>
+      _isDarkMode ? const Color(0xFF383324) : const Color(0xFFFFF8E8);
+
+      
 
   @override
   void dispose() {
@@ -169,19 +217,15 @@ class _ReportPageState extends State<ReportPage> {
       case 'lost':
         dialogTitle = 'Report Lost Pet';
         break;
-
       case 'found':
         dialogTitle = 'Report Found Pet';
         break;
-
       case 'sighting':
         dialogTitle = 'Report Pet Sighting';
         break;
-
       case 'stray':
         dialogTitle = 'Report Stray / Safety Concern';
         break;
-
       default:
         dialogTitle = 'Create Report';
     }
@@ -196,21 +240,17 @@ class _ReportPageState extends State<ReportPage> {
             final screenHeight = MediaQuery.of(context).size.height;
 
             return AlertDialog(
-              backgroundColor: surfaceColor,
+              backgroundColor: _dialogBackground,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
               title: Text(
                 dialogTitle,
                 style: TextStyle(
-                  color: darkText,
-                  fontWeight: FontWeight.w800,
-                ),
+                color: _primaryTextColor,
+                fontWeight: FontWeight.w800,
               ),
-
-              // ==========================================================
-              // RESPONSIVE DIALOG CONTENT
-              // ==========================================================
+              ),
               content: SizedBox(
                 width: 500,
                 height: screenHeight > 700 ? null : screenHeight * 0.58,
@@ -219,49 +259,44 @@ class _ReportPageState extends State<ReportPage> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // ==================================================
-                      // LOST PET
-                      // ==================================================
-
                       if (type == 'lost') ...[
                         Text(
                           'Pet Name',
                           style: TextStyle(
-                            color: darkText,
+                            color: _primaryTextColor,
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
 
-                        SizedBox(height: 6),
+                        const SizedBox(height: 6),
 
                         Text(
-                          'Select the registered pet you want to report as lost.',
-                          style: TextStyle(color: grayText, fontSize: 12),
+                        'Select the registered pet you want to report as lost.',
+                        style: TextStyle(
+                        color: _secondaryTextColor,
+                        fontSize: 12,
+                        ),
                         ),
 
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
 
                         StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                           stream: _petService.getMyPetsStream(),
                           builder: (context, snapshot) {
-                            // ------------------------------------------------
-                            // LOADING
-                            // ------------------------------------------------
-
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
                               return Container(
                                 width: double.infinity,
                                 padding: EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: lightTeal,
+                                  color: const Color(0xFFF9FAF9),
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: borderColor),
+                                  border: Border.all(color: _outlineColor),
                                 ),
                                 child: Row(
                                   children: [
-                                    SizedBox(
+                                     SizedBox(
                                       width: 18,
                                       height: 18,
                                       child: CircularProgressIndicator(
@@ -269,12 +304,12 @@ class _ReportPageState extends State<ReportPage> {
                                         color: primaryTeal,
                                       ),
                                     ),
-                                    SizedBox(width: 10),
+                                    const SizedBox(width: 10),
                                     Expanded(
                                       child: Text(
                                         'Loading your registered pets...',
                                         style: TextStyle(
-                                          color: grayText,
+                                          color: _secondaryTextColor,
                                           fontSize: 13,
                                         ),
                                       ),
@@ -284,16 +319,12 @@ class _ReportPageState extends State<ReportPage> {
                               );
                             }
 
-                            // ------------------------------------------------
-                            // ERROR
-                            // ------------------------------------------------
-
                             if (snapshot.hasError) {
                               return Container(
                                 width: double.infinity,
                                 padding: EdgeInsets.all(15),
                                 decoration: BoxDecoration(
-                                  color: Color(0xFFFFF1F1),
+                                  color: const Color(0xFFFFF1F1),
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
                                     color: Color(0xFFFECACA),
@@ -325,8 +356,8 @@ class _ReportPageState extends State<ReportPage> {
                                     SizedBox(height: 7),
                                     Text(
                                       snapshot.error.toString(),
-                                      style: TextStyle(
-                                        color: grayText,
+                                      style:  TextStyle(
+                                        color: _secondaryTextColor,
                                         fontSize: 11,
                                         height: 1.4,
                                       ),
@@ -336,36 +367,26 @@ class _ReportPageState extends State<ReportPage> {
                               );
                             }
 
-                            // ------------------------------------------------
-                            // CONVERT FIRESTORE DOCUMENTS
-                            // ------------------------------------------------
-
                             final allPets = snapshot.data?.docs
                                     .map(PetModel.fromFirestore)
                                     .toList() ??
                                 <PetModel>[];
 
-                            // Only alive pets can be reported as lost.
                             final pets =
                                 allPets.where((pet) => pet.isAlive).toList();
 
-                            // Sort pets alphabetically.
                             pets.sort(
                               (a, b) => a.petName.toLowerCase().compareTo(
                                     b.petName.toLowerCase(),
                                   ),
                             );
 
-                            // ------------------------------------------------
-                            // NO PETS
-                            // ------------------------------------------------
-
                             if (pets.isEmpty) {
                               return Container(
                                 width: double.infinity,
                                 padding: EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: Color(0xFFFFF8E8),
+                                  color: const Color(0xFFFFF8E8),
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
                                     color: Color(0xFFF1D48A),
@@ -378,17 +399,17 @@ class _ReportPageState extends State<ReportPage> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Icon(
+                                        const Icon(
                                           Icons.pets_rounded,
                                           color: Colors.orange,
                                           size: 21,
                                         ),
-                                        SizedBox(width: 9),
+                                        const SizedBox(width: 9),
                                         Expanded(
                                           child: Text(
                                             'No registered pets are available.',
                                             style: TextStyle(
-                                              color: darkText,
+                                              color: _primaryTextColor,
                                               fontSize: 13,
                                               fontWeight: FontWeight.w700,
                                             ),
@@ -396,13 +417,13 @@ class _ReportPageState extends State<ReportPage> {
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: 7),
+                                    const SizedBox(height: 7),
                                     Text(
                                       'Register a pet first in My Pets. '
                                       'After the pet is successfully registered, '
                                       'it will appear here automatically.',
                                       style: TextStyle(
-                                        color: grayText,
+                                        color: _secondaryTextColor,
                                         fontSize: 12,
                                         height: 1.45,
                                       ),
@@ -412,91 +433,69 @@ class _ReportPageState extends State<ReportPage> {
                               );
                             }
 
-                            // ------------------------------------------------
-                            // KEEP SELECTED VALUE VALID
-                            // ------------------------------------------------
-
                             final validSelectedPetId =
                                 pets.any((pet) => pet.petId == selectedPetId)
                                     ? selectedPetId
                                     : null;
 
-                            // ------------------------------------------------
-                            // DROPDOWN
-                            // ------------------------------------------------
-
                             return DropdownButtonFormField<String>(
                               initialValue: validSelectedPetId,
                               isExpanded: true,
-
-                              // IMPORTANT:
-                              // Gives the dropdown enough height and prevents
-                              // the "Bottom overflowed" error.
                               itemHeight: 58,
 
                               icon: Icon(
-                                Icons.keyboard_arrow_down_rounded,
-                                color: primaryTeal,
+                              Icons.keyboard_arrow_down_rounded,
+                              color: _accentColor,
                               ),
-
                               decoration: InputDecoration(
                                 hintText: 'Select Pet Name',
-                                hintStyle: TextStyle(
-                                  color: grayText,
+                                hintStyle:  TextStyle(
+                                  color: _secondaryTextColor,
                                   fontSize: 13,
                                 ),
                                 prefixIcon: Icon(
                                   Icons.pets_rounded,
-                                  color: primaryTeal,
+                                  color: _accentColor,
                                   size: 21,
                                 ),
                                 filled: true,
-                                fillColor: surfaceColor,
-                                contentPadding: EdgeInsets.symmetric(
+                                fillColor: _cardBackground,
+                                contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 14,
                                   vertical: 12,
                                 ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(
-                                    color: borderColor,
+                                  borderSide:  BorderSide(
+                                    color: _outlineColor,
                                   ),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(
-                                    color: borderColor,
+                                  borderSide:  BorderSide(
+                                    color: _outlineColor,
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(
+                                  borderSide:  BorderSide(
                                     color: primaryTeal,
                                     width: 1.5,
                                   ),
                                 ),
                               ),
-
-                              // ==================================================
-                              // DROPDOWN ITEMS
-                              // ==================================================
                               items: pets.map((pet) {
                                 return DropdownMenuItem<String>(
                                   value: pet.petId,
-
-                                  // FIX:
-                                  // Use a single compact Row instead of a
-                                  // Column that can overflow vertically.
                                   child: Row(
                                     children: [
                                       Container(
                                         width: 34,
                                         height: 34,
                                         decoration: BoxDecoration(
-                                          color: lightTeal,
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
+                                          color: _softTealBackground,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                         ),
                                         child: pet.photoUrl.isNotEmpty
                                             ? ClipRRect(
@@ -510,7 +509,7 @@ class _ReportPageState extends State<ReportPage> {
                                                   errorBuilder: (_, __, ___) {
                                                     return Icon(
                                                       Icons.pets_rounded,
-                                                      color: primaryTeal,
+                                                      color: _accentColor,
                                                       size: 18,
                                                     );
                                                   },
@@ -518,7 +517,7 @@ class _ReportPageState extends State<ReportPage> {
                                               )
                                             : Icon(
                                                 Icons.pets_rounded,
-                                                color: primaryTeal,
+                                                color: _accentColor,
                                                 size: 18,
                                               ),
                                       ),
@@ -530,8 +529,8 @@ class _ReportPageState extends State<ReportPage> {
                                               : '${pet.petName} • ${pet.breed}',
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            color: darkText,
+                                          style:  TextStyle(
+                                            color: _primaryTextColor,
                                             fontSize: 13,
                                             fontWeight: FontWeight.w700,
                                           ),
@@ -541,7 +540,6 @@ class _ReportPageState extends State<ReportPage> {
                                   ),
                                 );
                               }).toList(),
-
                               onChanged: isSaving
                                   ? null
                                   : (value) {
@@ -572,15 +570,12 @@ class _ReportPageState extends State<ReportPage> {
                           },
                         ),
 
-                        // ------------------------------------------------
-                        // SELECTED PET PREVIEW
-                        // ------------------------------------------------
                         if (selectedPet != null) ...[
                           SizedBox(height: 10),
                           _buildSelectedPetCard(selectedPet!),
                         ],
 
-                        SizedBox(height: 14),
+                        const SizedBox(height: 14),
                       ]
                       // ==================================================
                       // OTHER REPORT TYPES
@@ -588,6 +583,7 @@ class _ReportPageState extends State<ReportPage> {
                       else ...[
                         TextField(
                           controller: nameController,
+                          style: TextStyle(color: _primaryTextColor),
                           decoration: _inputDecoration(
                             type == 'stray' ? 'Report title' : 'Pet name',
                           ),
@@ -595,18 +591,16 @@ class _ReportPageState extends State<ReportPage> {
                         SizedBox(height: 14),
                       ],
 
-                      // ==================================================
-                      // LOCATION
-                      // ==================================================
                       TextField(
                         controller: locationController,
+                        style: TextStyle(color: _primaryTextColor),
                         decoration: _inputDecoration(
                           type == 'lost' ? 'Last seen location' : 'Location',
                         ).copyWith(
                           hintText: 'Search or enter a location',
                           suffixIcon: Icon(
                             Icons.search_rounded,
-                            color: primaryTeal,
+                            color: _accentColor,
                           ),
                         ),
                       ),
@@ -619,7 +613,7 @@ class _ReportPageState extends State<ReportPage> {
                           Icon(
                             Icons.info_outline_rounded,
                             size: 16,
-                            color: grayText,
+                            color: _secondaryTextColor,
                           ),
                           SizedBox(width: 7),
                           Expanded(
@@ -627,8 +621,8 @@ class _ReportPageState extends State<ReportPage> {
                               selectedLocationName == null
                                   ? 'Use Pin Map to search for a place or mark the exact location.'
                                   : 'Selected: $selectedLocationName',
-                              style: TextStyle(
-                                color: grayText,
+                              style:  TextStyle(
+                                color: _secondaryTextColor,
                                 fontSize: 11.5,
                                 height: 1.4,
                               ),
@@ -639,12 +633,10 @@ class _ReportPageState extends State<ReportPage> {
 
                       SizedBox(height: 14),
 
-                      // ==================================================
-                      // DETAILS
-                      // ==================================================
                       TextField(
                         controller: detailsController,
                         maxLines: 4,
+                        style: TextStyle(color: _primaryTextColor),
                         decoration: _inputDecoration(
                           type == 'stray' ? 'Describe the concern' : 'Details',
                         ),
@@ -652,16 +644,13 @@ class _ReportPageState extends State<ReportPage> {
 
                       SizedBox(height: 16),
 
-                      // ==================================================
-                      // MAP LOCATION PICKER
-                      // ==================================================
                       Container(
                         padding: EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: lightTeal,
+                          color: _softTealBackground,
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
-                            color: Color(0xFFCBE8E3),
+                            color: const Color(0xFFCBE8E3),
                           ),
                         ),
                         child: Row(
@@ -671,33 +660,33 @@ class _ReportPageState extends State<ReportPage> {
                               width: 38,
                               height: 38,
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: _cardBackground,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Icon(
                                 Icons.location_on_rounded,
-                                color: primaryTeal,
+                                color: _accentColor,
                                 size: 21,
                               ),
                             ),
-                            SizedBox(width: 10),
-                            Expanded(
+                             SizedBox(width: 10),
+                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     'Mark the report location',
                                     style: TextStyle(
-                                      color: darkText,
+                                      color: _primaryTextColor,
                                       fontSize: 13,
                                       fontWeight: FontWeight.w800,
                                     ),
                                   ),
-                                  SizedBox(height: 3),
+                                   SizedBox(height: 3),
                                   Text(
                                     'Search a place, use your current location, or tap the map to place the pin.',
                                     style: TextStyle(
-                                      color: grayText,
+                                      color: _secondaryTextColor,
                                       fontSize: 11.5,
                                       height: 1.4,
                                     ),
@@ -713,10 +702,7 @@ class _ReportPageState extends State<ReportPage> {
                                       final result = await _showMapPicker(
                                         initialLocation: latitude != null &&
                                                 longitude != null
-                                            ? LatLng(
-                                                latitude!,
-                                                longitude!,
-                                              )
+                                            ? LatLng(latitude!, longitude!)
                                             : null,
                                         initialLocationName:
                                             selectedLocationName ??
@@ -749,16 +735,16 @@ class _ReportPageState extends State<ReportPage> {
                             vertical: 9,
                           ),
                           decoration: BoxDecoration(
-                            color: lightTeal,
+                            color: const Color(0xFFF9FAF9),
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: borderColor),
+                            border: Border.all(color: _outlineColor),
                           ),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Icon(
                                 Icons.check_circle_rounded,
-                                color: primaryTeal,
+                                color: _accentColor,
                                 size: 17,
                               ),
                               SizedBox(width: 7),
@@ -768,45 +754,48 @@ class _ReportPageState extends State<ReportPage> {
                                       ? selectedLocationName!
                                       : 'Location pinned successfully.',
                                   style: TextStyle(
-                                    color: darkText,
-                                    fontSize: 11.5,
-                                    fontWeight: FontWeight.w600,
-                                    height: 1.35,
+                                   color: _primaryTextColor,
+                                   fontSize: 11.5,
+                                   fontWeight: FontWeight.w600,
+                                   height: 1.35,
+                                   ),
                                   ),
                                 ),
-                              ),
                             ],
                           ),
                         ),
                       ],
 
-                      // ==================================================
-                      // LOST PET INFORMATION
-                      // ==================================================
                       if (type == 'lost') ...[
                         SizedBox(height: 16),
                         Container(
                           padding: EdgeInsets.all(13),
                           decoration: BoxDecoration(
-                            color: Color(0xFFFFF5F5),
-                            borderRadius: BorderRadius.circular(13),
-                            border: Border.all(color: Color(0xFFFECACA)),
+                          color: _isDarkMode
+                          ? const Color(0xFF382426)
+                          : const Color(0xFFFFF5F5),
+                          borderRadius: BorderRadius.circular(13),
+                          border: Border.all(
+                          color: _isDarkMode
+                          ? const Color(0xFF684044)
+                           : const Color(0xFFFECACA),
+                           ),
                           ),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(
+                               Icon(
                                 Icons.info_outline_rounded,
                                 color: alertRed,
                                 size: 19,
                               ),
-                              SizedBox(width: 9),
+                               SizedBox(width: 9),
                               Expanded(
                                 child: Text(
                                   'Your report will be linked to the selected '
                                   'pet profile using its Pet ID.',
                                   style: TextStyle(
-                                    color: grayText,
+                                    color: _secondaryTextColor,
                                     fontSize: 11.5,
                                     height: 1.4,
                                   ),
@@ -820,10 +809,6 @@ class _ReportPageState extends State<ReportPage> {
                   ),
                 ),
               ),
-
-              // ==========================================================
-              // ACTIONS
-              // ==========================================================
               actions: [
                 TextButton(
                   onPressed: isSaving
@@ -845,14 +830,8 @@ class _ReportPageState extends State<ReportPage> {
                       ? null
                       : () async {
                           final name = nameController.text.trim();
-
                           final location = locationController.text.trim();
-
                           final details = detailsController.text.trim();
-
-                          // ==================================================
-                          // LOST PET VALIDATION
-                          // ==================================================
 
                           if (type == 'lost' && selectedPet == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -866,8 +845,6 @@ class _ReportPageState extends State<ReportPage> {
                             return;
                           }
 
-                          // For lost pets, the name comes directly
-                          // from the selected registered pet.
                           if (type != 'lost' && name.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -894,10 +871,6 @@ class _ReportPageState extends State<ReportPage> {
 
                           try {
                             switch (type) {
-                              // ============================================
-                              // LOST PET
-                              // ============================================
-
                               case 'lost':
                                 await _reportService.createLostPetReport(
                                   petId: selectedPet!.petId,
@@ -909,10 +882,6 @@ class _ReportPageState extends State<ReportPage> {
                                   locationName: selectedLocationName,
                                 );
                                 break;
-
-                              // ============================================
-                              // FOUND PET
-                              // ============================================
 
                               case 'found':
                                 await _reportService.createFoundPetReport(
@@ -927,10 +896,6 @@ class _ReportPageState extends State<ReportPage> {
                                 );
                                 break;
 
-                              // ============================================
-                              // PET SIGHTING
-                              // ============================================
-
                               case 'sighting':
                                 await _reportService.createSightingReport(
                                   petName: name,
@@ -940,10 +905,6 @@ class _ReportPageState extends State<ReportPage> {
                                   longitude: longitude,
                                 );
                                 break;
-
-                              // ============================================
-                              // BARANGAY / STRAY
-                              // ============================================
 
                               case 'stray':
                                 await _reportService.createBarangayReport(
@@ -1026,9 +987,9 @@ class _ReportPageState extends State<ReportPage> {
       width: double.infinity,
       padding: EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: lightTeal,
+        color: _softTealBackground,
         borderRadius: BorderRadius.circular(13),
-        border: Border.all(color: Color(0xFFCBE8E3)),
+        border: Border.all(color: const Color(0xFFCBE8E3)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1037,9 +998,9 @@ class _ReportPageState extends State<ReportPage> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: _cardBackground,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: borderColor),
+              border: Border.all(color: _outlineColor),
             ),
             child: pet.photoUrl.isNotEmpty
                 ? ClipRRect(
@@ -1050,7 +1011,7 @@ class _ReportPageState extends State<ReportPage> {
                       errorBuilder: (_, __, ___) {
                         return Icon(
                           Icons.pets_rounded,
-                          color: primaryTeal,
+                          color: _accentColor,
                         );
                       },
                     ),
@@ -1067,7 +1028,7 @@ class _ReportPageState extends State<ReportPage> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: darkText,
+                    color: _primaryTextColor,
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
                   ),
@@ -1077,7 +1038,10 @@ class _ReportPageState extends State<ReportPage> {
                   pet.breed.isEmpty ? 'Breed not specified' : pet.breed,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: grayText, fontSize: 12),
+                  style: TextStyle(
+                  color: _secondaryTextColor,
+                  fontSize: 12,
+                  ),
                 ),
                 SizedBox(height: 5),
                 Text(
@@ -1128,20 +1092,20 @@ class _ReportPageState extends State<ReportPage> {
   InputDecoration _inputDecoration(String label) {
     return InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(color: grayText),
+      labelStyle: TextStyle(color: _secondaryTextColor),
       filled: true,
-      fillColor: surfaceColor,
+      fillColor: _inputBackground,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: borderColor),
+        borderSide: BorderSide(color: _outlineColor),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: borderColor),
+        borderSide: BorderSide(color: _outlineColor),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: primaryTeal, width: 1.5),
+        borderSide: BorderSide(color: _accentColor, width: 1.5),
       ),
     );
   }
@@ -1170,7 +1134,6 @@ class _ReportPageState extends State<ReportPage> {
         reports.sort((a, b) {
           final aDate = a.createdAt ?? DateTime(2000);
           final bDate = b.createdAt ?? DateTime(2000);
-
           return bDate.compareTo(aDate);
         });
 
@@ -1189,11 +1152,11 @@ class _ReportPageState extends State<ReportPage> {
 
   Widget _buildHistoryCard(ReportModel report) {
     final Color statusColor = report.isResolved
-        ? primaryTeal
+        ? _accentColor
         : report.isPending
             ? Colors.orange
             : report.isClosed
-                ? grayText
+                ? _secondaryTextColor
                 : alertRed;
 
     return Container(
@@ -1201,12 +1164,14 @@ class _ReportPageState extends State<ReportPage> {
       margin: EdgeInsets.only(bottom: 14),
       padding: EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cardBackground,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: _outlineColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.035),
+            color: Colors.black.withValues(
+              alpha: _isDarkMode ? 0.12 : 0.035,
+            ),
             blurRadius: 12,
             offset: Offset(0, 4),
           ),
@@ -1225,7 +1190,7 @@ class _ReportPageState extends State<ReportPage> {
                     Text(
                       report.typeLabel,
                       style: TextStyle(
-                        color: darkText,
+                        color: _primaryTextColor,
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
                       ),
@@ -1235,7 +1200,10 @@ class _ReportPageState extends State<ReportPage> {
                       SizedBox(height: 4),
                       Text(
                         report.petName!,
-                        style: TextStyle(color: grayText, fontSize: 13),
+                        style: TextStyle(
+                        color: _secondaryTextColor,
+                        fontSize: 13,
+                    ),
                       ),
                     ],
                     if (report.petId != null && report.petId!.isNotEmpty) ...[
@@ -1243,7 +1211,7 @@ class _ReportPageState extends State<ReportPage> {
                       Text(
                         'Pet ID: ${report.petId}',
                         style: TextStyle(
-                          color: primaryTeal,
+                          color: _accentColor,
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                         ),
@@ -1313,8 +1281,8 @@ class _ReportPageState extends State<ReportPage> {
                 ),
               OutlinedButton.icon(
                 onPressed: () => _deleteReport(report),
-                icon: Icon(Icons.delete_outline, size: 17),
-                label: Text('Delete'),
+                icon: const Icon(Icons.delete_outline, size: 17),
+                label: const Text('Delete'),
                 style: OutlinedButton.styleFrom(foregroundColor: alertRed),
               ),
             ],
@@ -1330,7 +1298,6 @@ class _ReportPageState extends State<ReportPage> {
 
   Future<void> _editReport(ReportModel report) async {
     final locationController = TextEditingController(text: report.location);
-
     final detailsController = TextEditingController(text: report.details);
 
     double? latitude = report.latitude;
@@ -1347,7 +1314,10 @@ class _ReportPageState extends State<ReportPage> {
             return AlertDialog(
               title: Text(
                 'Edit Report',
-                style: TextStyle(fontWeight: FontWeight.w800, color: darkText),
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  color: _primaryTextColor,
+                ),
               ),
               content: SizedBox(
                 width: 500,
@@ -1356,11 +1326,12 @@ class _ReportPageState extends State<ReportPage> {
                   children: [
                     TextField(
                       controller: locationController,
+                      style: TextStyle(color: _primaryTextColor),
                       decoration: _inputDecoration('Location').copyWith(
                         hintText: 'Search or enter a location',
                         suffixIcon: Icon(
                           Icons.search_rounded,
-                          color: primaryTeal,
+                          color: _accentColor,
                         ),
                       ),
                     ),
@@ -1372,7 +1343,7 @@ class _ReportPageState extends State<ReportPage> {
                         child: Text(
                           'Selected: $selectedLocationName',
                           style: TextStyle(
-                            color: grayText,
+                            color: _secondaryTextColor,
                             fontSize: 11.5,
                             height: 1.4,
                           ),
@@ -1382,6 +1353,7 @@ class _ReportPageState extends State<ReportPage> {
                     TextField(
                       controller: detailsController,
                       maxLines: 4,
+                      style: TextStyle(color: _primaryTextColor),
                       decoration: _inputDecoration('Details'),
                     ),
                     SizedBox(height: 14),
@@ -1431,7 +1403,6 @@ class _ReportPageState extends State<ReportPage> {
                       ? null
                       : () async {
                           final location = locationController.text.trim();
-
                           final details = detailsController.text.trim();
 
                           if (location.isEmpty || details.isEmpty) {
@@ -1638,14 +1609,18 @@ class _ReportPageState extends State<ReportPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: _dialogBackground,
           title: Text(
             title,
             style: TextStyle(
-              color: darkText,
+              color: _primaryTextColor,
               fontWeight: FontWeight.w800,
             ),
           ),
-          content: Text(message, style: TextStyle(color: grayText)),
+          content: Text(
+          message,
+          style: TextStyle(color: _secondaryTextColor),
+         ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -1676,27 +1651,30 @@ class _ReportPageState extends State<ReportPage> {
       width: double.infinity,
       padding: EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cardBackground,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: _outlineColor),
       ),
       child: Column(
         children: [
-          Icon(Icons.assignment_outlined, size: 48, color: primaryTeal),
-          SizedBox(height: 12),
+          Icon(Icons.assignment_outlined, size: 48, color: _accentColor),
+          const SizedBox(height: 12),
           Text(
             'No reports yet',
             style: TextStyle(
-              color: darkText,
+              color: _primaryTextColor,
               fontSize: 17,
               fontWeight: FontWeight.w800,
             ),
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           Text(
             'Your submitted reports will appear here.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: grayText, fontSize: 13),
+            style: TextStyle(
+              color: _secondaryTextColor,
+              fontSize: 13,
+            ),
           ),
         ],
       ),
@@ -1710,13 +1688,13 @@ class _ReportPageState extends State<ReportPage> {
   Widget _buildErrorCard(String error) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Color(0xFFFFF1F1),
+        color: const Color(0xFFFFF1F1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Color(0xFFFECACA)),
+        border: Border.all(color: const Color(0xFFFECACA)),
       ),
-      child: Text(error, style: TextStyle(color: alertRed, fontSize: 13)),
+      child: Text(error, style: const TextStyle(color: alertRed, fontSize: 13)),
     );
   }
 
@@ -1730,12 +1708,12 @@ class _ReportPageState extends State<ReportPage> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: primaryTeal),
-          SizedBox(width: 8),
+          Icon(icon, size: 18, color: _accentColor),
+           SizedBox(width: 8),
           Text(
             '$label: ',
             style: TextStyle(
-              color: darkText,
+              color: _primaryTextColor,
               fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
@@ -1743,7 +1721,10 @@ class _ReportPageState extends State<ReportPage> {
           Expanded(
             child: Text(
               value,
-              style: TextStyle(color: grayText, fontSize: 12),
+              style: TextStyle(
+             color: _secondaryTextColor,
+             fontSize: 12,
+             ),
             ),
           ),
         ],
@@ -1767,7 +1748,6 @@ class _ReportPageState extends State<ReportPage> {
             : date.hour;
 
     final minute = date.minute.toString().padLeft(2, '0');
-
     final period = date.hour >= 12 ? 'PM' : 'AM';
 
     return '$month/$day/$year $hour:$minute $period';
@@ -1780,23 +1760,23 @@ class _ReportPageState extends State<ReportPage> {
   Widget _buildSidebar() {
     return Container(
       width: 230,
-      decoration: BoxDecoration(
-        color: surfaceColor,
-        border: Border(right: BorderSide(color: borderColor)),
+      decoration:  BoxDecoration(
+        color: _cardBackground,
+        border: Border(right: BorderSide(color: _outlineColor)),
       ),
       child: Column(
         children: [
-          SizedBox(height: 28),
-          Padding(
+           SizedBox(height: 28),
+           Padding(
             padding: EdgeInsets.symmetric(horizontal: 22),
             child: Row(
               children: [
-                Icon(Icons.pets_rounded, color: primaryTeal, size: 28),
-                SizedBox(width: 9),
+                Icon(Icons.pets_rounded, color: _accentColor, size: 28),
+                 SizedBox(width: 9),
                 Text(
                   'PawLink',
                   style: TextStyle(
-                    color: darkText,
+                    color: _primaryTextColor,
                     fontSize: 20,
                     fontWeight: FontWeight.w900,
                   ),
@@ -1849,18 +1829,23 @@ class _ReportPageState extends State<ReportPage> {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
-            color: selected ? lightTeal : Colors.transparent,
+            color: selected ? _softTealBackground : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
             children: [
-              Icon(icon, color: selected ? primaryTeal : grayText, size: 21),
-              SizedBox(width: 11),
+              Icon(
+             icon,
+             color: selected ? _accentColor : _secondaryTextColor,
+             size: 21,
+             ),
+              const SizedBox(width: 11),
               Text(
                 label,
                 style: TextStyle(
-                  color: selected ? darkTeal : grayText,
-                  fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
+                  color: selected ? _accentColor : _secondaryTextColor,
+                  fontWeight:
+                      selected ? FontWeight.w800 : FontWeight.w500,
                 ),
               ),
             ],
@@ -1901,9 +1886,9 @@ class _ReportPageState extends State<ReportPage> {
     return Container(
       padding: EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cardBackground,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: _outlineColor),
       ),
       child: Row(
         children: [
@@ -1924,7 +1909,7 @@ class _ReportPageState extends State<ReportPage> {
                 Text(
                   title,
                   style: TextStyle(
-                    color: darkText,
+                    color: _primaryTextColor,
                     fontWeight: FontWeight.w800,
                     fontSize: 14,
                   ),
@@ -1933,7 +1918,7 @@ class _ReportPageState extends State<ReportPage> {
                 Text(
                   description,
                   style: TextStyle(
-                    color: grayText,
+                    color: _secondaryTextColor,
                     fontSize: 11.5,
                     height: 1.4,
                   ),
@@ -1947,7 +1932,7 @@ class _ReportPageState extends State<ReportPage> {
             icon: Icon(
               Icons.arrow_forward_ios_rounded,
               size: 17,
-              color: primaryTeal,
+              color: _accentColor,
             ),
           ),
         ],
@@ -1964,7 +1949,7 @@ class _ReportPageState extends State<ReportPage> {
     final isDesktop = MediaQuery.of(context).size.width >= 900;
 
     return Scaffold(
-      backgroundColor: warmBackground,
+      backgroundColor: _pageBackground,
       body: SafeArea(
         child: Row(
           children: [
@@ -1994,16 +1979,16 @@ class _ReportPageState extends State<ReportPage> {
                                       Text(
                                         'Community Reports',
                                         style: TextStyle(
-                                          color: darkText,
+                                          color: _primaryTextColor,
                                           fontSize: 28,
                                           fontWeight: FontWeight.w900,
                                         ),
                                       ),
-                                      SizedBox(height: 6),
-                                      Text(
+                                       SizedBox(height: 6),
+                                       Text(
                                         'Help keep pets and the community safe by reporting lost pets, found pets, sightings, and safety concerns.',
                                         style: TextStyle(
-                                          color: grayText,
+                                          color: _secondaryTextColor,
                                           fontSize: 14,
                                           height: 1.5,
                                         ),
@@ -2018,12 +2003,14 @@ class _ReportPageState extends State<ReportPage> {
                                         onPressed: _scrollUp,
                                         icon: Icon(
                                           Icons.keyboard_arrow_up_rounded,
+                                          color: _primaryTextColor,
                                         ),
                                       ),
                                       IconButton(
                                         onPressed: _scrollDown,
                                         icon: Icon(
                                           Icons.keyboard_arrow_down_rounded,
+                                          color: _primaryTextColor,
                                         ),
                                       ),
                                     ],
@@ -2035,10 +2022,10 @@ class _ReportPageState extends State<ReportPage> {
                             // ==================================================
                             // REPORT TYPES
                             // ==================================================
-                            Text(
+                             Text(
                               'Create a Report',
                               style: TextStyle(
-                                color: darkText,
+                                color: _primaryTextColor,
                                 fontSize: 19,
                                 fontWeight: FontWeight.w800,
                               ),
@@ -2047,7 +2034,8 @@ class _ReportPageState extends State<ReportPage> {
 
                             LayoutBuilder(
                               builder: (context, constraints) {
-                                final twoColumns = constraints.maxWidth >= 700;
+                                final twoColumns =
+                                    constraints.maxWidth >= 700;
 
                                 final buttons = [
                                   _reportButton(
@@ -2062,7 +2050,7 @@ class _ReportPageState extends State<ReportPage> {
                                     icon: Icons.pets_rounded,
                                     title: 'Found Pet',
                                     description: 'Report a pet you found.',
-                                    color: primaryTeal,
+                                    color: _accentColor,
                                     onPressed: () => _showReportForm('found'),
                                   ),
                                   _reportButton(
@@ -2130,7 +2118,7 @@ class _ReportPageState extends State<ReportPage> {
                             Text(
                               'My Report History',
                               style: TextStyle(
-                                color: darkText,
+                                color: _primaryTextColor,
                                 fontSize: 19,
                                 fontWeight: FontWeight.w800,
                               ),
@@ -2146,34 +2134,55 @@ class _ReportPageState extends State<ReportPage> {
                     ),
                   ),
 
-                  // ==========================================================
-                  // MOBILE NAVIGATION
-                  // ==========================================================
                   if (!isDesktop)
                     NavigationBar(
                       selectedIndex: _selectedIndex,
                       onDestinationSelected: _onNavigationChanged,
-                      backgroundColor: surfaceColor,
-                      indicatorColor: lightTeal,
-                      destinations: [
+                      backgroundColor: _cardBackground,
+                      indicatorColor: _softTealBackground,
+                      destinations:  [
                         NavigationDestination(
-                          icon: Icon(Icons.home_outlined),
-                          selectedIcon: Icon(Icons.home_rounded),
+                          icon: Icon(
+                            Icons.home_outlined,
+                            color: _secondaryTextColor,
+                          ),
+                          selectedIcon: Icon(
+                            Icons.home_rounded,
+                            color: _accentColor,
+                          ),
                           label: 'Home',
                         ),
                         NavigationDestination(
-                          icon: Icon(Icons.pets_outlined),
-                          selectedIcon: Icon(Icons.pets_rounded),
+                          icon: Icon(
+                            Icons.pets_outlined,
+                            color: _secondaryTextColor,
+                          ),
+                          selectedIcon: Icon(
+                            Icons.pets_rounded,
+                            color: _accentColor,
+                          ),
                           label: 'My Pets',
                         ),
                         NavigationDestination(
-                          icon: Icon(Icons.report_outlined),
-                          selectedIcon: Icon(Icons.report_rounded),
+                          icon: Icon(
+                            Icons.report_outlined,
+                            color: _secondaryTextColor,
+                          ),
+                          selectedIcon: Icon(
+                            Icons.report_rounded,
+                            color: _accentColor,
+                          ),
                           label: 'Report',
                         ),
                         NavigationDestination(
-                          icon: Icon(Icons.account_balance_outlined),
-                          selectedIcon: Icon(Icons.account_balance_rounded),
+                          icon: Icon(
+                            Icons.account_balance_outlined,
+                            color: _secondaryTextColor,
+                          ),
+                          selectedIcon: Icon(
+                            Icons.account_balance_rounded,
+                            color: _accentColor,
+                          ),
                           label: 'Barangay',
                         ),
                       ],
@@ -2196,8 +2205,9 @@ class _ReportPageState extends State<ReportPage> {
       width: double.infinity,
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: lightTeal,
+        color: _softTealBackground,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _outlineColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2205,37 +2215,34 @@ class _ReportPageState extends State<ReportPage> {
           Text(
             'How reporting works',
             style: TextStyle(
-              color: darkTeal,
+              color: _accentColor,
               fontSize: 17,
               fontWeight: FontWeight.w800,
             ),
           ),
-          SizedBox(height: 12),
-          Text(
-            '1. Choose the type of report.',
-            style: TextStyle(color: darkText, fontSize: 13),
-          ),
-          SizedBox(height: 7),
-          Text(
+          const SizedBox(height: 12),
+          _howToText('1. Choose the type of report.'),
+          const SizedBox(height: 7),
+          _howToText(
             '2. Select your registered pet when reporting a lost pet.',
-            style: TextStyle(color: darkText, fontSize: 13),
           ),
-          SizedBox(height: 7),
-          Text(
-            '3. Enter the location and important details.',
-            style: TextStyle(color: darkText, fontSize: 13),
-          ),
-          SizedBox(height: 7),
-          Text(
-            '4. Optionally pin the location on the map.',
-            style: TextStyle(color: darkText, fontSize: 13),
-          ),
-          SizedBox(height: 7),
-          Text(
-            '5. Submit the report so it can be tracked.',
-            style: TextStyle(color: darkText, fontSize: 13),
-          ),
+          const SizedBox(height: 7),
+          _howToText('3. Enter the location and important details.'),
+          const SizedBox(height: 7),
+          _howToText('4. Optionally pin the location on the map.'),
+          const SizedBox(height: 7),
+          _howToText('5. Submit the report so it can be tracked.'),
         ],
+      ),
+    );
+  }
+
+  Widget _howToText(String value) {
+    return Text(
+      value,
+      style: TextStyle(
+        color: _primaryTextColor,
+        fontSize: 13,
       ),
     );
   }
@@ -2249,15 +2256,25 @@ class _ReportPageState extends State<ReportPage> {
       width: double.infinity,
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Color(0xFFFFF5F5),
+        color: _isDarkMode
+    ? const Color(0xFF382426)
+    : const Color(0xFFFFF5F5),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Color(0xFFFECACA)),
+        border: Border.all(
+  color: _isDarkMode
+      ? const Color(0xFF713B3B)
+      : const Color(0xFFFECACA),
+),
       ),
-      child: Row(
+      child:  Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.shield_outlined, color: alertRed, size: 25),
-          SizedBox(width: 12),
+           Icon(
+            Icons.shield_outlined,
+            color: alertRed,
+            size: 25,
+          ),
+           SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2265,16 +2282,16 @@ class _ReportPageState extends State<ReportPage> {
                 Text(
                   'Safety reminder',
                   style: TextStyle(
-                    color: darkText,
+                    color: _primaryTextColor,
                     fontWeight: FontWeight.w800,
                     fontSize: 15,
                   ),
                 ),
-                SizedBox(height: 5),
+                 SizedBox(height: 5),
                 Text(
                   'If a pet appears aggressive or unsafe to approach, do not attempt to catch or scan the pet. Keep a safe distance and report the location to the barangay.',
                   style: TextStyle(
-                    color: grayText,
+                    color: _secondaryTextColor,
                     fontSize: 12.5,
                     height: 1.45,
                   ),

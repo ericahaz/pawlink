@@ -1,3 +1,4 @@
+
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -76,251 +77,31 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
   static Color get onPrimaryColor =>
       SeasonalController.instance.activeTheme?.onPrimary ?? Colors.white;
 
+
+  // DARK MODE COLORS
+
+  bool get _isDarkMode =>
+      Theme.of(context).brightness == Brightness.dark;
+
+  Color get _pageBackground =>
+      _isDarkMode ? const Color(0xFF121A1A) : warmBackground;
+
+  Color get _primaryTextColor =>
+      _isDarkMode ? const Color(0xFFE5F3F1) : darkText;
+
+  Color get _secondaryTextColor =>
+      _isDarkMode ? const Color(0xFFB0C4C1) : grayText;
+
+  Color get _softTealBackground =>
+      _isDarkMode ? const Color(0xFF183330) : lightTeal;
+
+  Color get _outlineColor =>
+      _isDarkMode ? const Color(0xFF35504C) : borderColor;
+
   // Safety indicators retain their semantic colors across seasonal themes.
   static const Color safeGreen = Color(0xFF16A34A);
   static const Color cautionYellow = Color(0xFFF59E0B);
   static const Color aggressiveRed = Color(0xFFDC2626);
-
-
-  // Breed choices shown in the Breed dropdown.
-  static const List<String> _catBreeds = [
-    'Persian',
-    'Siamese',
-    'British Shorthair',
-    'Maine Coon',
-    'Ragdoll',
-    'Bengal',
-    'Scottish Fold',
-    'American Shorthair',
-    'Sphynx',
-    'Russian Blue',
-    'Exotic Shorthair',
-    'Himalayan',
-    'Abyssinian',
-    'Domestic Shorthair (Puspin)',
-    'Domestic Longhair',
-  ];
-
-  static const List<String> _dogBreeds = [
-    'Shih Tzu',
-    'Pomeranian',
-    'Chihuahua',
-    'Labrador Retriever',
-    'Golden Retriever',
-    'German Shepherd',
-    'Beagle',
-    'Poodle',
-    'Dachshund',
-    'Siberian Husky',
-    'French Bulldog',
-    'Rottweiler',
-    'Yorkshire Terrier',
-    'Aspin',
-    'Corgi',
-  ];
-
-  static const List<String> _otherBreedChoices = [
-    'Mixed Breed',
-    'Unknown',
-    'Other',
-  ];
-
-  static List<String> get _allBreedChoices => [
-        ..._catBreeds,
-        ..._dogBreeds,
-        ..._otherBreedChoices,
-      ];
-
-  // Breed reference pictures are loaded from the app's local assets.
-  // Add the matching JPG files under assets/images/breeds/.
-  String _breedImageAsset(String breed) {
-    final String fileName = breed
-        .toLowerCase()
-        .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
-        .replaceAll(RegExp(r'^_|_$'), '');
-
-    return 'assets/images/breeds/$fileName.jpg';
-  }
-
-  // Tap a breed thumbnail to view its reference photo in a larger preview.
-  void _showBreedImagePreview(String breed) {
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) {
-        return Dialog(
-          backgroundColor: warmBackground,
-          surfaceTintColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        breed,
-                        style: TextStyle(
-                          color: darkText,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.pop(dialogContext),
-                      icon: Icon(Icons.close_rounded),
-                      color: grayText,
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: Image.asset(
-                    _breedImageAsset(breed),
-                    width: 280,
-                    height: 280,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      width: 280,
-                      height: 280,
-                      color: lightTeal,
-                      alignment: Alignment.center,
-                      child: Icon(
-                        Icons.pets_rounded,
-                        color: primaryTeal,
-                        size: 64,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'Breed reference photo',
-                  style: TextStyle(color: grayText, fontSize: 12),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _breedThumbnail(String breed) {
-    return GestureDetector(
-      onTap: () => _showBreedImagePreview(breed),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.asset(
-          _breedImageAsset(breed),
-          width: 38,
-          height: 38,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => Container(
-            width: 38,
-            height: 38,
-            color: lightTeal,
-            alignment: Alignment.center,
-            child: Icon(Icons.pets_rounded, color: primaryTeal, size: 21),
-          ),
-        ),
-      ),
-    );
-  }
-
-  List<DropdownMenuItem<String>> _buildBreedItems(List<String> breeds) {
-    return breeds.map((breed) {
-      return DropdownMenuItem<String>(
-        value: breed,
-        child: Row(
-          children: [
-            _breedThumbnail(breed),
-            SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                breed,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: darkText,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }).toList();
-  }
-
-  Widget _buildBreedDropdown() {
-    return DropdownButtonFormField<String>(
-      value: _selectedBreed,
-      isExpanded: true,
-      menuMaxHeight: 420,
-      decoration: _dropdownDecoration('Breed', Icons.category_outlined),
-      items: [
-        DropdownMenuItem<String>(
-          enabled: false,
-          child: Text(
-            'CAT BREEDS',
-            style: TextStyle(
-              color: primaryTeal,
-              fontWeight: FontWeight.w900,
-              fontSize: 11,
-            ),
-          ),
-        ),
-        ..._buildBreedItems(_catBreeds),
-        DropdownMenuItem<String>(
-          enabled: false,
-          child: Text(
-            'DOG BREEDS',
-            style: TextStyle(
-              color: primaryTeal,
-              fontWeight: FontWeight.w900,
-              fontSize: 11,
-            ),
-          ),
-        ),
-        ..._buildBreedItems(_dogBreeds),
-        DropdownMenuItem<String>(
-          enabled: false,
-          child: Text(
-            'OTHER OPTIONS',
-            style: TextStyle(
-              color: primaryTeal,
-              fontWeight: FontWeight.w900,
-              fontSize: 11,
-            ),
-          ),
-        ),
-        ..._buildBreedItems(_otherBreedChoices),
-      ],
-      onChanged: _isSaving
-          ? null
-          : (value) {
-              if (value == null) return;
-              setState(() {
-                _selectedBreed = value;
-                if (value != 'Other') {
-                  _otherBreedController.clear();
-                }
-              });
-            },
-      validator: (value) {
-        if (value == null || value.trim().isEmpty) {
-          return 'Please choose a breed.';
-        }
-        return null;
-      },
-    );
-  }
 
   @override
   void dispose() {
@@ -533,19 +314,19 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: warmBackground,
+      backgroundColor: _pageBackground,
       appBar: AppBar(
-        backgroundColor: warmBackground,
+        backgroundColor: _pageBackground,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
           onPressed: _isSaving ? null : () => Navigator.pop(context),
-          icon: Icon(Icons.arrow_back_rounded, color: darkText),
+          icon: Icon(Icons.arrow_back_rounded, color: _primaryTextColor),
         ),
         title: Text(
           'Register a Pet',
           style: TextStyle(
-            color: darkText,
+            color: _primaryTextColor,
             fontWeight: FontWeight.w800,
           ),
         ),
@@ -606,7 +387,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
           style: TextStyle(
             fontSize: 25,
             fontWeight: FontWeight.w900,
-            color: darkText,
+            color: _primaryTextColor,
           ),
         ),
         SizedBox(height: 6),
@@ -614,7 +395,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
           'Register your pet so its information can be connected '
           'to a unique QR profile.',
           style: TextStyle(
-            color: grayText,
+            color: _secondaryTextColor,
             fontSize: 14,
             height: 1.5,
           ),
@@ -636,13 +417,13 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
             icon: Icons.photo_camera_outlined,
             title: 'Pet Photos',
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Select up to 4 clear photos of your pet. '
             'The first photo will be the main profile picture. '
             'Each photo must be 5 MB or smaller.',
             style: TextStyle(
-              color: grayText,
+              color: _secondaryTextColor,
               fontSize: 12,
               height: 1.5,
             ),
@@ -671,7 +452,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                 foregroundColor: primaryTeal,
                 disabledForegroundColor: grayText,
                 side: BorderSide(color: primaryTeal),
-                padding: EdgeInsets.symmetric(vertical: 13),
+                padding: const EdgeInsets.symmetric(vertical: 13),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -688,31 +469,31 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 26, horizontal: 16),
       decoration: BoxDecoration(
-        color: lightTeal,
+        color: _softTealBackground,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: _outlineColor),
       ),
       child: Column(
         children: [
           Icon(
             Icons.add_a_photo_outlined,
-            color: primaryTeal,
+            color: _isDarkMode ? const Color(0xFF2DD4BF) : primaryTeal,
             size: 42,
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
             'No photos selected',
             style: TextStyle(
-              color: darkText,
+              color: _primaryTextColor,
               fontWeight: FontWeight.w800,
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             'Add photos to help identify your pet.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: grayText,
+              color: _secondaryTextColor,
               fontSize: 12,
             ),
           ),
@@ -745,8 +526,6 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                         ),
                       ),
                     ),
-
-                    // Primary photo label.
                     if (index == 0)
                       Positioned(
                         left: 6,
@@ -770,8 +549,6 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                           ),
                         ),
                       ),
-
-                    // Remove photo button.
                     Positioned(
                       right: 5,
                       top: 5,
@@ -802,7 +579,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
         Text(
           '${_photoBytes.length} of $_maxPhotos photos selected',
           style: TextStyle(
-            color: grayText,
+            color: _secondaryTextColor,
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
@@ -885,7 +662,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
           DropdownButtonFormField<String>(
             value: _sex,
             decoration: _dropdownDecoration('Sex', Icons.pets_rounded),
-            items: [
+            items: const [
               DropdownMenuItem(value: 'unknown', child: Text('Unknown')),
               DropdownMenuItem(value: 'male', child: Text('Male')),
               DropdownMenuItem(value: 'female', child: Text('Female')),
@@ -910,20 +687,73 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
     );
   }
 
+  Widget _buildBreedDropdown() {
+  final breeds = [
+    'Aspin',
+    'Beagle',
+    'Bulldog',
+    'Chihuahua',
+    'Golden Retriever',
+    'Labrador',
+    'Persian',
+    'Puspin',
+    'Shih Tzu',
+    'Siamese',
+    'Other',
+  ];
+
+  return DropdownButtonFormField<String>(
+    value: _selectedBreed,
+    decoration: _dropdownDecoration('Breed', Icons.pets_rounded),
+    items: breeds.map((breed) {
+      return DropdownMenuItem<String>(
+        value: breed,
+        child: Text(
+  breed,
+  style: TextStyle(color: _primaryTextColor),
+),
+      );
+    }).toList(),
+    onChanged: _isSaving
+        ? null
+        : (value) {
+            setState(() {
+              _selectedBreed = value;
+
+              if (value != 'Other') {
+                _otherBreedController.clear();
+              }
+            });
+          },
+    validator: (value) {
+      if (value == null || value.isEmpty) {
+        return 'Please select your pet breed.';
+      }
+      return null;
+    },
+  );
+}
+
   InputDecoration _dropdownDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon, color: primaryTeal, size: 21),
+      prefixIcon: Icon(
+        icon,
+        color: _isDarkMode ? const Color(0xFF2DD4BF) : primaryTeal,
+        size: 21,
+      ),
       filled: true,
-      fillColor: surfaceColor,
-      labelStyle: TextStyle(color: grayText),
+      fillColor: _isDarkMode
+    ? const Color(0xFF1E2A2A)
+    : Colors.white,
+      labelStyle: TextStyle(color: _secondaryTextColor),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(13),
         borderSide: BorderSide(color: borderColor),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(13),
-        borderSide: BorderSide(color: borderColor),
+       borderSide: BorderSide(color: _outlineColor),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(13),
@@ -945,12 +775,12 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
             icon: Icons.shield_outlined,
             title: 'Safety Level',
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Choose a safety tag that can help people know how '
             'to respond if they encounter your pet.',
             style: TextStyle(
-              color: grayText,
+              color: _secondaryTextColor,
               fontSize: 12,
               height: 1.45,
             ),
@@ -1035,10 +865,12 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
         width: double.infinity,
         padding: EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: selected ? color.withValues(alpha: 0.08) : surfaceColor,
+          color: selected
+    ? color.withValues(alpha: 0.08)
+    : (_isDarkMode ? const Color(0xFF1E2A2A) : Colors.white),
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color: selected ? color : borderColor,
+            color: selected ? color : _outlineColor,
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -1053,7 +885,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                   Text(
                     title,
                     style: TextStyle(
-                      color: selected ? color : darkText,
+                      color: selected ? color : _primaryTextColor,
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
                     ),
@@ -1062,7 +894,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                   Text(
                     description,
                     style: TextStyle(
-                      color: grayText,
+                      color: _secondaryTextColor,
                       fontSize: 11,
                       height: 1.35,
                     ),
@@ -1145,16 +977,16 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: lightTeal,
+              color: _softTealBackground,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
               Icons.qr_code_2_rounded,
-              color: primaryTeal,
+              color: _isDarkMode ? const Color(0xFF2DD4BF) : primaryTeal,
               size: 25,
             ),
           ),
-          SizedBox(width: 13),
+          const SizedBox(width: 13),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1162,18 +994,18 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                 Text(
                   'Pet QR Profile',
                   style: TextStyle(
-                    color: darkText,
+                    color: _primaryTextColor,
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 Text(
                   'A unique QR code will automatically be created '
                   'for this pet. If the pet has multiple owners, '
                   'all owners will use the same QR code.',
                   style: TextStyle(
-                    color: grayText,
+                    color: _secondaryTextColor,
                     fontSize: 12,
                     height: 1.45,
                   ),
@@ -1240,28 +1072,34 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
       keyboardType: keyboardType,
       validator: validator,
       style: TextStyle(
-        color: darkText,
+  color: _primaryTextColor,
         fontSize: 14,
         fontWeight: FontWeight.w600,
       ),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        prefixIcon: Icon(icon, color: primaryTeal, size: 21),
+        prefixIcon: Icon(
+          icon,
+          color: _isDarkMode ? const Color(0xFF2DD4BF) : primaryTeal,
+          size: 21,
+        ),
         filled: true,
-        fillColor: surfaceColor,
-        labelStyle: TextStyle(color: grayText),
-        hintStyle: TextStyle(
+        fillColor: _isDarkMode
+    ? const Color(0xFF1E2A2A)
+    : Colors.white,
+        labelStyle: TextStyle(color: _secondaryTextColor),
+        hintStyle: const TextStyle(
           color: Color(0xFF9A9F9F),
           fontSize: 13,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: BorderSide(color: borderColor),
+          borderSide: BorderSide(color: _outlineColor),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: BorderSide(color: borderColor),
+          borderSide: BorderSide(color: _outlineColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
@@ -1294,14 +1132,18 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
       width: double.infinity,
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: surfaceColor,
+        color: _isDarkMode
+    ? const Color(0xFF1E2A2A)
+    : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: _outlineColor),
         boxShadow: [
           BoxShadow(
-            color: Color(0x0D000000),
+            color: Colors.black.withValues(
+              alpha: _isDarkMode ? 0.12 : 0.05,
+            ),
             blurRadius: 18,
-            offset: Offset(0, 8),
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -1323,16 +1165,20 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: lightTeal,
+            color: _softTealBackground,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, color: primaryTeal, size: 20),
+          child: Icon(
+            icon,
+            color: _isDarkMode ? const Color(0xFF2DD4BF) : primaryTeal,
+            size: 20,
+          ),
         ),
         SizedBox(width: 10),
         Text(
           title,
           style: TextStyle(
-            color: darkText,
+            color: _primaryTextColor,
             fontSize: 16,
             fontWeight: FontWeight.w900,
           ),

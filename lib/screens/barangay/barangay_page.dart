@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 import '../../seasonal/seasonal_controller.dart';
@@ -46,7 +47,48 @@ class BarangayPage extends StatefulWidget {
 }
 
 class _BarangayPageState extends State<BarangayPage> {
-  int _selectedIndex = 3;
+  final int _selectedIndex = 3;
+
+  // ============================================================
+  // DARK MODE COLORS
+  // ============================================================
+
+  bool get _isDarkMode =>
+      Theme.of(context).brightness == Brightness.dark;
+
+  Color get _pageBackground => _isDarkMode
+      ? const Color(0xFF121A1B)
+      : warmBackground;
+
+  Color get _cardBackground => _isDarkMode
+      ? const Color(0xFF1D292A)
+      : Colors.white;
+
+  Color get _primaryTextColor =>
+      _isDarkMode ? Colors.white : darkText;
+
+  Color get _secondaryTextColor =>
+      _isDarkMode ? Colors.white70 : grayText;
+
+  Color get _outlineColor => _isDarkMode
+      ? const Color(0xFF344344)
+      : borderColor;
+
+  Color get _softTealBackground => _isDarkMode
+      ? const Color(0xFF263738)
+      : lightTeal;
+
+  Color get _accentColor => _isDarkMode
+      ? const Color(0xFF2DD4BF)
+      : primaryTeal;
+
+  Color get _sidebarBackground => _isDarkMode
+      ? const Color(0xFF1D292A)
+      : Colors.white;
+
+  // ============================================================
+  // NAVIGATION
+  // ============================================================
 
   void _changePage(int index) {
     if (index == _selectedIndex) return;
@@ -69,6 +111,10 @@ class _BarangayPageState extends State<BarangayPage> {
     }
   }
 
+  // ============================================================
+  // SIDEBAR
+  // ============================================================
+
   Widget _sidebarItem({
     required IconData icon,
     required String label,
@@ -76,24 +122,42 @@ class _BarangayPageState extends State<BarangayPage> {
     required VoidCallback onTap,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 3),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 3,
+      ),
       child: Material(
-        color: selected ? lightTeal : Colors.transparent,
+        color: selected
+            ? _softTealBackground
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 13,
+            ),
             child: Row(
               children: [
-                Icon(icon, color: selected ? primaryTeal : grayText, size: 21),
+                Icon(
+                  icon,
+                  color: selected
+                      ? _accentColor
+                      : _secondaryTextColor,
+                  size: 21,
+                ),
                 const SizedBox(width: 13),
                 Text(
                   label,
                   style: TextStyle(
-                    color: selected ? darkTeal : grayText,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                    color: selected
+                        ? _accentColor
+                        : _secondaryTextColor,
+                    fontWeight: selected
+                        ? FontWeight.w700
+                        : FontWeight.w500,
                   ),
                 ),
               ],
@@ -107,7 +171,7 @@ class _BarangayPageState extends State<BarangayPage> {
   Widget _buildSidebar() {
     return Container(
       width: 250,
-      color: surfaceColor,
+      color: _sidebarBackground,
       child: SafeArea(
         child: Column(
           children: [
@@ -122,7 +186,7 @@ class _BarangayPageState extends State<BarangayPage> {
                       color: primaryTeal,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(Icons.pets, color: onPrimaryColor),
+                    child: const Icon(Icons.pets, color: Colors.white),
                   ),
                   const SizedBox(width: 12),
                   Text(
@@ -130,14 +194,17 @@ class _BarangayPageState extends State<BarangayPage> {
                     style: TextStyle(
                       fontSize: 21,
                       fontWeight: FontWeight.w800,
-                      color: darkText,
+                      color: _primaryTextColor,
                     ),
                   ),
                 ],
               ),
             ),
 
-            const Divider(height: 1),
+            Divider(
+              height: 1,
+              color: _outlineColor,
+            ),
 
             const SizedBox(height: 18),
 
@@ -148,7 +215,9 @@ class _BarangayPageState extends State<BarangayPage> {
               onTap: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => const HomePage()),
+                  MaterialPageRoute(
+                    builder: (_) => const HomePage(),
+                  ),
                 );
               },
             ),
@@ -160,7 +229,9 @@ class _BarangayPageState extends State<BarangayPage> {
               onTap: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => const MyPetsPage()),
+                  MaterialPageRoute(
+                    builder: (_) => const MyPetsPage(),
+                  ),
                 );
               },
             ),
@@ -172,7 +243,9 @@ class _BarangayPageState extends State<BarangayPage> {
               onTap: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => const ReportPage()),
+                  MaterialPageRoute(
+                    builder: (_) => const ReportPage(),
+                  ),
                 );
               },
             ),
@@ -191,19 +264,25 @@ class _BarangayPageState extends State<BarangayPage> {
               child: Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: lightTeal,
+                  color: _softTealBackground,
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.info_outline, color: primaryTeal, size: 20),
-                    SizedBox(width: 10),
+                    Icon(
+                      Icons.info_outline,
+                      color: _accentColor,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         'Use PawLink to report lost pets, found pets, and stray concerns.',
                         style: TextStyle(
-                          color: darkTeal,
+                          color: _isDarkMode
+                              ? Colors.white70
+                              : darkTeal,
                           fontSize: 12,
                           height: 1.4,
                         ),
@@ -219,60 +298,71 @@ class _BarangayPageState extends State<BarangayPage> {
     );
   }
 
+  // ============================================================
+  // INFORMATION CARDS
+  // ============================================================
+
   Widget _infoCard({
-    required IconData icon,
-    required String title,
-    required String description,
-    required Color iconColor,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: surfaceColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(13),
-            ),
-            child: Icon(icon, color: iconColor),
+  required IconData icon,
+  required String title,
+  required String description,
+  required Color iconColor,
+}) {
+  return Container(
+    padding: const EdgeInsets.all(18),
+    decoration: BoxDecoration(
+      color: _cardBackground,
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: _outlineColor),
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 46,
+          height: 46,
+          decoration: BoxDecoration(
+            color: iconColor.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(13),
           ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: darkText,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  description,
-                  style: TextStyle(
-                    color: grayText,
-                    fontSize: 13,
-                    height: 1.45,
-                  ),
-                ),
-              ],
-            ),
+          child: Icon(
+            icon,
+            color: iconColor,
           ),
-        ],
-      ),
-    );
-  }
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  color: _primaryTextColor,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                description,
+                style: TextStyle(
+                  color: _secondaryTextColor,
+                  fontSize: 13,
+                  height: 1.45,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+  // ============================================================
+  // MAIN CONTENT
+  // ============================================================
 
   Widget _buildMainContent() {
     return LayoutBuilder(
@@ -283,7 +373,9 @@ class _BarangayPageState extends State<BarangayPage> {
           padding: EdgeInsets.all(isWide ? 36 : 20),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1100),
+              constraints: const BoxConstraints(
+                maxWidth: 1100,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -299,13 +391,16 @@ class _BarangayPageState extends State<BarangayPage> {
                               ),
                             );
                           },
-                          icon: const Icon(Icons.arrow_back),
+                          icon: Icon(
+                            Icons.arrow_back,
+                            color: _primaryTextColor,
+                          ),
                         ),
                         const SizedBox(width: 4),
                         Text(
                           'Barangay',
                           style: TextStyle(
-                            color: darkText,
+                            color: _primaryTextColor,
                             fontSize: 22,
                             fontWeight: FontWeight.w800,
                           ),
@@ -315,9 +410,12 @@ class _BarangayPageState extends State<BarangayPage> {
 
                   if (!isWide) const SizedBox(height: 16),
 
+                  // Barangay Support Header
                   Container(
                     width: double.infinity,
-                    padding: EdgeInsets.all(isWide ? 30 : 22),
+                    padding: EdgeInsets.all(
+                      isWide ? 30 : 22,
+                    ),
                     decoration: BoxDecoration(
                       color: primaryTeal,
                       borderRadius: BorderRadius.circular(20),
@@ -326,7 +424,8 @@ class _BarangayPageState extends State<BarangayPage> {
                       children: [
                         Expanded(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
                             children: [
                               Text(
                                 'Barangay Support',
@@ -340,7 +439,7 @@ class _BarangayPageState extends State<BarangayPage> {
                               Text(
                                 'A central place for community pet concerns, stray reports, and barangay assistance.',
                                 style: TextStyle(
-                                  color: onPrimaryColor.withValues(alpha: 0.90),
+                                  color: Colors.white.withValues(alpha: 0.90),
                                   fontSize: 14,
                                   height: 1.5,
                                 ),
@@ -354,7 +453,7 @@ class _BarangayPageState extends State<BarangayPage> {
                             width: 72,
                             height: 72,
                             decoration: BoxDecoration(
-                              color: onPrimaryColor.withValues(alpha: 0.12),
+                              color: Colors.white.withValues(alpha: 0.12),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
@@ -373,7 +472,7 @@ class _BarangayPageState extends State<BarangayPage> {
                   Text(
                     'What can you report?',
                     style: TextStyle(
-                      color: darkText,
+                      color: _primaryTextColor,
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
                     ),
@@ -388,7 +487,8 @@ class _BarangayPageState extends State<BarangayPage> {
                           child: _infoCard(
                             icon: Icons.pets,
                             title: 'Stray Animals',
-                            description: 'Report stray Aspin, Puspin, or other animals in your community.',
+                            description:
+                                'Report stray Aspin, Puspin, or other animals in your community.',
                             iconColor: primaryTeal,
                           ),
                         ),
@@ -397,7 +497,8 @@ class _BarangayPageState extends State<BarangayPage> {
                           child: _infoCard(
                             icon: Icons.warning_amber_rounded,
                             title: 'Animal Concerns',
-                            description: 'Report an injured, aggressive, or potentially dangerous animal.',
+                            description:
+                                'Report an injured, aggressive, or potentially dangerous animal.',
                             iconColor: alertRed,
                           ),
                         ),
@@ -406,7 +507,8 @@ class _BarangayPageState extends State<BarangayPage> {
                           child: _infoCard(
                             icon: Icons.location_on_outlined,
                             title: 'Location',
-                            description: 'Provide the location so the responsible people can respond.',
+                            description:
+                                'Provide the location so the responsible people can respond.',
                             iconColor: Colors.orange,
                           ),
                         ),
@@ -418,21 +520,24 @@ class _BarangayPageState extends State<BarangayPage> {
                         _infoCard(
                           icon: Icons.pets,
                           title: 'Stray Animals',
-                          description: 'Report stray Aspin, Puspin, or other animals in your community.',
+                          description:
+                              'Report stray Aspin, Puspin, or other animals in your community.',
                           iconColor: primaryTeal,
                         ),
                         const SizedBox(height: 12),
                         _infoCard(
                           icon: Icons.warning_amber_rounded,
                           title: 'Animal Concerns',
-                          description: 'Report an injured, aggressive, or potentially dangerous animal.',
+                          description:
+                              'Report an injured, aggressive, or potentially dangerous animal.',
                           iconColor: alertRed,
                         ),
                         const SizedBox(height: 12),
                         _infoCard(
                           icon: Icons.location_on_outlined,
                           title: 'Location',
-                          description: 'Provide the location so the responsible people can respond.',
+                          description:
+                              'Provide the location so the responsible people can respond.',
                           iconColor: Colors.orange,
                         ),
                       ],
@@ -440,13 +545,14 @@ class _BarangayPageState extends State<BarangayPage> {
 
                   const SizedBox(height: 24),
 
+                  // Open Report Center Card
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(22),
                     decoration: BoxDecoration(
-                      color: surfaceColor,
+                      color: _cardBackground,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: borderColor),
+                      border: Border.all(color: _outlineColor),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -454,7 +560,7 @@ class _BarangayPageState extends State<BarangayPage> {
                         Text(
                           'Need to make a report?',
                           style: TextStyle(
-                            color: darkText,
+                            color: _primaryTextColor,
                             fontSize: 19,
                             fontWeight: FontWeight.w800,
                           ),
@@ -463,7 +569,7 @@ class _BarangayPageState extends State<BarangayPage> {
                         Text(
                           'Use PawLink to send a lost pet, found pet, or stray/community report.',
                           style: TextStyle(
-                            color: grayText,
+                            color: _secondaryTextColor,
                             fontSize: 13,
                             height: 1.45,
                           ),
@@ -480,14 +586,17 @@ class _BarangayPageState extends State<BarangayPage> {
                                 ),
                               );
                             },
-                            icon: const Icon(Icons.report_outlined),
+                            icon: const Icon(
+                              Icons.report_outlined,
+                            ),
                             label: const Text(
                               'Open Report Center',
-                              style: TextStyle(fontWeight: FontWeight.w700),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                             style: FilledButton.styleFrom(
                               backgroundColor: primaryTeal,
-                              foregroundColor: onPrimaryColor,
                               padding: const EdgeInsets.symmetric(vertical: 15),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -501,34 +610,48 @@ class _BarangayPageState extends State<BarangayPage> {
 
                   const SizedBox(height: 16),
 
+                  // Safety Reminder
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
-                      color: Colors.red.shade50,
+                      color: _isDarkMode
+                          ? const Color(0xFF382426)
+                          : Colors.red.shade50,
                       borderRadius: BorderRadius.circular(16),
+                      border: _isDarkMode
+                          ? Border.all(
+                              color: const Color(0xFF6B3434),
+                            )
+                          : null,
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.health_and_safety_outlined, color: alertRed),
-                        SizedBox(width: 12),
+                        const Icon(
+                          Icons.health_and_safety_outlined,
+                          color: alertRed,
+                        ),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              const Text(
                                 'Safety reminder',
                                 style: TextStyle(
-                                  color: alertRed,
+                                  color: Color(0xFFFF7777),
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
-                              SizedBox(height: 5),
+                              const SizedBox(height: 5),
                               Text(
                                 'If a stray animal is aggressive or frightened, do not approach or attempt to catch it. Report its location instead.',
                                 style: TextStyle(
-                                  color: darkText,
+                                  color: _isDarkMode
+                                      ? Colors.white70
+                                      : _primaryTextColor,
                                   fontSize: 13,
                                   height: 1.45,
                                 ),
@@ -550,12 +673,16 @@ class _BarangayPageState extends State<BarangayPage> {
     );
   }
 
+  // ============================================================
+  // BOTTOM NAVIGATION
+  // ============================================================
+
   Widget _buildBottomNav() {
     return NavigationBar(
       selectedIndex: _selectedIndex,
       onDestinationSelected: _changePage,
-      backgroundColor: surfaceColor,
-      indicatorColor: lightTeal,
+      backgroundColor: _sidebarBackground,
+      indicatorColor: _softTealBackground,
       destinations: const [
         NavigationDestination(
           icon: Icon(Icons.home_outlined),
@@ -581,10 +708,14 @@ class _BarangayPageState extends State<BarangayPage> {
     );
   }
 
+  // ============================================================
+  // BUILD
+  // ============================================================
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: warmBackground,
+      backgroundColor: _pageBackground,
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isDesktop = constraints.maxWidth >= 900;
@@ -593,7 +724,9 @@ class _BarangayPageState extends State<BarangayPage> {
             return Row(
               children: [
                 _buildSidebar(),
-                Expanded(child: _buildMainContent()),
+                Expanded(
+                  child: _buildMainContent(),
+                ),
               ],
             );
           }
@@ -601,9 +734,10 @@ class _BarangayPageState extends State<BarangayPage> {
           return _buildMainContent();
         },
       ),
-      bottomNavigationBar: MediaQuery.of(context).size.width < 900
-          ? _buildBottomNav()
-          : null,
+      bottomNavigationBar:
+          MediaQuery.of(context).size.width < 900
+              ? _buildBottomNav()
+              : null,
     );
   }
 }

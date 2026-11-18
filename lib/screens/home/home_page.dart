@@ -73,6 +73,33 @@ class _HomePageState extends State<HomePage>
   Color get borderColor =>
       _activeSeasonalTheme?.border ?? const Color(0xFFE5E7EB);
 
+    bool get _isDarkMode =>
+      Theme.of(context).brightness == Brightness.dark;
+
+  Color get _pageBackground =>
+      _isDarkMode ? const Color(0xFF121A1B) : warmBackground;
+
+  Color get _cardBackground =>
+      _isDarkMode ? const Color(0xFF1D292A) : Colors.white;
+
+  Color get _primaryTextColor =>
+      _isDarkMode ? Colors.white : darkText;
+
+  Color get _secondaryTextColor =>
+      _isDarkMode ? Colors.white70 : grayText;
+
+  Color get _outlineColor =>
+      _isDarkMode ? const Color(0xFF344344) : borderColor;
+
+  Color get _softTealBackground =>
+      _isDarkMode ? const Color(0xFF263738) : lightTeal;
+
+  Color get _softerBackground =>
+      _isDarkMode ? const Color(0xFF202E2F) : softerTeal;
+
+  Color get _accentColor =>
+      _isDarkMode ? const Color(0xFF2DD4BF) : primaryTeal;
+
   @override
   void initState() {
     super.initState();
@@ -155,7 +182,7 @@ class _HomePageState extends State<HomePage>
   // CUSTOM PAWLINK LOGO WIDGET
   // ============================================================
 
-  Widget _buildPawLinkLogo({bool compact = false}) {
+    Widget _buildPawLinkLogo({bool compact = false}) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -163,7 +190,7 @@ class _HomePageState extends State<HomePage>
           width: compact ? 38 : 46,
           height: compact ? 38 : 46,
           decoration: _clayDecoration(
-            color: lightTeal,
+            color: _softTealBackground,
             radius: compact ? 12 : 15,
           ),
           child: Stack(
@@ -174,14 +201,14 @@ class _HomePageState extends State<HomePage>
                 color: warmOrange.withValues(alpha: 0.35),
                 size: compact ? 26 : 32,
               ),
-              Positioned(
-                bottom: 6,
-                child: Icon(
-                  Icons.pets_rounded,
-                  color: primaryTeal,
-                  size: 18,
-                ),
-              ),
+             Positioned(
+            bottom: 6,
+            child: Icon(
+            Icons.pets_rounded,
+           color: primaryTeal,
+          size: 18,
+          ),
+          ),
             ],
           ),
         ),
@@ -195,31 +222,31 @@ class _HomePageState extends State<HomePage>
               children: [
                 Text(
                   'Paw',
-                  style: TextStyle(
-                    fontSize: 21,
-                    fontWeight: FontWeight.w900,
-                    color: primaryTeal,
-                    letterSpacing: -0.4,
-                  ),
-                ),
-                Text(
-                  'Link',
-                  style: TextStyle(
-                    fontSize: 21,
-                    fontWeight: FontWeight.w900,
-                    color: warmOrange,
-                    letterSpacing: -0.4,
-                  ),
-                ),
+                 style: TextStyle(
+                fontSize: 21,
+               fontWeight: FontWeight.w900,
+              color: primaryTeal,
+              letterSpacing: -0.4,
+            ),
+           ),
+              Text(
+  'Link',
+  style: TextStyle(
+    fontSize: 21,
+    fontWeight: FontWeight.w900,
+    color: warmOrange,
+    letterSpacing: -0.4,
+  ),
+),
               ],
             ),
             const SizedBox(height: 1),
             Text(
-              'Community Pet Care',
+             'Community Pet Care',
               style: TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.w600,
-                color: grayText,
+               fontSize: 9,
+               fontWeight: FontWeight.w600,
+               color: grayText,
               ),
             ),
           ],
@@ -233,17 +260,13 @@ class _HomePageState extends State<HomePage>
   // ============================================================
 
   @override
-  Widget build(BuildContext context) {
+Widget build(BuildContext context) {
     final ThemeData baseTheme = Theme.of(context);
-    final TextTheme poppinsTextTheme = GoogleFonts.poppinsTextTheme(
-      baseTheme.textTheme,
-    );
 
-    return AnimatedBuilder(
-      animation: SeasonalController.instance,
-      builder: (context, _) {
-        final SeasonalTheme? seasonalTheme = _activeSeasonalTheme;
-        return Theme(
+    final TextTheme poppinsTextTheme =
+        GoogleFonts.poppinsTextTheme(baseTheme.textTheme);
+
+    return Theme(
       data: baseTheme.copyWith(
         textTheme: poppinsTextTheme,
         primaryTextTheme: GoogleFonts.poppinsTextTheme(
@@ -253,23 +276,25 @@ class _HomePageState extends State<HomePage>
           primary: primaryTeal,
           secondary: warmOrange,
           error: alertRed,
-          surface: seasonalTheme?.surface ?? Colors.white,
+          surface: _cardBackground,
         ),
-        scaffoldBackgroundColor: warmBackground,
+        scaffoldBackgroundColor: _pageBackground,
         appBarTheme: baseTheme.appBarTheme.copyWith(
-          backgroundColor: seasonalTheme?.surface ?? Colors.white,
-          foregroundColor: darkText,
+          backgroundColor: _cardBackground,
+          foregroundColor: _primaryTextColor,
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: primaryTeal,
-            foregroundColor: seasonalTheme?.onPrimary ?? Colors.white,
-            textStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+            backgroundColor: warmOrange,
+            foregroundColor: darkText,
+            textStyle: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ),
       child: Scaffold(
-        backgroundColor: warmBackground,
+        backgroundColor: _pageBackground,
         body: LayoutBuilder(
           builder: (context, constraints) {
             final bool isDesktop = constraints.maxWidth >= 900;
@@ -277,7 +302,10 @@ class _HomePageState extends State<HomePage>
             if (isDesktop) {
               return Row(
                 children: [
-                  SizedBox(width: 258, child: _buildDesktopSidebar()),
+                  SizedBox(
+                    width: 258,
+                    child: _buildDesktopSidebar(),
+                  ),
                   Expanded(
                     child: SafeArea(
                       child: _buildDashboardContent(isDesktop: true),
@@ -302,8 +330,6 @@ class _HomePageState extends State<HomePage>
           },
         ),
       ),
-        );
-      },
     );
   }
 
@@ -311,15 +337,15 @@ class _HomePageState extends State<HomePage>
   // BACKGROUND ANIMATION
   // ============================================================
 
-  Widget _buildAnimatedBackground({required Widget child}) {
+    Widget _buildAnimatedBackground({required Widget child}) {
     return AnimatedBuilder(
       animation: _backgroundAnimationController,
       builder: (context, _) {
         return Stack(
           children: [
             Positioned.fill(
-              child: ColoredBox(color: warmBackground),
-            ),
+           child: ColoredBox(color: _pageBackground),
+           ),
             Positioned.fill(
               child: IgnorePointer(
                 child: CustomPaint(
@@ -343,224 +369,235 @@ class _HomePageState extends State<HomePage>
   // ============================================================
 
   BoxDecoration _clayDecoration({
-    Color color = Colors.white,
-    double radius = 22,
-  }) {
-    return BoxDecoration(
-      color: color,
-      borderRadius: BorderRadius.circular(radius),
-      border: Border.all(
-        color: Colors.white.withValues(alpha: 0.80),
+  Color? color,
+  double radius = 22,
+}) {
+  return BoxDecoration(
+    color: color ?? _cardBackground,
+    borderRadius: BorderRadius.circular(radius),
+    border: Border.all(
+      color: _outlineColor.withValues(
+        alpha: _isDarkMode ? 0.75 : 0.80,
       ),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.055),
-          blurRadius: 20,
-          offset: const Offset(5, 8),
+    ),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withValues(
+          alpha: _isDarkMode ? 0.18 : 0.055,
         ),
+        blurRadius: 20,
+        offset: const Offset(5, 8),
+      ),
+      if (!_isDarkMode)
         BoxShadow(
           color: Colors.white.withValues(alpha: 0.90),
           blurRadius: 12,
           offset: const Offset(-4, -4),
         ),
-      ],
-    );
-  }
+    ],
+  );
+}
 
   // ============================================================
   // DESKTOP SIDEBAR
   // ============================================================
 
   Widget _buildDesktopSidebar() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          right: BorderSide(
-            color: borderColor,
-            width: 1,
-          ),
+  return Container(
+    decoration: BoxDecoration(
+      color: _cardBackground,
+      border: Border(
+        right: BorderSide(
+          color: _outlineColor,
+          width: 1,
         ),
       ),
-      child: Column(
-        children: [
-          const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(18),
-              onTap: _goToLanding,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 5,
-                  horizontal: 2,
-                ),
-                child: _buildPawLinkLogo(),
+    ),
+    child: Column(
+      children: [
+        const SizedBox(height: 24),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(18),
+            onTap: _goToLanding,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 5,
+                horizontal: 2,
               ),
+              child: _buildPawLinkLogo(),
             ),
           ),
-          const SizedBox(height: 22),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(14, 0, 14, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildSidebarSectionLabel('MAIN'),
-                  _buildSidebarItem(
-                    icon: Icons.home_rounded,
-                    label: 'Home',
-                    selected: true,
-                    onTap: () {},
-                  ),
-                  _buildSidebarItem(
-                    icon: Icons.pets_rounded,
-                    label: 'My Pets',
-                    onTap: _openMyPets,
-                  ),
-                  _buildSidebarItem(
-                    icon: Icons.add_circle_outline_rounded,
-                    label: 'Register Pet',
-                    onTap: _openRegisterPet,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildSidebarSectionLabel('COMMUNITY'),
-                  _buildSidebarItem(
-                    icon: Icons.report_problem_outlined,
-                    label: 'Report',
-                    onTap: _openReport,
-                  ),
-                  _buildSidebarItem(
-                    icon: Icons.location_city_rounded,
-                    label: 'Barangay',
-                    onTap: _openBarangay,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildSidebarSectionLabel('ACCOUNT'),
-                  _buildSidebarItem(
-                    icon: Icons.person_outline_rounded,
-                    label: 'My Account',
-                    onTap: _openAccount,
-                  ),
-                  _buildSidebarItem(
-                    icon: Icons.settings_outlined,
-                    label: 'Settings',
-                    onTap: _openSettings,
-                  ),
-                  _buildSidebarItem(
-                    icon: Icons.help_outline_rounded,
-                    label: 'Help Center',
-                    onTap: _openHelpCenter,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildSidebarSectionLabel('PERSONALIZE'),
-                  _buildSidebarItem(
-                    icon: Icons.palette_outlined,
-                    label: 'Seasonal Themes',
-                    onTap: _openSeasonalThemes,
-                  ),
-                  const SizedBox(height: 20),
-                  _buildSidebarSafetyCard(),
-                  const SizedBox(height: 18),
-                  _buildSidebarItem(
-                    icon: Icons.logout_rounded,
-                    label: 'Log out',
-                    danger: true,
-                    onTap: _logout,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSidebarSectionLabel(String text) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 7, 12, 8),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w900,
-          letterSpacing: 1.3,
-          color: grayText,
         ),
-      ),
-    );
-  }
-
-  Widget _buildSidebarItem({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    bool selected = false,
-    bool danger = false,
-  }) {
-    final Color itemColor = danger
-        ? alertRed
-        : selected
-            ? primaryTeal
-            : darkText;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Material(
-        color: selected ? lightTeal : Colors.transparent,
-        borderRadius: BorderRadius.circular(15),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(15),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 13,
-              vertical: 12,
-            ),
-            child: Row(
+        const SizedBox(height: 22),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(14, 0, 14, 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Icon(icon, size: 21, color: itemColor),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    label,
-                    style: TextStyle(
-                      color: itemColor,
-                      fontSize: 14,
-                      fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
-                    ),
-                  ),
+                _buildSidebarSectionLabel('MAIN'),
+                _buildSidebarItem(
+                  icon: Icons.home_rounded,
+                  label: 'Home',
+                  selected: true,
+                  onTap: () {},
                 ),
-                if (selected)
-                  Container(
-                    width: 7,
-                    height: 7,
-                    decoration: BoxDecoration(
-                      color: primaryTeal,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
+                _buildSidebarItem(
+                  icon: Icons.pets_rounded,
+                  label: 'My Pets',
+                  onTap: _openMyPets,
+                ),
+                _buildSidebarItem(
+                  icon: Icons.add_circle_outline_rounded,
+                  label: 'Register Pet',
+                  onTap: _openRegisterPet,
+                ),
+                const SizedBox(height: 12),
+                _buildSidebarSectionLabel('COMMUNITY'),
+                _buildSidebarItem(
+                  icon: Icons.report_problem_outlined,
+                  label: 'Report',
+                  onTap: _openReport,
+                ),
+                _buildSidebarItem(
+                  icon: Icons.location_city_rounded,
+                  label: 'Barangay',
+                  onTap: _openBarangay,
+                ),
+                const SizedBox(height: 12),
+                _buildSidebarSectionLabel('ACCOUNT'),
+                _buildSidebarItem(
+                  icon: Icons.person_outline_rounded,
+                  label: 'My Account',
+                  onTap: _openAccount,
+                ),
+                _buildSidebarItem(
+                  icon: Icons.settings_outlined,
+                  label: 'Settings',
+                  onTap: _openSettings,
+                ),
+                _buildSidebarItem(
+                  icon: Icons.help_outline_rounded,
+                  label: 'Help Center',
+                  onTap: _openHelpCenter,
+                ),
+                const SizedBox(height: 12),
+                _buildSidebarSectionLabel('PERSONALIZE'),
+                _buildSidebarItem(
+                  icon: Icons.palette_outlined,
+                  label: 'Seasonal Themes',
+                  onTap: _openSeasonalThemes,
+                ),
+                const SizedBox(height: 20),
+                _buildSidebarSafetyCard(),
+                const SizedBox(height: 18),
+                _buildSidebarItem(
+                  icon: Icons.logout_rounded,
+                  label: 'Log out',
+                  danger: true,
+                  onTap: _logout,
+                ),
               ],
             ),
           ),
         ),
+      ],
+    ),
+  );
+}
+
+  Widget _buildSidebarSectionLabel(String text) {
+  return Padding(
+    padding: const EdgeInsets.fromLTRB(12, 7, 12, 8),
+    child: Text(
+      text,
+      style: TextStyle(
+        fontSize: 10,
+        fontWeight: FontWeight.w900,
+        letterSpacing: 1.3,
+        color: _secondaryTextColor,
       ),
-    );
-  }
+    ),
+  );
+}
+
+  Widget _buildSidebarItem({
+  required IconData icon,
+  required String label,
+  required VoidCallback onTap,
+  bool selected = false,
+  bool danger = false,
+}) {
+  final Color itemColor = danger
+      ? alertRed
+      : selected
+          ? _accentColor
+          : _primaryTextColor;
+
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 4),
+    child: Material(
+      color: selected ? _softTealBackground : Colors.transparent,
+      borderRadius: BorderRadius.circular(15),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(15),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 13,
+            vertical: 12,
+          ),
+          child: Row(
+            children: [
+              Icon(icon, size: 21, color: itemColor),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: itemColor,
+                    fontSize: 14,
+                    fontWeight:
+                        selected ? FontWeight.w800 : FontWeight.w500,
+                  ),
+                ),
+              ),
+              if (selected)
+                Container(
+                  width: 7,
+                  height: 7,
+                  decoration: BoxDecoration(
+                    color: _accentColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
 
   Widget _buildSidebarSafetyCard() {
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFFFF3F3),
-            Color(0xFFFFEEEE),
-          ],
-        ),
+        gradient: LinearGradient(
+       begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: _isDarkMode
+      ? [
+          const Color(0xFF382426),
+          const Color(0xFF302123),
+        ]
+      : [
+          const Color(0xFFFFF3F3),
+          const Color(0xFFFFEEEE),
+        ],
+  ),
         borderRadius: BorderRadius.circular(19),
         border: Border.all(
           color: alertRed.withValues(alpha: 0.10),
@@ -591,7 +628,7 @@ class _HomePageState extends State<HomePage>
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 13,
-                    color: darkText,
+                    color: _primaryTextColor,
                   ),
                 ),
               ),
@@ -603,7 +640,7 @@ class _HomePageState extends State<HomePage>
             style: TextStyle(
               fontSize: 11,
               height: 1.45,
-              color: grayText,
+              color: _secondaryTextColor,
             ),
           ),
         ],
@@ -624,122 +661,113 @@ class _HomePageState extends State<HomePage>
   // ============================================================
 
   Widget _buildMobileHeader() {
-    final User? user = _auth.currentUser;
+  final User? user = _auth.currentUser;
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          bottom: BorderSide(color: borderColor),
+  return Container(
+    padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+    decoration: BoxDecoration(
+      color: _cardBackground,
+      border: Border(
+        bottom: BorderSide(color: _outlineColor),
+      ),
+    ),
+    child: Row(
+      children: [
+        Expanded(
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: _goToLanding,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: _buildPawLinkLogo(compact: true),
+            ),
+          ),
         ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: InkWell(
-              borderRadius: BorderRadius.circular(14),
-              onTap: _goToLanding,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
-                child: _buildPawLinkLogo(compact: true),
-              ),
+        _buildNotificationButton(),
+        const SizedBox(width: 4),
+        CircleAvatar(
+          radius: 17,
+          backgroundColor: _softTealBackground,
+          child: Text(
+            _getInitial(user?.email),
+            style: TextStyle(
+              color: _accentColor,
+              fontWeight: FontWeight.w800,
+              fontSize: 13,
             ),
           ),
-          IconButton(
-            tooltip: 'Seasonal Themes',
-            onPressed: _openSeasonalThemes,
-            icon: Icon(
-              Icons.palette_outlined,
-              color: primaryTeal,
-            ),
-          ),
-          _buildNotificationButton(),
-          const SizedBox(width: 4),
-          CircleAvatar(
-            radius: 17,
-            backgroundColor: lightTeal,
-            child: Text(
-              _getInitial(user?.email),
-              style: TextStyle(
-                color: primaryTeal,
-                fontWeight: FontWeight.w800,
-                fontSize: 13,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+        ),
+      ],
+    ),
+  );
+}
+
+String _getInitial(String? email) {
+  if (email == null || email.isEmpty) {
+    return 'P';
   }
 
-  String _getInitial(String? email) {
-    if (email == null || email.isEmpty) {
-      return 'P';
-    }
-
-    return email.substring(0, 1).toUpperCase();
-  }
-
+  return email.substring(0, 1).toUpperCase();
+}
   // ============================================================
   // NOTIFICATION BUTTON WITH LIVE UNREAD BADGE
   // ============================================================
 
   Widget _buildNotificationButton() {
-    return StreamBuilder<int>(
-      stream: _notificationService.getUnreadCountStream(),
-      builder: (context, snapshot) {
-        final int unreadCount = snapshot.data ?? 0;
+  return StreamBuilder<int>(
+    stream: _notificationService.getUnreadCountStream(),
+    builder: (context, snapshot) {
+      final int unreadCount = snapshot.data ?? 0;
 
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            IconButton(
-              tooltip: 'Notifications',
-              onPressed: _showNotifications,
-              icon: Icon(
-                Icons.notifications_none_rounded,
-                color: darkText,
-              ),
+      return Stack(
+        clipBehavior: Clip.none,
+        children: [
+          IconButton(
+            tooltip: 'Notifications',
+            onPressed: _showNotifications,
+            icon: Icon(
+              Icons.notifications_none_rounded,
+              color: _primaryTextColor,
             ),
-            if (unreadCount > 0)
-              Positioned(
-                right: 4,
-                top: 4,
-                child: Container(
-                  constraints: const BoxConstraints(
-                    minWidth: 18,
-                    minHeight: 18,
+          ),
+          if (unreadCount > 0)
+            Positioned(
+              right: 4,
+              top: 4,
+              child: Container(
+                constraints: const BoxConstraints(
+                  minWidth: 18,
+                  minHeight: 18,
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 4,
+                  vertical: 1,
+                ),
+                decoration: BoxDecoration(
+                  color: alertRed,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: _cardBackground,
+                    width: 1.5,
                   ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 1,
-                  ),
-                  decoration: BoxDecoration(
-                    color: alertRed,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
+                ),
+                child: Center(
+                  child: Text(
+                    unreadCount > 99 ? '99+' : '$unreadCount',
+                    style: const TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w900,
                       color: Colors.white,
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      unreadCount > 99 ? '99+' : '$unreadCount',
-                      style: const TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                      ),
                     ),
                   ),
                 ),
               ),
-          ],
-        );
-      },
-    );
-  }
+            ),
+        ],
+      );
+    },
+  );
+}
 
   // ============================================================
   // DASHBOARD CONTENT
@@ -794,20 +822,21 @@ class _HomePageState extends State<HomePage>
   // WELCOME HEADER
   // ============================================================
 
-  Widget _buildWelcomeHeader({required bool isDesktop}) {
-    final User? user = _auth.currentUser;
+  
+Widget _buildWelcomeHeader({required bool isDesktop}) {
+  final User? user = _auth.currentUser;
 
-    String name = 'Pet Parent';
+  String name = 'Pet Parent';
 
-    if (user?.displayName != null && user!.displayName!.trim().isNotEmpty) {
-      name = user.displayName!.trim();
-    } else if (user?.email != null) {
-      final String emailName = user!.email!.split('@').first;
+  if (user?.displayName != null && user!.displayName!.trim().isNotEmpty) {
+    name = user.displayName!.trim();
+  } else if (user?.email != null) {
+    final String emailName = user!.email!.split('@').first;
 
-      if (emailName.isNotEmpty) {
-        name = emailName;
-      }
+    if (emailName.isNotEmpty) {
+      name = emailName;
     }
+  }
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -822,16 +851,16 @@ class _HomePageState extends State<HomePage>
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: lightTeal,
+                  color: _softTealBackground,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.favorite_rounded,
-                      size: 12,
-                      color: primaryTeal,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                Icon(
+                Icons.favorite_rounded,
+                size: 12,
+                color: _accentColor,
                     ),
                     SizedBox(width: 5),
                     Text(
@@ -852,18 +881,18 @@ class _HomePageState extends State<HomePage>
                 style: TextStyle(
                   fontSize: isDesktop ? 30 : 25,
                   fontWeight: FontWeight.w900,
-                  color: darkText,
+                  color: _primaryTextColor,
                   height: 1.1,
                   letterSpacing: -0.6,
                 ),
               ),
-              const SizedBox(height: 7),
-              Text(
-                'Keep your community pets connected and protected with secure QR IDs.',
-                style: TextStyle(
-                  color: grayText,
-                  fontSize: 13,
-                  height: 1.45,
+                const SizedBox(height: 7),
+          Text(
+            'Keep your community pets connected and protected with secure QR IDs.',
+            style: TextStyle(
+              color: _secondaryTextColor,
+              fontSize: 13,
+              height: 1.45,
                 ),
               ),
             ],
@@ -872,8 +901,8 @@ class _HomePageState extends State<HomePage>
         if (isDesktop)
           Container(
             decoration: _clayDecoration(
-              color: Colors.white,
-              radius: 15,
+            color: _cardBackground,
+            radius: 15,
             ),
             child: _buildNotificationButton(),
           ),
@@ -969,76 +998,78 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget _buildHeroText() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 6,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.14),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.10),
-            ),
-          ),
-          child: const Text(
-            'COMMUNITY PET CARE',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 9,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.1,
-            ),
+  
+Widget _buildHeroText() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 10,
+          vertical: 6,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.14),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.10),
           ),
         ),
-        const SizedBox(height: 14),
-        const Text(
-          'One profile can help\nbring a pet home.',
+        child: const Text(
+          'COMMUNITY PET CARE',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 27,
-            height: 1.10,
+            fontSize: 9,
             fontWeight: FontWeight.w900,
-            letterSpacing: -0.5,
+            letterSpacing: 1.1,
           ),
         ),
-        const SizedBox(height: 10),
-        Text(
-          'Register your pet and create a QR profile that can help the community identify and contact you.',
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.86),
-            fontSize: 13,
-            height: 1.5,
+      ),
+      const SizedBox(height: 14),
+      const Text(
+        'One profile can help\nbring a pet home.',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 27,
+          height: 1.10,
+          fontWeight: FontWeight.w900,
+          letterSpacing: -0.5,
+        ),
+      ),
+      const SizedBox(height: 10),
+      Text(
+        'Register your pet and create a QR profile that can help the community identify and contact you.',
+        style: TextStyle(
+          color: Colors.white.withValues(alpha: 0.86),
+          fontSize: 13,
+          height: 1.5,
+        ),
+      ),
+      const SizedBox(height: 18),
+      ElevatedButton.icon(
+        onPressed: _openRegisterPet,
+        icon: const Icon(Icons.add_rounded, size: 19),
+        label: const Text(
+          'Register a Pet',
+          style: TextStyle(fontWeight: FontWeight.w800),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: warmOrange,
+          foregroundColor: darkText,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 13,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(13),
           ),
         ),
-        const SizedBox(height: 18),
-        ElevatedButton.icon(
-          onPressed: _openRegisterPet,
-          icon: const Icon(Icons.add_rounded, size: 19),
-          label: const Text(
-            'Register a Pet',
-            style: TextStyle(fontWeight: FontWeight.w800),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: warmOrange,
-            foregroundColor: darkText,
-            elevation: 0,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 18,
-              vertical: 13,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(13),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
+
 
   Widget _buildHeroPetIllustration() {
     return Container(
@@ -1239,7 +1270,10 @@ class _HomePageState extends State<HomePage>
         },
         child: Ink(
           padding: const EdgeInsets.all(18),
-          decoration: _clayDecoration(color: Colors.white, radius: 21),
+          decoration: _clayDecoration(
+          color: _cardBackground,
+          radius: 21,
+           ),
           child: Row(
             children: [
               Container(
@@ -1260,7 +1294,7 @@ class _HomePageState extends State<HomePage>
                       label,
                       style: TextStyle(
                         fontSize: 14,
-                        color: grayText,
+                        color: _secondaryTextColor,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -1269,7 +1303,7 @@ class _HomePageState extends State<HomePage>
                       value,
                       style: TextStyle(
                         fontSize: 24,
-                        color: darkText,
+                        color: _primaryTextColor,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
@@ -1301,72 +1335,36 @@ class _HomePageState extends State<HomePage>
   // ============================================================
 
   Widget _buildQuickActions({required bool isDesktop}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Quick Actions',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    color: _primaryTextColor,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+                const SizedBox(height: 4),
+              ],
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 14),
+      if (isDesktop)
         Row(
           children: [
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Quick Actions',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
-                      color: darkText,
-                      letterSpacing: -0.3,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 14),
-        if (isDesktop)
-          Row(
-            children: [
-              Expanded(
-                child: _buildActionTile(
-                  icon: Icons.add_circle_outline_rounded,
-                  title: 'Register Pet',
-                  description: 'Create a new pet profile',
-                  color: warmOrange,
-                  onTap: _openRegisterPet,
-                  tag: 'START HERE',
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: _buildActionTile(
-                  icon: Icons.report_problem_outlined,
-                  title: 'Report',
-                  description: 'Report a lost or stray pet',
-                  color: alertRed,
-                  onTap: _openReport,
-                  tag: 'COMMUNITY',
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: _buildActionTile(
-                  icon: Icons.location_city_rounded,
-                  title: 'Barangay',
-                  description: 'Community pet information',
-                  color: darkTeal,
-                  onTap: _openBarangay,
-                  tag: 'LOCAL HELP',
-                ),
-              ),
-            ],
-          )
-        else
-          Column(
-            children: [
-              _buildActionTile(
+              child: _buildActionTile(
                 icon: Icons.add_circle_outline_rounded,
                 title: 'Register Pet',
                 description: 'Create a new pet profile',
@@ -1374,8 +1372,10 @@ class _HomePageState extends State<HomePage>
                 onTap: _openRegisterPet,
                 tag: 'START HERE',
               ),
-              const SizedBox(height: 12),
-              _buildActionTile(
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: _buildActionTile(
                 icon: Icons.report_problem_outlined,
                 title: 'Report',
                 description: 'Report a lost or stray pet',
@@ -1383,8 +1383,10 @@ class _HomePageState extends State<HomePage>
                 onTap: _openReport,
                 tag: 'COMMUNITY',
               ),
-              const SizedBox(height: 12),
-              _buildActionTile(
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: _buildActionTile(
                 icon: Icons.location_city_rounded,
                 title: 'Barangay',
                 description: 'Community pet information',
@@ -1392,103 +1394,138 @@ class _HomePageState extends State<HomePage>
                 onTap: _openBarangay,
                 tag: 'LOCAL HELP',
               ),
-            ],
-          ),
-      ],
-    );
-  }
+            ),
+          ],
+        )
+      else
+        Column(
+          children: [
+            _buildActionTile(
+              icon: Icons.add_circle_outline_rounded,
+              title: 'Register Pet',
+              description: 'Create a new pet profile',
+              color: warmOrange,
+              onTap: _openRegisterPet,
+              tag: 'START HERE',
+            ),
+            const SizedBox(height: 12),
+            _buildActionTile(
+              icon: Icons.report_problem_outlined,
+              title: 'Report',
+              description: 'Report a lost or stray pet',
+              color: alertRed,
+              onTap: _openReport,
+              tag: 'COMMUNITY',
+            ),
+            const SizedBox(height: 12),
+            _buildActionTile(
+              icon: Icons.location_city_rounded,
+              title: 'Barangay',
+              description: 'Community pet information',
+              color: darkTeal,
+              onTap: _openBarangay,
+              tag: 'LOCAL HELP',
+            ),
+          ],
+        ),
+    ],
+  );
+}
 
   Widget _buildActionTile({
-    required IconData icon,
-    required String title,
-    required String description,
-    required Color color,
-    required VoidCallback onTap,
-    required String tag,
-  }) {
-    return Material(
-      color: Colors.transparent,
+  required IconData icon,
+  required String title,
+  required String description,
+  required Color color,
+  required VoidCallback onTap,
+  required String tag,
+}) {
+  return Material(
+    color: Colors.transparent,
+    borderRadius: BorderRadius.circular(20),
+    child: InkWell(
       borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: onTap,
-        child: Ink(
-          padding: const EdgeInsets.all(17),
-          decoration: _clayDecoration(color: Colors.white, radius: 20),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Icon(icon, color: color, size: 24),
+      onTap: onTap,
+      child: Ink(
+        padding: const EdgeInsets.all(17),
+        decoration: _clayDecoration(
+          color: _cardBackground,
+          radius: 20,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(15),
               ),
-              const SizedBox(width: 13),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 7,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: color.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        tag,
-                        style: TextStyle(
-                          fontSize: 8,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.7,
-                          color: color,
-                        ),
-                      ),
+              child: Icon(icon, color: color, size: 24),
+            ),
+            const SizedBox(width: 13),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 3,
                     ),
-                    const SizedBox(height: 5),
-                    Text(
-                      title,
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      tag,
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 8,
                         fontWeight: FontWeight.w900,
-                        color: darkText,
+                        letterSpacing: 0.7,
+                        color: color,
                       ),
                     ),
-                    const SizedBox(height: 3),
-                    Text(
-                      description,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: grayText,
-                      ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                      color: _primaryTextColor,
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: _secondaryTextColor,
+                    ),
+                  ),
+                ],
               ),
-              Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: warmBackground,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  Icons.arrow_forward_rounded,
-                  size: 16,
-                  color: grayText,
-                ),
+            ),
+            Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                color: _pageBackground,
+                borderRadius: BorderRadius.circular(10),
               ),
-            ],
-          ),
+              child: Icon(
+                Icons.arrow_forward_rounded,
+                size: 16,
+                color: _secondaryTextColor,
+              ),
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   // ============================================================
   // PETS + COMMUNITY
@@ -1544,469 +1581,542 @@ class _HomePageState extends State<HomePage>
   // ============================================================
 
   Widget _buildPetsPanel({
-    required List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
-    required bool loading,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: _clayDecoration(color: Colors.white, radius: 23),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 41,
-                height: 41,
-                decoration: BoxDecoration(
-                  color: lightTeal,
-                  borderRadius: BorderRadius.circular(13),
-                ),
-                child: Icon(
-                  Icons.pets_rounded,
-                  color: primaryTeal,
-                  size: 22,
-                ),
-              ),
-              const SizedBox(width: 11),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Your Paw Family',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        color: darkText,
-                      ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Your registered companions',
-                      style: TextStyle(
-                        color: grayText,
-                        fontSize: 10,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              TextButton(
-                onPressed: _openMyPets,
-                child: Text(
-                  'View all',
-                  style: TextStyle(
-                    color: primaryTeal,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 17),
-          if (loading)
-            Padding(
-              padding: EdgeInsets.all(20),
-              child: Center(
-                child: CircularProgressIndicator(color: primaryTeal),
-              ),
-            )
-          else if (docs.isEmpty)
-            _buildEmptyPetsState()
-          else
-            Column(
-              children: docs.take(3).map((doc) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: _buildPetRow(doc),
-                );
-              }).toList(),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPetRow(QueryDocumentSnapshot<Map<String, dynamic>> doc) {
-    final Map<String, dynamic> data = doc.data();
-
-    final String petName = _readString(data, 'petName', 'Unnamed Pet');
-    final String breed = _readString(data, 'breed', 'Breed not specified');
-    final String status = _readString(data, 'status', 'alive');
-    final String photoUrl = _readString(data, 'photoUrl', '');
-
-    final String normalizedStatus = status.toLowerCase();
-
-    final bool isDead = normalizedStatus == 'dead';
-    final bool isLost = normalizedStatus == 'lost';
-
-    Color statusColor = primaryTeal;
-
-    if (isDead) {
-      statusColor = grayText;
-    } else if (isLost) {
-      statusColor = alertRed;
-    }
-
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(18),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => PetProfilePage(petId: doc.id),
-            ),
-          );
-        },
-        child: Ink(
-          padding: const EdgeInsets.all(11),
-          decoration: BoxDecoration(
-            color: warmBackground,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: borderColor),
-          ),
-          child: Row(
-            children: [
-              _buildPetImage(photoUrl),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      petName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w900,
-                        color: darkText,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      breed,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: grayText,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Container(
-                          width: 6,
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: statusColor,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          _formatStatus(status),
-                          style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w800,
-                            color: statusColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                width: 31,
-                height: 31,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  Icons.chevron_right_rounded,
-                  color: grayText,
-                  size: 20,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPetImage(String photoUrl) {
-    if (photoUrl.isEmpty) {
-      return Container(
-        width: 63,
-        height: 63,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [lightTeal, softerTeal],
-          ),
-          borderRadius: BorderRadius.circular(17),
-        ),
-        child: Stack(
-          alignment: Alignment.center,
+  required List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  required bool loading,
+}) {
+  return Container(
+    padding: const EdgeInsets.all(20),
+    decoration: _clayDecoration(
+      color: _cardBackground,
+      radius: 23,
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            Positioned(
-              top: 7,
-              right: 7,
+            Container(
+              width: 41,
+              height: 41,
+              decoration: BoxDecoration(
+                color: _softTealBackground,
+                borderRadius: BorderRadius.circular(13),
+              ),
               child: Icon(
-                Icons.favorite_rounded,
-                color: primaryTeal.withValues(alpha: 0.12),
-                size: 14,
+                Icons.pets_rounded,
+                color: _accentColor,
+                size: 22,
               ),
             ),
-            Icon(
-              Icons.pets_rounded,
-              color: primaryTeal,
-              size: 30,
+            const SizedBox(width: 11),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Your Paw Family',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: _primaryTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Your registered companions',
+                    style: TextStyle(
+                      color: _secondaryTextColor,
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            TextButton(
+              onPressed: _openMyPets,
+              child: Text(
+                'View all',
+                style: TextStyle(
+                  color: _accentColor,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12,
+                ),
+              ),
             ),
           ],
         ),
-      );
-    }
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(17),
-      child: Image.network(
-        photoUrl,
-        width: 63,
-        height: 63,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) {
-          return Container(
-            width: 63,
-            height: 63,
-            color: lightTeal,
-            child: Icon(
-              Icons.pets_rounded,
-              color: primaryTeal,
-              size: 30,
+        const SizedBox(height: 17),
+        if (loading)
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Center(
+              child: CircularProgressIndicator(
+                color: _accentColor,
+              ),
             ),
-          );
-        },
-      ),
-    );
+          )
+        else if (docs.isEmpty)
+          _buildEmptyPetsState()
+        else
+          Column(
+            children: docs.take(3).map((doc) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: _buildPetRow(doc),
+              );
+            }).toList(),
+          ),
+      ],
+    ),
+  );
+}
+
+
+  
+
+
+Widget _buildPetRow(QueryDocumentSnapshot<Map<String, dynamic>> doc) {
+  final Map<String, dynamic> data = doc.data();
+
+  final String petName = _readString(data, 'petName', 'Unnamed Pet');
+  final String breed = _readString(data, 'breed', 'Breed not specified');
+  final String status = _readString(data, 'status', 'alive');
+  final String photoUrl = _readString(data, 'photoUrl', '');
+
+  final String normalizedStatus = status.toLowerCase();
+
+  final bool isDead = normalizedStatus == 'dead';
+  final bool isLost = normalizedStatus == 'lost';
+
+  Color statusColor = primaryTeal;
+
+  if (isDead) {
+    statusColor = _secondaryTextColor;
+  } else if (isLost) {
+    statusColor = alertRed;
   }
 
-  Widget _buildEmptyPetsState() {
+  return Material(
+    color: Colors.transparent,
+    borderRadius: BorderRadius.circular(18),
+    child: InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PetProfilePage(petId: doc.id),
+          ),
+        );
+      },
+      child: Ink(
+        padding: const EdgeInsets.all(11),
+        decoration: BoxDecoration(
+          color: _pageBackground,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: _outlineColor),
+        ),
+        child: Row(
+          children: [
+            _buildPetImage(photoUrl),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    petName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                      color: _primaryTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    breed,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: _secondaryTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: statusColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        _formatStatus(status),
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                          color: statusColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              width: 31,
+              height: 31,
+              decoration: BoxDecoration(
+                color: _cardBackground,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                Icons.chevron_right_rounded,
+                color: _secondaryTextColor,
+                size: 20,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+
+  Widget _buildPetImage(String photoUrl) {
+  if (photoUrl.isEmpty) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(23),
+      width: 63,
+      height: 63,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [warmBackground, Color(0xFFFFF7ED)],
+          colors: [
+            _softTealBackground,
+            _softerBackground,
+          ],
         ),
-        borderRadius: BorderRadius.circular(19),
-        border: Border.all(color: borderColor),
+        borderRadius: BorderRadius.circular(17),
       ),
-      child: Column(
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              color: lightTeal,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: primaryTeal.withValues(alpha: 0.08),
-                  blurRadius: 16,
-                ),
-              ],
-            ),
+          Positioned(
+            top: 7,
+            right: 7,
             child: Icon(
-              Icons.pets_rounded,
-              color: primaryTeal,
-              size: 34,
+              Icons.favorite_rounded,
+              color: _accentColor.withValues(alpha: 0.12),
+              size: 14,
             ),
           ),
-          const SizedBox(height: 12),
-          Text(
-            'Your paw family starts here.',
-            style: TextStyle(
-              fontWeight: FontWeight.w900,
-              color: darkText,
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            'Create your first pet profile and give your pet a connected identity.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 11,
-              color: grayText,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 14),
-          OutlinedButton.icon(
-            onPressed: _openRegisterPet,
-            icon: const Icon(Icons.add_rounded, size: 17),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: primaryTeal,
-              side: BorderSide(color: primaryTeal),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(11),
-              ),
-            ),
-            label: const Text(
-              'Register Pet',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
+          Icon(
+            Icons.pets_rounded,
+            color: _accentColor,
+            size: 30,
           ),
         ],
       ),
     );
   }
+
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(17),
+    child: Image.network(
+      photoUrl,
+      width: 63,
+      height: 63,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) {
+        return Container(
+          width: 63,
+          height: 63,
+          color: _softTealBackground,
+          child: Icon(
+            Icons.pets_rounded,
+            color: _accentColor,
+            size: 30,
+          ),
+        );
+      },
+    ),
+  );
+}
+  Widget _buildEmptyPetsState() {
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(23),
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          _pageBackground,
+          _softTealBackground,
+        ],
+      ),
+      borderRadius: BorderRadius.circular(19),
+      border: Border.all(color: _outlineColor),
+    ),
+    child: Column(
+      children: [
+        Container(
+          width: 72,
+          height: 72,
+          decoration: BoxDecoration(
+            color: _softTealBackground,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: _accentColor.withValues(alpha: 0.08),
+                blurRadius: 16,
+              ),
+            ],
+          ),
+          child: Icon(
+            Icons.pets_rounded,
+            color: _accentColor,
+            size: 34,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'Your paw family starts here.',
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            color: _primaryTextColor,
+            fontSize: 14,
+          ),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          'Create your first pet profile and give your pet a connected identity.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 11,
+            color: _secondaryTextColor,
+            height: 1.4,
+          ),
+        ),
+        const SizedBox(height: 14),
+        OutlinedButton.icon(
+          onPressed: _openRegisterPet,
+          icon: const Icon(Icons.add_rounded, size: 17),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: _accentColor,
+            side: BorderSide(color: _accentColor),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(11),
+            ),
+          ),
+          label: const Text(
+            'Register Pet',
+            style: TextStyle(fontWeight: FontWeight.w700),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
   // ============================================================
   // COMMUNITY PANEL
   // ============================================================
 
-  Widget _buildCommunityPanel(List<String> petIds) {
-    if (petIds.isEmpty) {
-      return _buildCommunityEmptyPanel();
-    }
+  
+Widget _buildCommunityPanel(List<String> petIds) {
+  if (petIds.isEmpty) {
+    return _buildCommunityEmptyPanel();
+  }
 
-    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      stream: _reportService.getFoundReportsStream(petIds),
-      builder: (context, snapshot) {
-        final int foundReports = snapshot.data?.docs.length ?? 0;
+  return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+    stream: _reportService.getFoundReportsStream(petIds),
+    builder: (context, snapshot) {
+      final int foundReports = snapshot.data?.docs.length ?? 0;
 
-        return Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [lightTeal, softerTeal],
-            ),
-            borderRadius: BorderRadius.circular(23),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.8),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: primaryTeal.withValues(alpha: 0.07),
-                blurRadius: 20,
-                offset: const Offset(4, 7),
-              ),
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              _softTealBackground,
+              _softerBackground,
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildCommunityHeader(),
-              const SizedBox(height: 15),
-              Text(
-                'Found reports connected to your registered pets.',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: grayText,
-                  height: 1.45,
-                ),
+          borderRadius: BorderRadius.circular(23),
+          border: Border.all(
+            color: _outlineColor,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: _accentColor.withValues(alpha: 0.07),
+              blurRadius: 20,
+              offset: const Offset(4, 7),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildCommunityHeader(),
+            const SizedBox(height: 15),
+            Text(
+              'Found reports connected to your registered pets.',
+              style: TextStyle(
+                fontSize: 12,
+                color: _secondaryTextColor,
+                height: 1.45,
               ),
-              const SizedBox(height: 17),
-              _buildFoundReportCount(foundReports),
-              const SizedBox(height: 14),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.info_outline_rounded,
-                    color: primaryTeal,
-                    size: 15,
-                  ),
-                  SizedBox(width: 7),
-                  Expanded(
-                    child: Text(
-                      'Community reports can help owners locate pets faster.',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: grayText,
-                        height: 1.4,
-                      ),
+            ),
+            const SizedBox(height: 17),
+            _buildFoundReportCount(foundReports),
+            const SizedBox(height: 14),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.info_outline_rounded,
+                  color: _accentColor,
+                  size: 15,
+                ),
+                const SizedBox(width: 7),
+                Expanded(
+                  child: Text(
+                    'Community reports can help owners locate pets faster.',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: _secondaryTextColor,
+                      height: 1.4,
                     ),
                   ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
 
   Widget _buildCommunityEmptyPanel() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [lightTeal, softerTeal],
-        ),
-        borderRadius: BorderRadius.circular(23),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.8),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildCommunityHeader(),
-          const SizedBox(height: 15),
-          Text(
-            'Register a pet first to receive community found reports connected to its profile.',
-            style: TextStyle(
-              fontSize: 12,
-              color: grayText,
-              height: 1.45,
-            ),
-          ),
-          const SizedBox(height: 18),
-          _buildFoundReportCount(0),
+  return Container(
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          _softTealBackground,
+          _softerBackground,
         ],
       ),
-    );
-  }
+      borderRadius: BorderRadius.circular(23),
+      border: Border.all(
+        color: _outlineColor,
+      ),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildCommunityHeader(),
+        const SizedBox(height: 15),
+        Text(
+          'Register a pet first to receive community found reports connected to its profile.',
+          style: TextStyle(
+            fontSize: 12,
+            color: _secondaryTextColor,
+            height: 1.45,
+          ),
+        ),
+        const SizedBox(height: 18),
+        _buildFoundReportCount(0),
+      ],
+    ),
+  );
+}
 
   Widget _buildCommunityHeader() {
-    return Row(
+  return Row(
+    children: [
+      Container(
+        width: 42,
+        height: 42,
+        decoration: BoxDecoration(
+          color: _cardBackground,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: _accentColor.withValues(alpha: 0.06),
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: Icon(
+          Icons.people_alt_outlined,
+          color: _accentColor,
+          size: 22,
+        ),
+      ),
+      const SizedBox(width: 11),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Community pulse',
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w900,
+                color: _primaryTextColor,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              'Looking out for one another',
+              style: TextStyle(
+                fontSize: 9,
+                color: _secondaryTextColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
+  Widget _buildFoundReportCount(int count) {
+  return Container(
+    padding: const EdgeInsets.all(15),
+    decoration: BoxDecoration(
+      color: _cardBackground,
+      borderRadius: BorderRadius.circular(17),
+      border: Border.all(color: _outlineColor),
+    ),
+    child: Row(
       children: [
         Container(
-          width: 42,
-          height: 42,
+          width: 40,
+          height: 40,
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: [
-              BoxShadow(
-                color: primaryTeal.withValues(alpha: 0.06),
-                blurRadius: 10,
-              ),
-            ],
+            color: foundGreen.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(
-            Icons.people_alt_outlined,
-            color: primaryTeal,
-            size: 22,
+          child: const Icon(
+            Icons.location_on_outlined,
+            color: foundGreen,
+            size: 21,
           ),
         ),
         const SizedBox(width: 11),
@@ -2015,281 +2125,242 @@ class _HomePageState extends State<HomePage>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Community pulse',
+                'Found reports',
                 style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w900,
-                  color: darkText,
+                  fontSize: 10,
+                  color: _secondaryTextColor,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              SizedBox(height: 2),
+              const SizedBox(height: 1),
               Text(
-                'Looking out for one another',
+                '$count',
                 style: TextStyle(
-                  fontSize: 9,
-                  color: grayText,
+                  fontSize: 23,
+                  fontWeight: FontWeight.w900,
+                  color: _primaryTextColor,
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (count > 0)
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8,
+              vertical: 5,
+            ),
+            decoration: BoxDecoration(
+              color: foundGreen.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Text(
+              'NEW ACTIVITY',
+              style: TextStyle(
+                fontSize: 7,
+                fontWeight: FontWeight.w900,
+                color: foundGreen,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+      ],
+    ),
+  );
+}
+  // ============================================================
+  // SAFETY
+  // ============================================================
+
+  Widget _buildSafetyReminder() {
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(19),
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: Theme.of(context).brightness == Brightness.dark
+            ? [
+                const Color(0xFF382629),
+                const Color(0xFF302326),
+              ]
+            : [
+                const Color(0xFFFFF3F3),
+                const Color(0xFFFFEEEE),
+              ],
+      ),
+      borderRadius: BorderRadius.circular(21),
+      border: Border.all(
+        color: alertRed.withValues(alpha: 0.14),
+      ),
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 43,
+          height: 43,
+          decoration: BoxDecoration(
+            color: alertRed.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(13),
+          ),
+          child: const Icon(
+            Icons.warning_amber_rounded,
+            color: alertRed,
+            size: 23,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    'Safety reminder',
+                    style: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : const Color(0xFF263238),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(width: 7),
+                  const Text(
+                    '•',
+                    style: TextStyle(
+                      color: alertRed,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(width: 7),
+                  const Text(
+                    'STAY SAFE',
+                    style: TextStyle(
+                      color: alertRed,
+                      fontSize: 8,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.7,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 5),
+              Text(
+                'If you encounter a pet marked as aggressive or unsafe, do not approach it. Use PawLink to report the location to the barangay.',
+                style: TextStyle(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white70
+                      : const Color(0xFF667085),
+                  fontSize: 11,
+                  height: 1.45,
                 ),
               ),
             ],
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildFoundReportCount(int count) {
-    return Container(
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(17),
-        border: Border.all(color: Colors.white),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: foundGreen.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.location_on_outlined,
-              color: foundGreen,
-              size: 21,
-            ),
-          ),
-          const SizedBox(width: 11),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Found reports',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: grayText,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 1),
-                Text(
-                  '$count',
-                  style: TextStyle(
-                    fontSize: 23,
-                    fontWeight: FontWeight.w900,
-                    color: darkText,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (count > 0)
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 5,
-              ),
-              decoration: BoxDecoration(
-                color: foundGreen.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Text(
-                'NEW ACTIVITY',
-                style: TextStyle(
-                  fontSize: 7,
-                  fontWeight: FontWeight.w900,
-                  color: foundGreen,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  // ============================================================
-  // SAFETY
-  // ============================================================
-
-  Widget _buildSafetyReminder() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(19),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFFFFF3F3), Color(0xFFFFEEEE)],
-        ),
-        borderRadius: BorderRadius.circular(21),
-        border: Border.all(
-          color: alertRed.withValues(alpha: 0.14),
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 43,
-            height: 43,
-            decoration: BoxDecoration(
-              color: alertRed.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(13),
-            ),
-            child: const Icon(
-              Icons.warning_amber_rounded,
-              color: alertRed,
-              size: 23,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      'Safety reminder',
-                      style: TextStyle(
-                        color: darkText,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    SizedBox(width: 7),
-                    Text(
-                      '•',
-                      style: TextStyle(
-                        color: alertRed,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    SizedBox(width: 7),
-                    Text(
-                      'STAY SAFE',
-                      style: TextStyle(
-                        color: alertRed,
-                        fontSize: 8,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 0.7,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 5),
-                Text(
-                  'If you encounter a pet marked as aggressive or unsafe, do not approach it. Use PawLink to report the location to the barangay.',
-                  style: TextStyle(
-                    color: grayText,
-                    fontSize: 11,
-                    height: 1.45,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
+    ),
+  );
+}
   // ============================================================
   // MOBILE NAVIGATION
   // ============================================================
 
-  Widget _buildMobileBottomNavigation() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          top: BorderSide(color: borderColor),
+ Widget _buildMobileBottomNavigation() {
+  return Container(
+    decoration: BoxDecoration(
+      color: _cardBackground,
+      border: Border(
+        top: BorderSide(color: _outlineColor),
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.05),
+          blurRadius: 15,
+          offset: const Offset(0, -3),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 15,
-            offset: const Offset(0, -3),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.only(top: 7, bottom: 7),
-      child: Row(
-        children: [
-          _buildBottomNavItem(
-            icon: Icons.home_rounded,
-            label: 'Home',
-            selected: true,
-            onTap: () {},
-          ),
-          _buildBottomNavItem(
-            icon: Icons.pets_rounded,
-            label: 'My Pets',
-            onTap: _openMyPets,
-          ),
-          _buildBottomNavItem(
-            icon: Icons.report_problem_outlined,
-            label: 'Report',
-            onTap: _openReport,
-          ),
-          _buildBottomNavItem(
-            icon: Icons.person_outline_rounded,
-            label: 'Account',
-            onTap: _openAccount,
-          ),
-        ],
-      ),
-    );
-  }
+      ],
+    ),
+    padding: const EdgeInsets.only(top: 7, bottom: 7),
+    child: Row(
+      children: [
+        _buildBottomNavItem(
+          icon: Icons.home_rounded,
+          label: 'Home',
+          selected: true,
+          onTap: () {},
+        ),
+        _buildBottomNavItem(
+          icon: Icons.pets_rounded,
+          label: 'My Pets',
+          onTap: _openMyPets,
+        ),
+        _buildBottomNavItem(
+          icon: Icons.report_problem_outlined,
+          label: 'Report',
+          onTap: _openReport,
+        ),
+        _buildBottomNavItem(
+          icon: Icons.person_outline_rounded,
+          label: 'Account',
+          onTap: _openAccount,
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildBottomNavItem({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    bool selected = false,
-  }) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 5),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 160),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: selected ? lightTeal : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  icon,
-                  size: 21,
-                  color: selected ? primaryTeal : grayText,
-                ),
+  required IconData icon,
+  required String label,
+  required VoidCallback onTap,
+  bool selected = false,
+}) {
+  return Expanded(
+    child: InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 160),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 4,
               ),
-              const SizedBox(height: 2),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
-                  color: selected ? primaryTeal : grayText,
-                ),
+              decoration: BoxDecoration(
+                color: selected
+                    ? _softTealBackground
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(10),
               ),
-            ],
-          ),
+              child: Icon(
+                icon,
+                size: 21,
+                color: selected ? primaryTeal : _secondaryTextColor,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
+                color: selected ? primaryTeal : _secondaryTextColor,
+              ),
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   // ============================================================
   // FIRESTORE HELPERS

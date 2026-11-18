@@ -45,7 +45,9 @@ class SeasonalShopPage extends StatelessWidget {
     }
   }
 
+  
   Widget _premiumThemeCard({
+    required BuildContext context,
     required IconData icon,
     required String name,
     required String description,
@@ -56,17 +58,23 @@ class SeasonalShopPage extends StatelessWidget {
     VoidCallback? onApply,
   }) {
     final unlocked = trialTheme && trialActive;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       clipBehavior: Clip.antiAlias,
       child: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFFF5F0E5),
-              Colors.white,
-            ],
+            colors: isDark
+                ? [
+                    const Color(0xFF263738),
+                    const Color(0xFF1D292A),
+                  ]
+                : [
+                    const Color(0xFFF5F0E5),
+                    Colors.white,
+                  ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -86,14 +94,20 @@ class SeasonalShopPage extends StatelessWidget {
           ),
           title: Text(
             name,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w800,
+              color: isDark ? Colors.white : Colors.black87,
             ),
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(description),
+              Text(
+                description,
+                style: TextStyle(
+                  color: isDark ? Colors.white70 : Colors.black87,
+                ),
+              ),
               const SizedBox(height: 5),
               if (trialTheme && unlocked)
                 Text(
@@ -142,6 +156,7 @@ class SeasonalShopPage extends StatelessWidget {
       ),
     );
   }
+
 
   Widget _pricingRow(String price, String description) {
     return Row(
@@ -194,7 +209,9 @@ class SeasonalShopPage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEAF5F4),
+                  color: Theme.of(context).brightness == Brightness.dark
+               ? const Color(0xFF263738)
+               : const Color(0xFFEAF5F4),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Column(
@@ -336,45 +353,55 @@ class SeasonalShopPage extends StatelessWidget {
 
               const SizedBox(height: 6),
 
-              const Text(
-                'Discover exclusive themes for your PawLink experience.',
-                style: TextStyle(color: Colors.black54),
+              Text(
+             'Discover exclusive themes for your PawLink experience.',
+              style: TextStyle(
+              color: Theme.of(context).brightness == Brightness.dark
+               ? Colors.white70
+               : Colors.black54,
               ),
+  ),
 
               const SizedBox(height: 14),
 
               _premiumThemeCard(
-                icon: Icons.celebration_rounded,
+              context: context,
+              icon: Icons.celebration_rounded,
                 name: 'New Year Celebration',
                 description: 'Welcome the new year with a festive look.',
               ),
 
               _premiumThemeCard(
-                icon: Icons.favorite_rounded,
+              context: context,
+              icon: Icons.favorite_rounded,
                 name: 'Valentine’s Day',
                 description: 'A lovely theme filled with hearts and romance.',
               ),
 
               _premiumThemeCard(
-                icon: Icons.eco_rounded,
+              context: context,
+              icon: Icons.eco_rounded,
                 name: 'Autumn',
                 description: 'Enjoy warm colors and cozy autumn decorations.',
               ),
 
               _premiumThemeCard(
-                icon: Icons.pets_rounded,
+              context: context,
+              icon: Icons.pets_rounded,
                 name: 'Pet Lovers',
                 description: 'Celebrate the love we have for our pets.',
               ),
 
               _premiumThemeCard(
-                icon: Icons.cake_rounded,
+              context: context,
+              icon: Icons.cake_rounded,
                 name: 'Birthday Party',
                 description: 'Make every celebration extra special.',
               ),
 
               _premiumThemeCard(
-                icon: christmas.icon,
+              context: context,
+              icon: christmas.icon,
                 name: christmas.name,
                 description: christmas.subtitle,
                 trialTheme: true,
@@ -385,7 +412,8 @@ class SeasonalShopPage extends StatelessWidget {
               ),
 
               _premiumThemeCard(
-                icon: spooky.icon,
+             context: context,
+             icon: spooky.icon,
                 name: spooky.name,
                 description: spooky.subtitle,
                 trialTheme: true,
@@ -436,13 +464,15 @@ class SeasonalShopPage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFF7E8),
+                  color: Theme.of(context).brightness == Brightness.dark
+                 ? const Color(0xFF302D25)
+                : const Color(0xFFFFF7E8),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
                     color: const Color(0xFFEBD9B4),
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Icon(
@@ -458,9 +488,12 @@ class SeasonalShopPage extends StatelessWidget {
                         'Premium subscription and payment features are not '
                         'yet available.',
                         style: TextStyle(
-                          fontSize: 13,
-                          height: 1.5,
-                        ),
+  fontSize: 13,
+  height: 1.5,
+  color: Theme.of(context).brightness == Brightness.dark
+      ? Colors.white70
+      : null,
+),
                       ),
                     ),
                   ],

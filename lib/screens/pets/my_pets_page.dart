@@ -62,6 +62,31 @@ class _MyPetsPageState extends State<MyPetsPage> {
   static Color get onPrimaryColor =>
       SeasonalController.instance.activeTheme?.onPrimary ?? Colors.white;
 
+      // DARK MODE COLORS
+bool get _isDarkMode =>
+    Theme.of(context).brightness == Brightness.dark;
+
+Color get _pageBackground =>
+    _isDarkMode ? const Color(0xFF121A1B) : warmBackground;
+
+Color get _cardBackground =>
+    _isDarkMode ? const Color(0xFF1D292A) : surfaceColor;
+
+Color get _primaryTextColor =>
+    _isDarkMode ? const Color(0xFFE5F3F1) : darkText;
+
+Color get _secondaryTextColor =>
+    _isDarkMode ? const Color(0xFFB0C4C1) : grayText;
+
+Color get _outlineColor =>
+    _isDarkMode ? const Color(0xFF344746) : borderColor;
+
+Color get _softTealBackground =>
+    _isDarkMode ? const Color(0xFF263738) : lightTeal;
+
+Color get _softerBackground =>
+    _isDarkMode ? const Color(0xFF202E2F) : softerTeal;
+
   @override
   void initState() {
     super.initState();
@@ -148,7 +173,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: warmBackground,
+      backgroundColor: _pageBackground,
       appBar: _buildAppBar(),
       floatingActionButton: _buildFloatingActionButton(),
       body: Focus(
@@ -245,7 +270,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: surfaceColor,
+      backgroundColor: _cardBackground,
       elevation: 0,
       surfaceTintColor: Colors.transparent,
       titleSpacing: 18,
@@ -267,14 +292,14 @@ class _MyPetsPageState extends State<MyPetsPage> {
           Text(
             'My Pets',
             style: TextStyle(
-              color: darkText,
+              color: _primaryTextColor,
               fontWeight: FontWeight.w900,
               fontSize: 20,
             ),
           ),
         ],
       ),
-      iconTheme: IconThemeData(color: darkText),
+      iconTheme: IconThemeData(color: _primaryTextColor),
     );
   }
 
@@ -492,9 +517,9 @@ class _MyPetsPageState extends State<MyPetsPage> {
     return Container(
       padding: EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: surfaceColor,
+        color: _cardBackground,
         borderRadius: BorderRadius.circular(17),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: _outlineColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.025),
@@ -524,7 +549,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: darkText,
+                    color: _primaryTextColor,
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
                   ),
@@ -534,7 +559,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: grayText,
+                    color: _secondaryTextColor,
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                   ),
@@ -550,7 +575,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
   Widget _buildSearch() {
     return Container(
       decoration: BoxDecoration(
-        color: surfaceColor,
+        color: _cardBackground,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -565,12 +590,12 @@ class _MyPetsPageState extends State<MyPetsPage> {
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           hintText: 'Search by pet name or breed',
-          hintStyle: TextStyle(color: grayText, fontSize: 13),
+          hintStyle: TextStyle(color: _secondaryTextColor, fontSize: 13),
           prefixIcon: Container(
             width: 45,
             margin: EdgeInsets.only(left: 6, top: 6, bottom: 6),
             decoration: BoxDecoration(
-              color: lightTeal,
+              color: _softTealBackground,
               borderRadius: BorderRadius.circular(11),
             ),
             child: Center(
@@ -586,24 +611,24 @@ class _MyPetsPageState extends State<MyPetsPage> {
                   onPressed: _searchController.clear,
                   icon: Icon(
                     Icons.close_rounded,
-                    color: grayText,
+                    color: _secondaryTextColor,
                     size: 19,
                   ),
                 )
               : null,
           filled: true,
-          fillColor: surfaceColor,
+          fillColor: _cardBackground,
           contentPadding: EdgeInsets.symmetric(
             horizontal: 15,
             vertical: 15,
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: borderColor),
+            borderSide: BorderSide(color: _outlineColor),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: borderColor),
+            borderSide: BorderSide(color: _outlineColor),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
@@ -630,10 +655,10 @@ class _MyPetsPageState extends State<MyPetsPage> {
         ),
         SizedBox(width: 10),
         Text(
-          showingAll ? 'Your pet profiles' : 'Search results',
-          style: TextStyle(
-            color: darkText,
-            fontSize: 16,
+        showingAll ? 'Your pet profiles' : 'Search results',
+        style: TextStyle(
+        color: _primaryTextColor,
+        fontSize: 16,
             fontWeight: FontWeight.w900,
           ),
         ),
@@ -641,14 +666,14 @@ class _MyPetsPageState extends State<MyPetsPage> {
         Container(
           padding: EdgeInsets.symmetric(horizontal: 9, vertical: 5),
           decoration: BoxDecoration(
-            color: surfaceColor,
+            color: _cardBackground,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: borderColor),
+            border: Border.all(color: _outlineColor),
           ),
           child: Text(
             '$count ${count == 1 ? 'pet' : 'pets'}',
             style: TextStyle(
-              color: grayText,
+              color: _secondaryTextColor,
               fontSize: 11,
               fontWeight: FontWeight.w700,
             ),
@@ -713,7 +738,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
     final safetyInfo = _getSafetyInfo(safetyTag);
 
     return Material(
-      color: surfaceColor,
+      color: _cardBackground,
       borderRadius: BorderRadius.circular(20),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -722,7 +747,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: borderColor),
+            border: Border.all(color: _outlineColor),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.035),
@@ -864,7 +889,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
-                  color: darkText,
+                  color: _primaryTextColor,
                 ),
               ),
             ),
@@ -878,7 +903,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: grayText,
+            color: _secondaryTextColor,
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
@@ -905,7 +930,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
                 width: 30,
                 height: 30,
                 decoration: BoxDecoration(
-                  color: lightTeal,
+                  color: _softTealBackground,
                   borderRadius: BorderRadius.circular(9),
                 ),
                 child: Center(
@@ -920,7 +945,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
             Icon(
               Icons.arrow_forward_ios_rounded,
               size: 12,
-              color: grayText,
+              color: _secondaryTextColor,
             ),
           ],
         ),
@@ -932,21 +957,21 @@ class _MyPetsPageState extends State<MyPetsPage> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
-        color: softerTeal,
+        color: _softerBackground,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: _outlineColor),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: grayText),
+          Icon(icon, size: 12, color: _secondaryTextColor),
           SizedBox(width: 4),
           Text(
             text,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: grayText,
+              color: _secondaryTextColor,
               fontSize: 10,
               fontWeight: FontWeight.w600,
             ),
@@ -1172,7 +1197,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
       width: double.infinity,
       padding: EdgeInsets.all(17),
       decoration: BoxDecoration(
-        color: softerTeal,
+        color: _softerBackground,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: primaryTeal.withValues(alpha: 0.10)),
       ),
@@ -1182,7 +1207,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
             width: 43,
             height: 43,
             decoration: BoxDecoration(
-              color: surfaceColor,
+              color: _cardBackground,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
@@ -1201,7 +1226,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
                 Text(
                   'Have another pet?',
                   style: TextStyle(
-                    color: darkText,
+                    color: _primaryTextColor,
                     fontSize: 13,
                     fontWeight: FontWeight.w900,
                   ),
@@ -1209,7 +1234,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
                 SizedBox(height: 3),
                 Text(
                   'Create another PawLink profile and QR code.',
-                  style: TextStyle(color: grayText, fontSize: 11),
+                  style: TextStyle(color: _secondaryTextColor, fontSize: 11),
                 ),
               ],
             ),
@@ -1236,9 +1261,9 @@ class _MyPetsPageState extends State<MyPetsPage> {
       width: double.infinity,
       padding: EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: surfaceColor,
+        color: _cardBackground,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: _outlineColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.025),
@@ -1267,14 +1292,14 @@ class _MyPetsPageState extends State<MyPetsPage> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w900,
-              color: darkText,
+              color: _primaryTextColor,
             ),
           ),
           SizedBox(height: 7),
           Text(
             'Give your pet a digital identity with a PawLink profile and unique QR code.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: grayText, fontSize: 13, height: 1.5),
+            style: TextStyle(color: _secondaryTextColor, fontSize: 13, height: 1.5),
           ),
           SizedBox(height: 20),
           ElevatedButton.icon(
@@ -1302,9 +1327,9 @@ class _MyPetsPageState extends State<MyPetsPage> {
       width: double.infinity,
       padding: EdgeInsets.all(30),
       decoration: BoxDecoration(
-        color: surfaceColor,
+        color: _cardBackground,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: _outlineColor),
       ),
       child: Column(
         children: [
@@ -1312,7 +1337,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
             width: 62,
             height: 62,
             decoration: BoxDecoration(
-              color: softerTeal,
+             color: _softerBackground,
               borderRadius: BorderRadius.circular(18),
             ),
             child: Center(
@@ -1332,7 +1357,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
           Text(
             'Try another pet name or breed.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: grayText, fontSize: 13),
+            style: TextStyle(color: _secondaryTextColor, fontSize: 13),
           ),
           SizedBox(height: 14),
           TextButton.icon(
@@ -1358,7 +1383,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
           constraints: BoxConstraints(maxWidth: 550),
           padding: EdgeInsets.all(25),
           decoration: BoxDecoration(
-            color: surfaceColor,
+            color: _cardBackground,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: alertRed.withValues(alpha: 0.15),
@@ -1388,7 +1413,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
-                  color: darkText,
+                  color: _primaryTextColor,
                   fontSize: 16,
                 ),
               ),
@@ -1397,7 +1422,7 @@ class _MyPetsPageState extends State<MyPetsPage> {
                 'We encountered a problem loading your pet profiles.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: grayText,
+                  color: _secondaryTextColor,
                   fontSize: 13,
                 ),
               ),

@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../main.dart' show PawLinkTheme;
 import '../../seasonal/seasonal_controller.dart';
 import 'my_account_page.dart';
 
@@ -71,6 +72,27 @@ class _SettingsPageState extends State<SettingsPage> {
 
   User? get _user => _auth.currentUser;
 
+  bool get _isDarkMode =>
+      PawLinkTheme.mode.value == ThemeMode.dark;
+
+  Color _textColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFFF1F5F5)
+        : darkText;
+  }
+
+  Color _secondaryTextColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFFB0C0C0)
+        : grayText;
+  }
+
+  Color _borderColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFF344344)
+        : borderColor;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -88,20 +110,25 @@ class _SettingsPageState extends State<SettingsPage> {
     }
 
     try {
-      final doc = await _firestore.collection('users').doc(user.uid).get();
+      final doc =
+          await _firestore.collection('users').doc(user.uid).get();
 
       final data = doc.data() ?? {};
 
       _nameController.text =
           (data['name'] ?? user.displayName ?? '').toString();
 
-      _phoneController.text = (data['phone'] ?? '').toString();
+      _phoneController.text =
+          (data['phone'] ?? '').toString();
 
-      _foundPetNotifications = data['foundPetNotifications'] ?? true;
+      _foundPetNotifications =
+          data['foundPetNotifications'] ?? true;
 
-      _lostPetNotifications = data['lostPetNotifications'] ?? true;
+      _lostPetNotifications =
+          data['lostPetNotifications'] ?? true;
 
-      _barangayNotifications = data['barangayNotifications'] ?? true;
+      _barangayNotifications =
+          data['barangayNotifications'] ?? true;
 
       _qrPublicProfile = data['qrPublicProfile'] ?? true;
     } catch (_) {
@@ -234,11 +261,16 @@ class _SettingsPageState extends State<SettingsPage> {
       await user.sendEmailVerification();
 
       if (mounted) {
-        _showMessage('Verification email sent. Please check your inbox.');
+        _showMessage(
+          'Verification email sent. Please check your inbox.',
+        );
       }
     } catch (_) {
       if (mounted) {
-        _showMessage('Unable to send the verification email.', isError: true);
+        _showMessage(
+          'Unable to send the verification email.',
+          isError: true,
+        );
       }
     }
   }
@@ -252,11 +284,16 @@ class _SettingsPageState extends State<SettingsPage> {
       await _auth.sendPasswordResetEmail(email: user!.email!);
 
       if (mounted) {
-        _showMessage('A password reset link was sent to ${user.email}.');
+        _showMessage(
+          'A password reset link was sent to ${user.email}.',
+        );
       }
     } catch (_) {
       if (mounted) {
-        _showMessage('Unable to send the password reset email.', isError: true);
+        _showMessage(
+          'Unable to send the password reset email.',
+          isError: true,
+        );
       }
     }
   }
@@ -265,13 +302,21 @@ class _SettingsPageState extends State<SettingsPage> {
     final shouldSignOut = await showDialog<bool>(
       context: context,
       builder: (context) {
+        final textColor = _textColor(context);
+
         return AlertDialog(
-          title: const Text(
+          title: Text(
             'Sign out?',
-            style: TextStyle(fontWeight: FontWeight.w800),
+            style: TextStyle(
+              fontWeight: FontWeight.w800,
+              color: textColor,
+            ),
           ),
-          content: const Text(
+          content: Text(
             'You can sign back in anytime using your PawLink account.',
+            style: TextStyle(
+              color: _secondaryTextColor(context),
+            ),
           ),
           actions: [
             TextButton(
@@ -305,13 +350,19 @@ class _SettingsPageState extends State<SettingsPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text(
+          title: Text(
             'Delete Account',
-            style: TextStyle(fontWeight: FontWeight.w800),
+            style: TextStyle(
+              fontWeight: FontWeight.w800,
+              color: _textColor(context),
+            ),
           ),
-          content: const Text(
+          content: Text(
             'Account deletion should be handled carefully because it may affect your registered pets, joint-owner access, reports, and other PawLink records.\n\n'
             'For now, contact your PawLink administrator before permanently deleting an account.',
+            style: TextStyle(
+              color: _secondaryTextColor(context),
+            ),
           ),
           actions: [
             TextButton(
@@ -338,11 +389,16 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: warmBackground,
+      backgroundColor:
+          isDark ? Theme.of(context).scaffoldBackgroundColor : warmBackground,
       body: SafeArea(
         child: _loading
-            ? Center(child: CircularProgressIndicator(color: primaryTeal))
+            ? Center(
+        child: CircularProgressIndicator(color: primaryTeal),
+             )
             : LayoutBuilder(
                 builder: (context, constraints) {
                   final isDesktop = constraints.maxWidth >= 900;
@@ -370,6 +426,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   _buildProfileSection(isDesktop),
+                                  const SizedBox(height: 18),
+                                  _buildAppearanceSection(),
                                   const SizedBox(height: 18),
                                   _buildSecuritySection(),
                                   const SizedBox(height: 18),
@@ -411,7 +469,7 @@ class _SettingsPageState extends State<SettingsPage> {
           },
           icon: Icon(
             Icons.arrow_back,
-            color: darkText,
+            color: _textColor(context),
             size: 24,
           ),
           padding: EdgeInsets.zero,
@@ -430,13 +488,17 @@ class _SettingsPageState extends State<SettingsPage> {
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w900,
-              color: darkText,
+              color: _textColor(context),
             ),
           ),
         ),
       ],
     );
   }
+
+  // ================================================================
+  // PROFILE SECTION
+  // ================================================================
 
   Widget _buildProfileSection(bool isDesktop) {
     return _SettingsCard(
@@ -523,68 +585,118 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData icon,
-  }) {
-    return TextField(
-      controller: controller,
-      style: TextStyle(fontSize: 16, color: darkText),
-      decoration: InputDecoration(
-        labelStyle: const TextStyle(fontSize: 15),
-        hintStyle: const TextStyle(fontSize: 14),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 17,
-        ),
-        labelText: label,
-        hintText: hint,
-        prefixIcon: Icon(icon),
-        filled: true,
-        fillColor: surfaceColor,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: borderColor),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: borderColor),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: primaryTeal, width: 1.5),
-        ),
+  required TextEditingController controller,
+  required String label,
+  required String hint,
+  required IconData icon,
+}) {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+
+  return TextField(
+    controller: controller,
+    style: TextStyle(
+      fontSize: 16,
+      color: _textColor(context),
+    ),
+    decoration: InputDecoration(
+      labelStyle: const TextStyle(fontSize: 15),
+      hintStyle: const TextStyle(fontSize: 14),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 17,
       ),
-    );
-  }
+      labelText: label,
+      hintText: hint,
+      prefixIcon: Icon(icon),
+      filled: true,
+      fillColor: isDark
+          ? const Color(0xFF293A3B)
+          : const Color(0xFFF9FAF9),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: _borderColor(context)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: _borderColor(context)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+        color: primaryTeal,
+        width: 1.5,
+      ),
+      ),
+    ),
+  );
+}
 
   Widget _buildEmailField() {
-    final email = _user?.email ?? 'No email';
+  final email = _user?.email ?? 'No email';
+  final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return TextField(
-      enabled: false,
-      controller: TextEditingController(text: email),
-      style: TextStyle(fontSize: 16, color: grayText),
-      decoration: InputDecoration(
-        labelStyle: const TextStyle(fontSize: 15),
-        helperStyle: const TextStyle(fontSize: 13),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 17,
-        ),
-        labelText: 'Email Address',
-        helperText: 'Your login email is managed by Firebase Authentication.',
-        prefixIcon: const Icon(Icons.email_outlined),
-        filled: true,
-        fillColor: surfaceColor,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: borderColor),
-        ),
+  return TextField(
+    enabled: false,
+    controller: TextEditingController(text: email),
+    style: TextStyle(
+      fontSize: 16,
+      color: _secondaryTextColor(context),
+    ),
+    decoration: InputDecoration(
+      labelStyle: const TextStyle(fontSize: 15),
+      helperStyle: const TextStyle(fontSize: 13),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 17,
+      ),
+      labelText: 'Email Address',
+      helperText:
+          'Your login email is managed by Firebase Authentication.',
+      prefixIcon: const Icon(Icons.email_outlined),
+      filled: true,
+      fillColor: isDark
+          ? const Color(0xFF293A3B)
+          : const Color(0xFFF1F3F2),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: _borderColor(context)),
+      ),
+    ),
+  );
+}
+
+  // ================================================================
+  // APPEARANCE / DARK MODE
+  // ================================================================
+
+  Widget _buildAppearanceSection() {
+    return _SettingsCard(
+      icon: Icons.palette_outlined,
+      title: 'Appearance',
+      subtitle: 'Customize how PawLink looks on your device.',
+      child: ValueListenableBuilder<ThemeMode>(
+        valueListenable: PawLinkTheme.mode,
+        builder: (context, themeMode, child) {
+          final isDarkMode = themeMode == ThemeMode.dark;
+
+          return _buildSwitch(
+            title: 'Dark Mode',
+            subtitle: isDarkMode
+                ? 'Dark appearance is enabled.'
+                : 'Use the light appearance of PawLink.',
+            value: isDarkMode,
+            onChanged: (value) async {
+              await PawLinkTheme.setDarkMode(value);
+            },
+          );
+        },
       ),
     );
   }
+
+  // ================================================================
+  // SECURITY SECTION
+  // ================================================================
 
   Widget _buildSecuritySection() {
     final user = _user;
@@ -599,7 +711,10 @@ class _SettingsPageState extends State<SettingsPage> {
             icon: Icons.lock_reset_outlined,
             title: 'Change Password',
             subtitle: 'Receive a secure password reset link by email.',
-            trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+            trailing: const Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 16,
+            ),
             onTap: _changePassword,
           ),
           const Divider(height: 1),
@@ -617,12 +732,18 @@ class _SettingsPageState extends State<SettingsPage> {
                     onPressed: _sendVerificationEmail,
                     child: const Text('Verify'),
                   ),
-            onTap: user?.emailVerified == true ? null : _sendVerificationEmail,
+            onTap: user?.emailVerified == true
+                ? null
+                : _sendVerificationEmail,
           ),
         ],
       ),
     );
   }
+
+  // ================================================================
+  // NOTIFICATION SECTION
+  // ================================================================
 
   Widget _buildNotificationSection() {
     return _SettingsCard(
@@ -671,7 +792,13 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  // ================================================================
+  // PRIVACY SECTION
+  // ================================================================
+
   Widget _buildPrivacySection() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return _SettingsCard(
       icon: Icons.privacy_tip_outlined,
       title: 'Privacy & QR Profile',
@@ -694,20 +821,22 @@ class _SettingsPageState extends State<SettingsPage> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: lightTeal,
+              color: isDark
+                  ? const Color(0xFF293A3B)
+                  : lightTeal,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(Icons.info_outline, size: 19, color: primaryTeal),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     'Only information intended for the public pet profile should be shown when a QR code is scanned. Private account information should remain protected.',
                     style: TextStyle(
                       fontSize: 12,
-                      color: grayText,
+                      color: _secondaryTextColor(context),
                       height: 1.45,
                     ),
                   ),
@@ -720,6 +849,10 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  // ================================================================
+  // ACCOUNT ACTIONS
+  // ================================================================
+
   Widget _buildAccountActions() {
     return _SettingsCard(
       icon: Icons.manage_accounts_outlined,
@@ -731,11 +864,16 @@ class _SettingsPageState extends State<SettingsPage> {
             icon: Icons.person_outline,
             title: 'View My Account',
             subtitle: 'See your profile and account information.',
-            trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+            trailing: const Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 16,
+            ),
             onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (_) => const MyAccountPage()),
+                MaterialPageRoute(
+                  builder: (_) => const MyAccountPage(),
+                ),
               );
             },
           ),
@@ -762,6 +900,10 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  // ================================================================
+  // REUSABLE SWITCH
+  // ================================================================
+
   Widget _buildSwitch({
     required String title,
     required String subtitle,
@@ -781,7 +923,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: darkText,
+                    color: _textColor(context),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -789,7 +931,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   subtitle,
                   style: TextStyle(
                     fontSize: 12,
-                    color: grayText,
+                    color: _secondaryTextColor(context),
                     height: 1.4,
                   ),
                 ),
@@ -808,6 +950,10 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 }
 
+// ================================================================
+// SETTINGS CARD
+// ================================================================
+
 class _SettingsCard extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -823,15 +969,33 @@ class _SettingsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final cardColor = isDark
+        ? const Color(0xFF1D292A)
+        : Colors.white;
+
+    final textColor = isDark
+        ? const Color(0xFFF1F5F5)
+        : _SettingsPageState.darkText;
+
+    final secondaryColor = isDark
+        ? const Color(0xFFB0C0C0)
+        : _SettingsPageState.grayText;
+
+    final border = isDark
+        ? const Color(0xFF344344)
+        : _SettingsPageState.borderColor;
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(
         MediaQuery.of(context).size.width >= 900 ? 24 : 16,
       ),
       decoration: BoxDecoration(
-        color: _SettingsPageState.surfaceColor,
+  color: cardColor,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _SettingsPageState.borderColor),
+        border: Border.all(color: border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.025),
@@ -849,10 +1013,17 @@ class _SettingsCard extends StatelessWidget {
                 width: 42,
                 height: 42,
                 decoration: BoxDecoration(
-                  color: _SettingsPageState.lightTeal,
+                  color: isDark
+                      ? const Color(0xFF293A3B)
+                      : _SettingsPageState.lightTeal,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: _SettingsPageState.primaryTeal),
+                child: Icon(
+                  icon,
+                  color: isDark
+                      ? const Color(0xFF2DD4BF)
+                      : _SettingsPageState.primaryTeal,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -864,7 +1035,7 @@ class _SettingsCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
-                        color: _SettingsPageState.darkText,
+                        color: textColor,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -872,7 +1043,7 @@ class _SettingsCard extends StatelessWidget {
                       subtitle,
                       style: TextStyle(
                         fontSize: 12,
-                        color: _SettingsPageState.grayText,
+                        color: secondaryColor,
                       ),
                     ),
                   ],
@@ -887,6 +1058,10 @@ class _SettingsCard extends StatelessWidget {
     );
   }
 }
+
+// ================================================================
+// ACTION TILE
+// ================================================================
 
 class _ActionTile extends StatelessWidget {
   final IconData icon;
@@ -909,6 +1084,16 @@ class _ActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final defaultTextColor = isDark
+        ? const Color(0xFFF1F5F5)
+        : _SettingsPageState.darkText;
+
+    final defaultSecondaryColor = isDark
+        ? const Color(0xFFB0C0C0)
+        : _SettingsPageState.grayText;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -919,7 +1104,7 @@ class _ActionTile extends StatelessWidget {
             Icon(
               icon,
               size: 21,
-              color: iconColor ?? _SettingsPageState.grayText,
+              color: iconColor ?? defaultSecondaryColor,
             ),
             const SizedBox(width: 13),
             Expanded(
@@ -931,7 +1116,7 @@ class _ActionTile extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: titleColor ?? _SettingsPageState.darkText,
+                      color: titleColor ?? defaultTextColor,
                     ),
                   ),
                   const SizedBox(height: 3),
@@ -939,14 +1124,17 @@ class _ActionTile extends StatelessWidget {
                     subtitle,
                     style: TextStyle(
                       fontSize: 12,
-                      color: _SettingsPageState.grayText,
+                      color: defaultSecondaryColor,
                       height: 1.35,
                     ),
                   ),
                 ],
               ),
             ),
-            if (trailing != null) ...[const SizedBox(width: 10), trailing!],
+            if (trailing != null) ...[
+              const SizedBox(width: 10),
+              trailing!,
+            ],
           ],
         ),
       ),

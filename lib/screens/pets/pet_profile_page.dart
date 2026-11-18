@@ -76,6 +76,31 @@ class _PetProfilePageState extends State<PetProfilePage> {
 
   static Color get onPrimaryColor =>
       SeasonalController.instance.activeTheme?.onPrimary ?? Colors.white;
+      
+      
+
+      // DARK MODE COLORS
+
+bool get _isDarkMode =>
+    Theme.of(context).brightness == Brightness.dark;
+
+Color get _pageBackground =>
+    _isDarkMode ? const Color(0xFF121A1A) : warmBackground;
+
+Color get _cardBackground =>
+    _isDarkMode ? const Color(0xFF1E2A2A) : surfaceColor;
+
+Color get _primaryTextColor =>
+    _isDarkMode ? const Color(0xFFF1F5F4) : darkText;
+
+Color get _secondaryTextColor =>
+    _isDarkMode ? const Color(0xFFB0C2C0) : grayText;
+
+Color get _softSurfaceBackground =>
+    _isDarkMode ? const Color(0xFF263535) : softerTeal;
+
+Color get _outlineColor =>
+    _isDarkMode ? const Color(0xFF3A4A49) : borderColor;
 
   static const Color alertRed = Color(0xFFDC2626);
   static const Color cautionOrange = Color(0xFFD97706);
@@ -189,7 +214,7 @@ class _PetProfilePageState extends State<PetProfilePage> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              backgroundColor: warmBackground,
+              backgroundColor: _cardBackground,
               surfaceTintColor: Colors.transparent,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
@@ -202,7 +227,7 @@ class _PetProfilePageState extends State<PetProfilePage> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: lightTeal,
+                     color: _softSurfaceBackground,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Center(
@@ -218,7 +243,7 @@ class _PetProfilePageState extends State<PetProfilePage> {
                     child: Text(
                       'Change Safety Level',
                       style: TextStyle(
-                        color: darkText,
+                       color: _primaryTextColor,
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
                       ),
@@ -234,7 +259,7 @@ class _PetProfilePageState extends State<PetProfilePage> {
                     child: Text(
                       'Choose the level that best describes your pet right now.',
                       style: TextStyle(
-                        color: grayText,
+                       color: _secondaryTextColor,
                         fontSize: 13,
                         height: 1.45,
                       ),
@@ -294,7 +319,7 @@ class _PetProfilePageState extends State<PetProfilePage> {
                   child: Text(
                     'Cancel',
                     style: TextStyle(
-                      color: grayText,
+                     color: _secondaryTextColor,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -380,10 +405,12 @@ class _PetProfilePageState extends State<PetProfilePage> {
         width: double.infinity,
         padding: EdgeInsets.all(13),
         decoration: BoxDecoration(
-          color: selected ? color.withValues(alpha: 0.08) : Colors.white,
+          color: selected
+    ? color.withValues(alpha: 0.08)
+    : _cardBackground,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: selected ? color : borderColor,
+            color: selected ? color : _outlineColor,
             width: selected ? 1.5 : 1,
           ),
           boxShadow: selected
@@ -437,7 +464,7 @@ class _PetProfilePageState extends State<PetProfilePage> {
               selected
                   ? Icons.radio_button_checked
                   : Icons.radio_button_unchecked,
-              color: selected ? color : grayText,
+              color: selected ? color : _secondaryTextColor,
               size: 21,
             ),
           ],
@@ -469,7 +496,7 @@ class _PetProfilePageState extends State<PetProfilePage> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: warmBackground,
+          backgroundColor: _cardBackground,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
@@ -482,7 +509,7 @@ class _PetProfilePageState extends State<PetProfilePage> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: lightTeal,
+                  color: _softSurfaceBackground,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
@@ -498,7 +525,7 @@ class _PetProfilePageState extends State<PetProfilePage> {
                 child: Text(
                   'Update Pet Status',
                   style: TextStyle(
-                    color: darkText,
+                    color: _primaryTextColor,
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
                   ),
@@ -513,7 +540,11 @@ class _PetProfilePageState extends State<PetProfilePage> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'Choose the current status of your pet.',
-                  style: TextStyle(color: grayText, fontSize: 13, height: 1.4),
+                  style: TextStyle(
+                 color: _secondaryTextColor,
+                 fontSize: 13,
+                 height: 1.4,
+                 ),
                 ),
               ),
               SizedBox(height: 16),
@@ -586,7 +617,7 @@ class _PetProfilePageState extends State<PetProfilePage> {
         width: double.infinity,
         padding: EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: background,
+          color: _isDarkMode ? _cardBackground : background,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: color.withValues(alpha: 0.22)),
         ),
@@ -618,7 +649,7 @@ class _PetProfilePageState extends State<PetProfilePage> {
                   Text(
                     description,
                     style: TextStyle(
-                      color: grayText,
+                      color: _secondaryTextColor,
                       fontSize: 11,
                       height: 1.35,
                     ),
@@ -668,7 +699,7 @@ class _PetProfilePageState extends State<PetProfilePage> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: warmBackground,
+          backgroundColor: _cardBackground,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
@@ -681,7 +712,9 @@ class _PetProfilePageState extends State<PetProfilePage> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: Color(0xFFFFEEEE),
+                  color: _isDarkMode
+              ? const Color(0xFF3A2929)
+             : const Color(0xFFFFEEEE),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
@@ -697,7 +730,7 @@ class _PetProfilePageState extends State<PetProfilePage> {
                 child: Text(
                   'Mark Pet as Deceased?',
                   style: TextStyle(
-                    color: darkText,
+                    color: _primaryTextColor,
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
                   ),
@@ -708,7 +741,9 @@ class _PetProfilePageState extends State<PetProfilePage> {
           content: Container(
             padding: EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Color(0xFFFFF7F7),
+              color: _isDarkMode
+            ? const Color(0xFF332929)
+            : const Color(0xFFFFF7F7),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: alertRed.withValues(alpha: 0.16)),
             ),
@@ -716,7 +751,11 @@ class _PetProfilePageState extends State<PetProfilePage> {
               'This action will permanently remove the pet profile '
               'from PawLink and delete its stored photo. The pet '
               'profile cannot be restored after this action.',
-              style: TextStyle(color: grayText, fontSize: 13, height: 1.5),
+              style: TextStyle(
+            color: _secondaryTextColor,
+           fontSize: 13,
+           height: 1.5,
+              ),
             ),
           ),
           actionsPadding: EdgeInsets.fromLTRB(20, 0, 20, 18),
@@ -727,7 +766,10 @@ class _PetProfilePageState extends State<PetProfilePage> {
               },
               child: Text(
                 'Cancel',
-                style: TextStyle(color: grayText, fontWeight: FontWeight.w700),
+                style: TextStyle(
+               color: _secondaryTextColor,
+              fontWeight: FontWeight.w700,
+               ),
               ),
             ),
             ElevatedButton(
@@ -794,7 +836,7 @@ class _PetProfilePageState extends State<PetProfilePage> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: warmBackground,
+          backgroundColor: _cardBackground,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
@@ -807,7 +849,9 @@ class _PetProfilePageState extends State<PetProfilePage> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: Color(0xFFFFEEEE),
+                  color: _isDarkMode
+                ? const Color(0xFF3A2929)
+                : const Color(0xFFFFEEEE),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
@@ -823,7 +867,7 @@ class _PetProfilePageState extends State<PetProfilePage> {
                 child: Text(
                   'Delete Pet Profile?',
                   style: TextStyle(
-                    color: darkText,
+                    color: _primaryTextColor,
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
                   ),
@@ -834,7 +878,11 @@ class _PetProfilePageState extends State<PetProfilePage> {
           content: Text(
             'This will permanently remove the pet profile and its '
             'stored photo. This action cannot be undone.',
-            style: TextStyle(color: grayText, fontSize: 13, height: 1.45),
+            style: TextStyle(
+           color: _secondaryTextColor,
+           fontSize: 13,
+          height: 1.45,
+          ),
           ),
           actionsPadding: EdgeInsets.fromLTRB(20, 0, 20, 18),
           actions: [
@@ -842,7 +890,10 @@ class _PetProfilePageState extends State<PetProfilePage> {
               onPressed: () => Navigator.pop(dialogContext, false),
               child: Text(
                 'Cancel',
-                style: TextStyle(color: grayText, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                color: _secondaryTextColor,
+                fontWeight: FontWeight.w700,
+               ),
               ),
             ),
             ElevatedButton(
@@ -861,7 +912,10 @@ class _PetProfilePageState extends State<PetProfilePage> {
               ),
               child: Text(
                 'Delete',
-                style: TextStyle(fontWeight: FontWeight.w800),
+                style: TextStyle(
+                color: _secondaryTextColor,
+                fontWeight: FontWeight.w700,
+               ),
               ),
             ),
           ],
@@ -914,29 +968,29 @@ class _PetProfilePageState extends State<PetProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: warmBackground,
-      appBar: AppBar(
-        backgroundColor: warmBackground,
+  backgroundColor: _pageBackground,
+  appBar: AppBar(
+    backgroundColor: _pageBackground,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
           tooltip: 'Back',
           onPressed: () => Navigator.pop(context),
-          icon: Icon(Icons.arrow_back_rounded, color: darkText),
+         icon: Icon(Icons.arrow_back_rounded, color: _primaryTextColor),
         ),
         title: Text(
           'Pet Profile',
-          style: TextStyle(color: darkText, fontWeight: FontWeight.w900),
+          style: TextStyle(color: _primaryTextColor, fontWeight: FontWeight.w900),
         ),
         actions: [
           IconButton(
             tooltip: 'Edit Pet Information',
             onPressed: _openEditPet,
-            icon: Icon(Icons.edit_outlined, color: darkText),
+            icon: Icon(Icons.edit_outlined, color: _primaryTextColor),
           ),
           PopupMenuButton<String>(
             tooltip: 'More options',
-            icon: Icon(Icons.more_vert_rounded, color: darkText),
+            icon: Icon(Icons.more_vert_rounded, color: _primaryTextColor),
             onSelected: (value) {
               if (value == 'delete') {
                 _deletePet();
@@ -1112,10 +1166,10 @@ Widget _buildPetHeader(Map<String, dynamic> data) {
       gradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [surfaceColor, softerTeal],
+        colors: [_cardBackground, _softSurfaceBackground],
       ),
       borderRadius: BorderRadius.circular(24),
-      border: Border.all(color: borderColor),
+      border: Border.all(color: _outlineColor),
       boxShadow: [
         BoxShadow(
           color: Color(0x12000000),
@@ -1123,7 +1177,9 @@ Widget _buildPetHeader(Map<String, dynamic> data) {
           offset: Offset(0, 10),
         ),
         BoxShadow(
-          color: Color(0xFFFFFFFF),
+          color: _isDarkMode
+    ? const Color(0x12000000)
+    : const Color(0xFFFFFFFF),
           blurRadius: 8,
           offset: Offset(-4, -4),
         ),
@@ -1147,7 +1203,7 @@ Widget _buildPetHeader(Map<String, dynamic> data) {
                       vertical: 5,
                     ),
                     decoration: BoxDecoration(
-                      color: lightTeal,
+                     color: _softSurfaceBackground,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -1164,7 +1220,7 @@ Widget _buildPetHeader(Map<String, dynamic> data) {
                   Text(
                     petName.isEmpty ? 'Unnamed Pet' : petName,
                     style: TextStyle(
-                      color: darkText,
+                      color: _primaryTextColor,
                       fontSize: 25,
                       fontWeight: FontWeight.w900,
                       height: 1.05,
@@ -1174,7 +1230,7 @@ Widget _buildPetHeader(Map<String, dynamic> data) {
                   Text(
                     breed.isEmpty ? 'Breed not specified' : breed,
                     style: TextStyle(
-                      color: grayText,
+                      color: _secondaryTextColor,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -1191,7 +1247,7 @@ Widget _buildPetHeader(Map<String, dynamic> data) {
           Text(
             'Pet Photos',
             style: TextStyle(
-              color: darkText,
+              color: _primaryTextColor,
               fontSize: 14,
               fontWeight: FontWeight.w800,
             ),
@@ -1209,9 +1265,9 @@ Widget _buildPetHeader(Map<String, dynamic> data) {
                 constraints: BoxConstraints(maxWidth: 420),
                 padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: surfaceColor,
+                  color: _cardBackground,
                   borderRadius: BorderRadius.circular(17),
-                  border: Border.all(color: borderColor),
+                  border: Border.all(color: _outlineColor),
                 ),
                 child: Row(
                   children: [
@@ -1272,7 +1328,7 @@ Widget _buildPetHeader(Map<String, dynamic> data) {
                           Text(
                             'Uploaded Photos',
                             style: TextStyle(
-                              color: darkText,
+                              color: _primaryTextColor,
                               fontSize: 15,
                               fontWeight: FontWeight.w900,
                             ),
@@ -1281,7 +1337,7 @@ Widget _buildPetHeader(Map<String, dynamic> data) {
                           Text(
                             '${photoUrls.length} photos',
                             style: TextStyle(
-                              color: grayText,
+                             color: _primaryTextColor,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
@@ -1475,9 +1531,9 @@ Future<void> _showPetPhotoAlbum(
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: lightTeal,
+          color: _softSurfaceBackground,
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: borderColor),
+          border: Border.all(color: _outlineColor),
           boxShadow: [
             BoxShadow(
               color: Color(0x12000000),
@@ -1497,7 +1553,7 @@ Future<void> _showPetPhotoAlbum(
       height: size,
       padding: EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: surfaceColor,
+        color: _cardBackground,
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
@@ -1517,7 +1573,7 @@ Future<void> _showPetPhotoAlbum(
           errorBuilder: (context, error, stackTrace) {
             return Container(
               decoration: BoxDecoration(
-                color: lightTeal,
+                color: _softSurfaceBackground,
                 borderRadius: BorderRadius.circular(18),
               ),
               child: Center(
@@ -1534,7 +1590,7 @@ Future<void> _showPetPhotoAlbum(
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.8),
+        color: _softSurfaceBackground,
         borderRadius: BorderRadius.circular(9),
         border: Border.all(color: primaryTeal.withValues(alpha: 0.10)),
       ),
@@ -1556,7 +1612,7 @@ Future<void> _showPetPhotoAlbum(
   Widget _buildEditButton() {
     return Container(
       decoration: BoxDecoration(
-        color: surfaceColor,
+        color: _cardBackground,
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
@@ -1577,7 +1633,7 @@ Future<void> _showPetPhotoAlbum(
           ),
           style: OutlinedButton.styleFrom(
             foregroundColor: primaryTeal,
-            backgroundColor: surfaceColor,
+            backgroundColor: _cardBackground,
             side: BorderSide(color: primaryTeal.withValues(alpha: 0.35)),
             padding: EdgeInsets.symmetric(vertical: 14),
             shape: RoundedRectangleBorder(
@@ -1692,10 +1748,10 @@ Future<void> _showPetPhotoAlbum(
         : primaryTeal;
 
     final Color tagBackground = isAggressive
-        ? Color(0xFFFFEEEE)
-        : isCaution
-        ? Color(0xFFFFF7E6)
-        : lightTeal;
+    ? (_isDarkMode ? const Color(0xFF3A2929) : const Color(0xFFFFEEEE))
+    : isCaution
+        ? (_isDarkMode ? const Color(0xFF3A3528) : const Color(0xFFFFF7E6))
+        : (_isDarkMode ? _softSurfaceBackground : lightTeal);
 
     final String label = isAggressive
         ? 'Do Not Approach'
@@ -1746,7 +1802,7 @@ Future<void> _showPetPhotoAlbum(
                       Text(
                         label,
                         style: TextStyle(
-                          color: tagColor,
+                          color: _isDarkMode ? _primaryTextColor : tagColor,
                           fontSize: 15,
                           fontWeight: FontWeight.w900,
                         ),
@@ -1759,7 +1815,7 @@ Future<void> _showPetPhotoAlbum(
                             ? 'Approach carefully and give the pet enough space.'
                             : 'This pet is currently marked as safe to approach.',
                         style: TextStyle(
-                          color: grayText,
+                          color: _secondaryTextColor,
                           fontSize: 12,
                           height: 1.4,
                         ),
@@ -1820,7 +1876,11 @@ Future<void> _showPetPhotoAlbum(
             width: double.infinity,
             padding: EdgeInsets.all(15),
             decoration: BoxDecoration(
-              color: isAlive ? lightTeal : Color(0xFFFFEEEE),
+              color: isAlive
+              ? (_isDarkMode ? _softSurfaceBackground : lightTeal)
+              : (_isDarkMode
+              ? const Color(0xFF3A2929)
+              : const Color(0xFFFFEEEE)),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isAlive
@@ -1868,7 +1928,7 @@ Future<void> _showPetPhotoAlbum(
                             ? 'This pet profile is currently active.'
                             : 'This pet profile is no longer active.',
                         style: TextStyle(
-                          color: grayText,
+                          color: _secondaryTextColor,
                           fontSize: 12,
                           height: 1.4,
                         ),
@@ -1932,13 +1992,13 @@ Future<void> _showPetPhotoAlbum(
       width: double.infinity,
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: warmBackground,
+        color: _pageBackground,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: _outlineColor),
       ),
       child: Text(
         'QR profile is currently unavailable.',
-        style: TextStyle(color: grayText, fontSize: 13),
+        style: TextStyle(color: _secondaryTextColor, fontSize: 13),
       ),
     );
   }
@@ -1967,14 +2027,18 @@ Future<void> _showPetPhotoAlbum(
             ownerIds.length <= 1
                 ? 'You are currently the only owner of this pet.'
                 : '${ownerIds.length} owner accounts are connected to this pet.',
-            style: TextStyle(color: grayText, fontSize: 12, height: 1.45),
+           style: TextStyle(
+          color: _secondaryTextColor,
+          fontSize: 12,
+          height: 1.45,
+           ),
           ),
           SizedBox(height: 15),
           Container(
             width: double.infinity,
             padding: EdgeInsets.all(11),
             decoration: BoxDecoration(
-              color: softerTeal,
+              color: _softSurfaceBackground,
               borderRadius: BorderRadius.circular(13),
             ),
             child: Row(
@@ -1983,7 +2047,7 @@ Future<void> _showPetPhotoAlbum(
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                   color: _cardBackground,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Center(
@@ -1999,7 +2063,7 @@ Future<void> _showPetPhotoAlbum(
                   child: Text(
                     'All connected owners can access this pet profile.',
                     style: TextStyle(
-                      color: darkTeal,
+                      color: _primaryTextColor,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       height: 1.35,
@@ -2047,9 +2111,9 @@ Future<void> _showPetPhotoAlbum(
       width: double.infinity,
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: warmBackground,
+        color: _pageBackground,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: _outlineColor),
       ),
       child: Row(
         children: [
@@ -2057,7 +2121,7 @@ Future<void> _showPetPhotoAlbum(
             width: 37,
             height: 37,
             decoration: BoxDecoration(
-              color: lightTeal,
+              color: _softSurfaceBackground,
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
@@ -2067,8 +2131,10 @@ Future<void> _showPetPhotoAlbum(
                 ),
               ],
             ),
-            child: Center(child: Icon(icon, color: primaryTeal, size: 19)),
-          ),
+           child: Center(
+  child: Icon(icon, color: primaryTeal, size: 19),
+),
+), // Containeriner
           SizedBox(width: 11),
           Expanded(
             child: Column(
@@ -2077,7 +2143,7 @@ Future<void> _showPetPhotoAlbum(
                 Text(
                   label,
                   style: TextStyle(
-                    color: grayText,
+                    color: _secondaryTextColor,
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                   ),
@@ -2086,7 +2152,7 @@ Future<void> _showPetPhotoAlbum(
                 Text(
                   value.isEmpty ? 'Not provided' : value,
                   style: TextStyle(
-                    color: darkText,
+                    color: _primaryTextColor,
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
                   ),
@@ -2110,7 +2176,7 @@ Future<void> _showPetPhotoAlbum(
           width: 37,
           height: 37,
           decoration: BoxDecoration(
-            color: lightTeal,
+           color: _softSurfaceBackground,
             borderRadius: BorderRadius.circular(11),
             boxShadow: [
               BoxShadow(
@@ -2127,7 +2193,7 @@ Future<void> _showPetPhotoAlbum(
           child: Text(
             title,
             style: TextStyle(
-              color: darkText,
+              color: _primaryTextColor,
               fontSize: 16,
               fontWeight: FontWeight.w900,
             ),
@@ -2146,9 +2212,9 @@ Future<void> _showPetPhotoAlbum(
       width: double.infinity,
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: surfaceColor,
+        color: _cardBackground,
         borderRadius: BorderRadius.circular(21),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: _outlineColor),
         boxShadow: [
           BoxShadow(
             color: Color(0x10000000),
@@ -2156,7 +2222,9 @@ Future<void> _showPetPhotoAlbum(
             offset: Offset(0, 8),
           ),
           BoxShadow(
-            color: Color(0xFFFFFFFF),
+            color: _isDarkMode
+    ? const Color(0x12000000)
+    : const Color(0xFFFFFFFF),
             blurRadius: 6,
             offset: Offset(-3, -3),
           ),
@@ -2189,9 +2257,9 @@ Future<void> _showPetPhotoAlbum(
           constraints: BoxConstraints(maxWidth: 500),
           padding: EdgeInsets.all(26),
           decoration: BoxDecoration(
-            color: surfaceColor,
+            color: _cardBackground,
             borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: borderColor),
+            border: Border.all(color: _outlineColor),
             boxShadow: [
               BoxShadow(
                 color: Color(0x12000000),
@@ -2207,7 +2275,7 @@ Future<void> _showPetPhotoAlbum(
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: lightTeal,
+                  color: _softSurfaceBackground,
                   borderRadius: BorderRadius.circular(19),
                 ),
                 child: Center(child: Icon(icon, color: primaryTeal, size: 30)),
@@ -2217,7 +2285,7 @@ Future<void> _showPetPhotoAlbum(
                 title,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: darkText,
+                  color: _primaryTextColor,
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
                 ),
@@ -2227,7 +2295,7 @@ Future<void> _showPetPhotoAlbum(
                 message,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: grayText,
+                 color: _secondaryTextColor,
                   fontSize: 13,
                   height: 1.45,
                 ),
