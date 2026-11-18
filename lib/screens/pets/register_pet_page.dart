@@ -34,7 +34,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
 
   final List<Uint8List> _photoBytes = [];
 
-  String _sex = 'unknown';
+  String? _sex;
   String? _selectedBreed;
   String _safetyTag = 'safe';
 
@@ -102,6 +102,266 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
   static const Color safeGreen = Color(0xFF16A34A);
   static const Color cautionYellow = Color(0xFFF59E0B);
   static const Color aggressiveRed = Color(0xFFDC2626);
+
+
+  // Breed choices shown in the Breed dropdown.
+  static const List<String> _catBreeds = [
+    'Persian',
+    'Siamese',
+    'British Shorthair',
+    'Maine Coon',
+    'Ragdoll',
+    'Bengal',
+    'Scottish Fold',
+    'American Shorthair',
+    'Sphynx',
+    'Russian Blue',
+    'Exotic Shorthair',
+    'Himalayan',
+    'Abyssinian',
+    'Domestic Shorthair (Puspin)',
+    'Domestic Longhair',
+  ];
+
+  static const List<String> _dogBreeds = [
+    'Shih Tzu',
+    'Pomeranian',
+    'Chihuahua',
+    'Labrador Retriever',
+    'Golden Retriever',
+    'German Shepherd',
+    'Beagle',
+    'Poodle',
+    'Dachshund',
+    'Siberian Husky',
+    'French Bulldog',
+    'Rottweiler',
+    'Yorkshire Terrier',
+    'Aspin',
+    'Corgi',
+  ];
+
+  static const List<String> _otherBreedChoices = [
+    'Mixed Breed',
+    'Unknown',
+    'Other',
+  ];
+
+  static List<String> get _allBreedChoices => [
+        ..._catBreeds,
+        ..._dogBreeds,
+        ..._otherBreedChoices,
+      ];
+
+  // Breed reference pictures are loaded from the app's local assets.
+  // Add the matching JPG files under assets/images/breeds/.
+  String _breedImageAsset(String breed) {
+    final String fileName = breed
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
+        .replaceAll(RegExp(r'^_|_$'), '');
+
+    return 'assets/images/breeds/$fileName.jpg';
+  }
+
+  // Tap a breed thumbnail to view its reference photo in a larger preview.
+  void _showBreedImagePreview(String breed) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return Dialog(
+          backgroundColor: warmBackground,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        breed,
+                        style: TextStyle(
+                          color: darkText,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(dialogContext),
+                      icon: Icon(Icons.close_rounded),
+                      color: grayText,
+                    ),
+                  ],
+                ),
+                SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: Image.asset(
+                    _breedImageAsset(breed),
+                    width: 280,
+                    height: 280,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 280,
+                      height: 280,
+                      color: lightTeal,
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.pets_rounded,
+                        color: primaryTeal,
+                        size: 64,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Breed reference photo',
+                  style: TextStyle(color: grayText, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _breedThumbnail(String breed) {
+    return GestureDetector(
+      onTap: () => _showBreedImagePreview(breed),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.asset(
+          _breedImageAsset(breed),
+          width: 38,
+          height: 38,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => Container(
+            width: 38,
+            height: 38,
+            color: lightTeal,
+            alignment: Alignment.center,
+            child: Icon(Icons.pets_rounded, color: primaryTeal, size: 21),
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<DropdownMenuItem<String>> _buildBreedItems(List<String> breeds) {
+    return breeds.map((breed) {
+      return DropdownMenuItem<String>(
+        value: breed,
+        child: Row(
+          children: [
+            _breedThumbnail(breed),
+            SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                breed,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: darkText,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  Widget _buildBreedDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _selectedBreed,
+      hint: Text(
+        "Select your pet's breed",
+        style: TextStyle(
+          color: Color(0xFF8A9292),
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      isExpanded: true,
+      menuMaxHeight: 420,
+      decoration: _dropdownDecoration(
+        'Breed',
+        Icons.category_outlined,
+      ).copyWith(
+        helperText: 'Choose a breed from the list. If your pet is mixed breed or the breed is unknown, select the appropriate option.',
+        helperMaxLines: 2,
+        helperStyle: TextStyle(
+          color: grayText,
+          fontSize: 13,
+          height: 1.35,
+        ),
+      ),
+      items: [
+        DropdownMenuItem<String>(
+          enabled: false,
+          child: Text(
+            'CAT BREEDS',
+            style: TextStyle(
+              color: primaryTeal,
+              fontWeight: FontWeight.w900,
+              fontSize: 13,
+            ),
+          ),
+        ),
+        ..._buildBreedItems(_catBreeds),
+        DropdownMenuItem<String>(
+          enabled: false,
+          child: Text(
+            'DOG BREEDS',
+            style: TextStyle(
+              color: primaryTeal,
+              fontWeight: FontWeight.w900,
+              fontSize: 13,
+            ),
+          ),
+        ),
+        ..._buildBreedItems(_dogBreeds),
+        DropdownMenuItem<String>(
+          enabled: false,
+          child: Text(
+            'OTHER OPTIONS',
+            style: TextStyle(
+              color: primaryTeal,
+              fontWeight: FontWeight.w900,
+              fontSize: 13,
+            ),
+          ),
+        ),
+        ..._buildBreedItems(_otherBreedChoices),
+      ],
+      onChanged: _isSaving
+          ? null
+          : (value) {
+              if (value == null) return;
+              setState(() {
+                _selectedBreed = value;
+                if (value != 'Other') {
+                  _otherBreedController.clear();
+                }
+              });
+            },
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return 'Please choose a breed.';
+        }
+        return null;
+      },
+    );
+  }
 
   @override
   void dispose() {
@@ -226,7 +486,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
         breed: breedToSave,
         color: _colorController.text.trim(),
         age: _ageController.text.trim(),
-        sex: _sex,
+        sex: _sex ?? 'unknown',
         identifyingMarks: _identifyingMarksController.text.trim(),
         ownerName: _ownerNameController.text.trim(),
         ownerContact: _ownerContactController.text.trim(),
@@ -264,11 +524,11 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
           breed: breedToSave,
           color: _colorController.text.trim(),
           age: _ageController.text.trim(),
-          sex: _sex,
+          sex: _sex ?? 'unknown',
           identifyingMarks: _identifyingMarksController.text.trim(),
           ownerName: _ownerNameController.text.trim(),
           ownerContact: _ownerContactController.text.trim(),
-          photoUrl: photoUrls.first,
+            photoUrl: photoUrls.first,
           photoUrls: photoUrls,
           safetyTag: _safetyTag,
         );
@@ -333,32 +593,59 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final bool isDesktop = constraints.maxWidth >= 800;
+          final bool isWide = constraints.maxWidth >= 1050;
+          final bool isDesktop = constraints.maxWidth >= 900;
 
           return SingleChildScrollView(
             padding: EdgeInsets.fromLTRB(
-              isDesktop ? 40 : 16,
+              isDesktop ? 28 : 16,
               20,
-              isDesktop ? 40 : 16,
+              isDesktop ? 28 : 16,
               40,
             ),
             child: Center(
               child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: 850),
+                constraints: BoxConstraints(maxWidth: 1320),
                 child: Form(
                   key: _formKey,
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       _buildIntro(),
-                      SizedBox(height: 20),
-                      _buildPhotoSection(),
+                      SizedBox(height: 22),
+                      if (isWide)
+                        IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(flex: 5, child: _buildPhotoSection()),
+                              SizedBox(width: 20),
+                              Expanded(flex: 7, child: _buildPetInformation()),
+                            ],
+                          ),
+                        )
+                      else ...[
+                        _buildPhotoSection(),
+                        SizedBox(height: 18),
+                        _buildPetInformation(),
+                      ],
                       SizedBox(height: 18),
-                      _buildPetInformation(),
-                      SizedBox(height: 18),
-                      _buildSafetySection(),
-                      SizedBox(height: 18),
-                      _buildOwnerInformation(),
+                      if (isWide)
+                        IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(flex: 1, child: _buildSafetySection()),
+                              SizedBox(width: 20),
+                              Expanded(flex: 1, child: _buildOwnerInformation()),
+                            ],
+                          ),
+                        )
+                      else ...[
+                        _buildSafetySection(),
+                        SizedBox(height: 18),
+                        _buildOwnerInformation(),
+                      ],
                       SizedBox(height: 18),
                       _buildQrInformation(),
                       SizedBox(height: 24),
@@ -411,6 +698,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
   Widget _buildPhotoSection() {
     return _buildCard(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSectionTitle(
@@ -424,7 +712,6 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
             'Each photo must be 5 MB or smaller.',
             style: TextStyle(
               color: _secondaryTextColor,
-              fontSize: 12,
               height: 1.5,
             ),
           ),
@@ -464,10 +751,10 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
     );
   }
 
-  Widget _buildEmptyPhotoPlaceholder() {
+      Widget _buildEmptyPhotoPlaceholder() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 26, horizontal: 16),
+      padding: EdgeInsets.symmetric(vertical: 34, horizontal: 16),
       decoration: BoxDecoration(
         color: _softTealBackground,
         borderRadius: BorderRadius.circular(16),
@@ -485,6 +772,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
             'No photos selected',
             style: TextStyle(
               color: _primaryTextColor,
+              fontSize: 16,
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -507,14 +795,14 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: 142,
+          height: 168,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: _photoBytes.length,
             separatorBuilder: (_, __) => SizedBox(width: 12),
             itemBuilder: (context, index) {
               return SizedBox(
-                width: 118,
+                width: 148,
                 child: Stack(
                   children: [
                     Positioned.fill(
@@ -543,7 +831,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                             'Main Photo',
                             style: TextStyle(
                               color: onPrimaryColor,
-                              fontSize: 10,
+                              fontSize: 14,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -659,7 +947,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
             },
           ),
           SizedBox(height: 14),
-          DropdownButtonFormField<String>(
+                    DropdownButtonFormField<String>(
             value: _sex,
             decoration: _dropdownDecoration('Sex', Icons.pets_rounded),
             items: const [
@@ -669,10 +957,24 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
             ],
             onChanged: _isSaving
                 ? null
-                : (value) {
-                    if (value == null) return;
-                    setState(() => _sex = value);
-                  },
+                : (value) => setState(() => _sex = value),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return "Please choose your pet's gender.";
+              }
+              return null;
+            },
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 4, top: 7),
+            child: Text(
+              'Choose Male, Female, or Unknown if the gender is not known.',
+              style: TextStyle(
+                color: grayText,
+                fontSize: 13,
+                height: 1.4,
+              ),
+            ),
           ),
           SizedBox(height: 14),
           _buildTextField(
@@ -686,53 +988,6 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
       ),
     );
   }
-
-  Widget _buildBreedDropdown() {
-  final breeds = [
-    'Aspin',
-    'Beagle',
-    'Bulldog',
-    'Chihuahua',
-    'Golden Retriever',
-    'Labrador',
-    'Persian',
-    'Puspin',
-    'Shih Tzu',
-    'Siamese',
-    'Other',
-  ];
-
-  return DropdownButtonFormField<String>(
-    value: _selectedBreed,
-    decoration: _dropdownDecoration('Breed', Icons.pets_rounded),
-    items: breeds.map((breed) {
-      return DropdownMenuItem<String>(
-        value: breed,
-        child: Text(
-  breed,
-  style: TextStyle(color: _primaryTextColor),
-),
-      );
-    }).toList(),
-    onChanged: _isSaving
-        ? null
-        : (value) {
-            setState(() {
-              _selectedBreed = value;
-
-              if (value != 'Other') {
-                _otherBreedController.clear();
-              }
-            });
-          },
-    validator: (value) {
-      if (value == null || value.isEmpty) {
-        return 'Please select your pet breed.';
-      }
-      return null;
-    },
-  );
-}
 
   InputDecoration _dropdownDecoration(String label, IconData icon) {
     return InputDecoration(
@@ -781,7 +1036,6 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
             'to respond if they encounter your pet.',
             style: TextStyle(
               color: _secondaryTextColor,
-              fontSize: 12,
               height: 1.45,
             ),
           ),
@@ -835,7 +1089,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                       'the pet and use the report feature when necessary.',
                       style: TextStyle(
                         color: aggressiveRed,
-                        fontSize: 12,
+                        fontSize: 14,
                         height: 1.4,
                         fontWeight: FontWeight.w600,
                       ),
@@ -1006,7 +1260,6 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                   'all owners will use the same QR code.',
                   style: TextStyle(
                     color: _secondaryTextColor,
-                    fontSize: 12,
                     height: 1.45,
                   ),
                 ),
@@ -1065,10 +1318,11 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
     required IconData icon,
     required String? Function(String?) validator,
     TextInputType? keyboardType,
+    bool enabled = true,
   }) {
     return TextFormField(
       controller: controller,
-      enabled: !_isSaving,
+      enabled: !_isSaving && enabled,
       keyboardType: keyboardType,
       validator: validator,
       style: TextStyle(
@@ -1091,7 +1345,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
         labelStyle: TextStyle(color: _secondaryTextColor),
         hintStyle: const TextStyle(
           color: Color(0xFF9A9F9F),
-          fontSize: 13,
+          fontSize: 14,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
@@ -1130,7 +1384,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
   Widget _buildCard({required Widget child}) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(20),
+      padding: EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: _isDarkMode
     ? const Color(0xFF1E2A2A)
