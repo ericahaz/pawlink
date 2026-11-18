@@ -233,7 +233,7 @@ Color get _softerBackground =>
                     physics: ClampingScrollPhysics(),
                     padding: EdgeInsets.fromLTRB(
                       isDesktop ? 40 : 18,
-                      24,
+                      0,
                       isDesktop ? 40 : 18,
                       110,
                     ),
@@ -278,46 +278,30 @@ Color get _softerBackground =>
   }
 
   PreferredSizeWidget _buildAppBar() {
-  return AppBar(
-    backgroundColor: _cardBackground,
-    elevation: 0,
-    scrolledUnderElevation: 0,
-    surfaceTintColor: Colors.transparent,
-    titleSpacing: 18,
-    title: Row(
-      children: [
-        Container(
-          width: 38,
-          height: 38,
-          decoration: BoxDecoration(
-            color: lightTeal,
-            borderRadius: BorderRadius.circular(11),
-            border: Border.all(color: primaryTeal.withValues(alpha: 0.08)),
-          ),
-          child: Center(
-            child: Icon(Icons.pets_rounded, color: primaryTeal, size: 21),
-          ),
+    return AppBar(
+      backgroundColor: _cardBackground,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
+      titleSpacing: 18,
+      title: Text(
+        'My Pets',
+        style: TextStyle(
+          color: _primaryTextColor,
+          fontWeight: FontWeight.w900,
+          fontSize: 24,
         ),
-        SizedBox(width: 10),
-        Text(
-          'My Pets',
-          style: TextStyle(
-            color: _primaryTextColor,
-            fontWeight: FontWeight.w900,
-            fontSize: 20,
-          ),
-        ),
-      ],
-    ),
-    iconTheme: IconThemeData(color: _primaryTextColor),
-  );
-}
+      ),
+      iconTheme: IconThemeData(color: _primaryTextColor),
+    );
+  }
 
 
   Widget _buildHeroHeader(
     List<QueryDocumentSnapshot<Map<String, dynamic>>> pets,
   ) {
     final petCount = pets.length;
+    final isEmpty = petCount == 0;
 
     return Container(
       width: double.infinity,
@@ -331,7 +315,7 @@ Color get _softerBackground =>
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: darkTeal.withValues(alpha: 0.14),
+            color: darkTeal.withValues(alpha: 0.16),
             blurRadius: 22,
             offset: Offset(0, 10),
           ),
@@ -340,25 +324,25 @@ Color get _softerBackground =>
       child: Stack(
         children: [
           Positioned(
-            right: -25,
-            top: -30,
+            right: -34,
+            top: -42,
             child: Container(
-              width: 125,
-              height: 125,
+              width: 150,
+              height: 150,
               decoration: BoxDecoration(
-                color: onPrimaryColor.withValues(alpha: 0.05),
+                color: onPrimaryColor.withValues(alpha: 0.055),
                 shape: BoxShape.circle,
               ),
             ),
           ),
           Positioned(
-            right: 30,
-            bottom: -50,
+            right: 34,
+            bottom: -65,
             child: Container(
-              width: 95,
-              height: 95,
+              width: 112,
+              height: 112,
               decoration: BoxDecoration(
-                color: onPrimaryColor.withValues(alpha: 0.04),
+                color: onPrimaryColor.withValues(alpha: 0.045),
                 shape: BoxShape.circle,
               ),
             ),
@@ -367,25 +351,26 @@ Color get _softerBackground =>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                petCount == 0
-                    ? 'Start your pet\'s PawLink journey.'
+                isEmpty
+                    ? 'Start your pet’s PawLink journey.'
                     : 'Your pets, all in one place.',
                 style: TextStyle(
                   color: onPrimaryColor,
-                  fontSize: 25,
-                  height: 1.15,
+                  fontSize: 27,
+                  height: 1.16,
                   fontWeight: FontWeight.w900,
                 ),
               ),
-              SizedBox(height: 8),
+              SizedBox(height: 10),
               Text(
-                petCount == 0
-                    ? 'Register a pet to create a profile and connect it to a unique QR code.'
-                    : 'Keep their profiles updated, manage safety information, and access their QR profiles anytime.',
+                isEmpty
+                    ? 'Create a profile for your pet and give them a unique QR code for easier identification.'
+                    : 'Manage their profiles, keep safety details updated, and access their QR codes anytime.',
                 style: TextStyle(
-                  color: onPrimaryColor.withValues(alpha: 0.76),
-                  fontSize: 13,
+                  color: onPrimaryColor.withValues(alpha: 0.82),
+                  fontSize: 15,
                   height: 1.5,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
@@ -514,7 +499,7 @@ Color get _softerBackground =>
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: _primaryTextColor,
-                    fontSize: 18,
+                    fontSize: 20,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -524,7 +509,7 @@ Color get _softerBackground =>
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: _secondaryTextColor,
-                    fontSize: 10,
+                    fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -554,7 +539,7 @@ Color get _softerBackground =>
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           hintText: 'Search by pet name or breed',
-          hintStyle: TextStyle(color: _secondaryTextColor, fontSize: 13),
+          hintStyle: TextStyle(color: _secondaryTextColor, fontSize: 15),
           prefixIcon: Container(
             width: 45,
             margin: EdgeInsets.only(left: 6, top: 6, bottom: 6),
@@ -622,7 +607,7 @@ Color get _softerBackground =>
         showingAll ? 'Your pet profiles' : 'Search results',
         style: TextStyle(
         color: _primaryTextColor,
-        fontSize: 16,
+        fontSize: 18,
             fontWeight: FontWeight.w900,
           ),
         ),
@@ -638,7 +623,7 @@ Color get _softerBackground =>
             '$count ${count == 1 ? 'pet' : 'pets'}',
             style: TextStyle(
               color: _secondaryTextColor,
-              fontSize: 11,
+              fontSize: 13,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -851,7 +836,7 @@ Color get _softerBackground =>
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.w900,
                   color: _primaryTextColor,
                 ),
@@ -868,7 +853,7 @@ Color get _softerBackground =>
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             color: _secondaryTextColor,
-            fontSize: 12,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -936,7 +921,7 @@ Color get _softerBackground =>
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: _secondaryTextColor,
-              fontSize: 10,
+              fontSize: 12,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -965,7 +950,7 @@ Color get _softerBackground =>
             safetyInfo['label'] as String,
             style: TextStyle(
               color: safetyInfo['color'] as Color,
-              fontSize: 9,
+              fontSize: 12,
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -1044,7 +1029,7 @@ Color get _softerBackground =>
                   'View profile',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 11,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -1083,7 +1068,7 @@ Color get _softerBackground =>
             safetyInfo['label'] as String,
             style: TextStyle(
               color: safetyInfo['color'] as Color,
-              fontSize: 9,
+              fontSize: 12,
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -1147,7 +1132,7 @@ Color get _softerBackground =>
             alive ? 'Alive' : 'Deceased',
             style: TextStyle(
               color: color,
-              fontSize: 9,
+              fontSize: 12,
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -1191,14 +1176,14 @@ Color get _softerBackground =>
                   'Have another pet?',
                   style: TextStyle(
                     color: _primaryTextColor,
-                    fontSize: 13,
+                    fontSize: 15,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
                 SizedBox(height: 3),
                 Text(
                   'Create another PawLink profile and QR code.',
-                  style: TextStyle(color: _secondaryTextColor, fontSize: 11),
+                  style: TextStyle(color: _secondaryTextColor, fontSize: 13),
                 ),
               ],
             ),
@@ -1212,7 +1197,7 @@ Color get _softerBackground =>
             ),
             child: Text(
               'Register',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900),
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
             ),
           ),
         ],
@@ -1254,7 +1239,7 @@ Color get _softerBackground =>
             'No pets registered yet',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 24,
               fontWeight: FontWeight.w900,
               color: _primaryTextColor,
             ),
@@ -1263,7 +1248,7 @@ Color get _softerBackground =>
           Text(
             'Give your pet a digital identity with a PawLink profile and unique QR code.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: _secondaryTextColor, fontSize: 13, height: 1.5),
+            style: TextStyle(color: _secondaryTextColor, fontSize: 15, height: 1.5),
           ),
           SizedBox(height: 20),
           ElevatedButton.icon(
@@ -1312,7 +1297,7 @@ Color get _softerBackground =>
           Text(
             'No matching pets',
             style: TextStyle(
-              fontSize: 17,
+              fontSize: 19,
               fontWeight: FontWeight.w900,
               color: darkText,
             ),
@@ -1321,7 +1306,7 @@ Color get _softerBackground =>
           Text(
             'Try another pet name or breed.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: _secondaryTextColor, fontSize: 13),
+            style: TextStyle(color: _secondaryTextColor, fontSize: 15),
           ),
           SizedBox(height: 14),
           TextButton.icon(
@@ -1378,7 +1363,7 @@ Color get _softerBackground =>
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
                   color: _primaryTextColor,
-                  fontSize: 16,
+                  fontSize: 18,
                 ),
               ),
               SizedBox(height: 5),
@@ -1387,7 +1372,7 @@ Color get _softerBackground =>
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: _secondaryTextColor,
-                  fontSize: 13,
+                  fontSize: 15,
                 ),
               ),
               SizedBox(height: 18),
@@ -1405,7 +1390,7 @@ Color get _softerBackground =>
                   errorMessage,
                   style: TextStyle(
                     color: Color(0xFF991B1B),
-                    fontSize: 12,
+                    fontSize: 14,
                     height: 1.5,
                   ),
                 ),
