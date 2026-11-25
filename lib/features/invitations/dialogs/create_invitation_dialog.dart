@@ -20,7 +20,7 @@ class _CreateInvitationDialogState
     extends State<CreateInvitationDialog> {
   CoOwnerInvitation? created;
 
-  void createInvite() {
+  Future<void> createInvite() async {
     final id =
         'INV-${DateTime.now().millisecondsSinceEpoch}';
 
@@ -33,11 +33,12 @@ class _CreateInvitationDialogState
           'https://pawlink.app/invite/$id',
     );
 
-    invitations.insert(0, invite);
+    await adminDataProvider.invitationService.addInvitation(invite);
 
-    logActivity(
+    adminDataProvider.activityService.logActivity(
       'Generated co-owner invitation',
       '${widget.pet.name} • $id',
+      currentAdminName,
     );
 
     widget.onCreated();

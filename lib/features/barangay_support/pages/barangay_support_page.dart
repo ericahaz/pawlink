@@ -10,270 +10,289 @@ class BarangaySupportPage extends StatefulWidget {
 class _BarangaySupportPageState extends State<BarangaySupportPage> {
   String selectedSection = 'Stray Animals';
 
-  List<AnimalReport> get visibleReports {
-    if (selectedSection == 'Stray Animals') {
-      return reports.where((r) => r.type == 'Stray').toList();
-    }
-    if (selectedSection == 'Animal Concern') {
-      return reports.where((r) =>
-          r.type == 'Animal Concern' ||
-          r.type == 'Found' ||
-          r.type == 'Missing').toList();
-    }
-    return reports;
-  }
-
-  void select(String section) {
-    setState(() => selectedSection = section);
-  }
-
   @override
   Widget build(BuildContext context) {
-    return AdminPage(
-      title: 'Barangay Support',
-      subtitle:
-          'A central place for community pet concerns, stray reports and reported locations.',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(28),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [mutedGreen, forestGreen, deepForestGreen],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Row(
-              children: [
-                CircleAvatar(
-                  radius: 28,
-                  backgroundColor: Colors.white24,
-                  child: Icon(Icons.account_balance_outlined,
-                      color: Colors.white, size: 30),
-                ),
-                SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Barangay Support',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 25,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Text(
-                        'Review community reports and help coordinate pet and animal concerns.',
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                    ],
+    return StreamBuilder<List<AnimalReport>>(
+      stream: adminDataProvider.reportsStream,
+      builder: (context, snapshot) {
+        final reports = snapshot.data ?? [];
+
+        List<AnimalReport> getVisibleReports() {
+          if (selectedSection == 'Stray Animals') {
+            return reports.where((r) => r.type == 'Stray' || r.type == 'stray').toList();
+          }
+          if (selectedSection == 'Animal Concern') {
+            return reports.where((r) =>
+                r.type == 'Animal Concern' ||
+                r.type == 'Found' ||
+                r.type == 'found' ||
+                r.type == 'Missing' ||
+                r.type == 'lost').toList();
+          }
+          return reports;
+        }
+
+        void select(String section) {
+          setState(() => selectedSection = section);
+        }
+
+        final visibleReports = getVisibleReports();
+
+        return AdminPage(
+          title: 'Barangay Support',
+          subtitle:
+              'A central place for community pet concerns, stray reports and reported locations.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(28),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [mutedGreen, forestGreen, deepForestGreen],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
                   ),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            'What can you report?',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 14,
-            runSpacing: 14,
-            children: [
-              BarangaySupportAction(
-                icon: Icons.pets_outlined,
-                title: 'Stray Animals',
-                subtitle: 'View reports of stray or roaming animals',
-                active: selectedSection == 'Stray Animals',
-                onTap: () => select('Stray Animals'),
-              ),
-              BarangaySupportAction(
-                icon: Icons.warning_amber_rounded,
-                title: 'Animal Concern',
-                subtitle: 'Review animal welfare and community pet concerns',
-                active: selectedSection == 'Animal Concern',
-                onTap: () => select('Animal Concern'),
-              ),
-              BarangaySupportAction(
-                icon: Icons.location_on_outlined,
-                title: 'Location',
-                subtitle: 'See the reported locations and landmarks',
-                active: selectedSection == 'Location',
-                onTap: () => select('Location'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 26),
-          Row(
-            children: [
-              Icon(
-                selectedSection == 'Location'
-                    ? Icons.location_on_outlined
-                    : selectedSection == 'Stray Animals'
-                        ? Icons.pets_outlined
-                        : Icons.warning_amber_rounded,
-                color: forestGreen,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                selectedSection,
-                style: const TextStyle(
-                  fontSize: 19,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          if (visibleReports.isEmpty)
-            const AppCard(
-              child: Padding(
-                padding: EdgeInsets.all(26),
-                child: Row(
+                child: const Row(
                   children: [
-                    Icon(Icons.inbox_outlined, color: textMuted),
-                    SizedBox(width: 12),
-                    Text(
-                      'No reports are available in this section yet.',
-                      style: TextStyle(color: textMuted),
+                    CircleAvatar(
+                      radius: 28,
+                      backgroundColor: Colors.white24,
+                      child: Icon(Icons.account_balance_outlined,
+                          color: Colors.white, size: 30),
+                    ),
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Barangay Support',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 25,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            'Review community reports and help coordinate pet and animal concerns.',
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
-            )
-          else
-            for (final report in visibleReports)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: AppCard(
-                  child: Padding(
-                    padding: const EdgeInsets.all(17),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: softBeige,
-                          child: Icon(
-                            selectedSection == 'Location'
-                                ? Icons.location_on_outlined
-                                : report.type == 'Stray'
-                                    ? Icons.pets_outlined
-                                    : Icons.warning_amber_rounded,
-                            color: forestGreen,
-                          ),
+              const SizedBox(height: 24),
+              const Text(
+                'What can you report?',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 14,
+                runSpacing: 14,
+                children: [
+                  BarangaySupportAction(
+                    icon: Icons.pets_outlined,
+                    title: 'Stray Animals',
+                    subtitle: 'View reports of stray or roaming animals',
+                    active: selectedSection == 'Stray Animals',
+                    onTap: () => select('Stray Animals'),
+                  ),
+                  BarangaySupportAction(
+                    icon: Icons.warning_amber_rounded,
+                    title: 'Animal Concern',
+                    subtitle: 'Review animal welfare and community pet concerns',
+                    active: selectedSection == 'Animal Concern',
+                    onTap: () => select('Animal Concern'),
+                  ),
+                  BarangaySupportAction(
+                    icon: Icons.location_on_outlined,
+                    title: 'Pet Found',
+                    subtitle: 'Browse found pet reports',
+                    active: selectedSection == 'Pet Found',
+                    onTap: () => select('Pet Found'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  const Text(
+                    'Reports',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                  ),
+                  const Spacer(),
+                  if (visibleReports.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: softBeige,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '${visibleReports.length} report${visibleReports.length == 1 ? '' : 's'}',
+                        style: const TextStyle(
+                          color: forestGreen,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
                         ),
-                        const SizedBox(width: 13),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${report.type} • ${report.petName}',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              if (visibleReports.isEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 55),
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: borderColor),
+                  ),
+                  child: const Column(
+                    children: [
+                      Icon(Icons.assignment_outlined,
+                          size: 42, color: textMuted),
+                      SizedBox(height: 12),
+                      Text(
+                        'No reports in this category yet.',
+                        style: TextStyle(color: textMuted),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                for (final report in visibleReports)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: SmallReportCard(
+                      report: report,
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            backgroundColor: pageBackground,
+                            title: Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: softBeige,
+                                  child:
+                                      Icon(iconFor(report), color: forestGreen),
                                 ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                selectedSection == 'Location'
-                                    ? report.location
-                                    : '${report.location} • ${report.reporter}',
-                                style: const TextStyle(
-                                  color: textMuted,
-                                  fontSize: 12,
+                                const SizedBox(width: 11),
+                                const Expanded(
+                                  child: Text('Report Details'),
                                 ),
-                              ),
-                              if (report.description.isNotEmpty) ...[
-                                const SizedBox(height: 5),
-                                Text(
-                                  report.description,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(fontSize: 11),
+                                IconButton(
+                                  tooltip: 'Close',
+                                  onPressed: () => Navigator.pop(context),
+                                  icon: const Icon(Icons.close),
                                 ),
                               ],
-                            ],
-                          ),
-                        ),
-                        StatusChip(
-                          text: report.status,
-                          type: report.status == 'Solved'
-                              ? ChipType.success
-                              : ChipType.warning,
-                        ),
-                        const SizedBox(width: 8),
-                        IconButton(
-                          tooltip: 'View report information',
-                          icon: const Icon(Icons.visibility_outlined),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (_) => AlertDialog(
-                                title: Text('${report.id} — ${report.type}'),
-                                content: SizedBox(
-                                  width: 520,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      DetailLine(label: 'Animal', value: report.petName),
-                                      DetailLine(label: 'Type', value: report.animalType),
-                                      DetailLine(label: 'Breed', value: report.breed),
-                                      DetailLine(label: 'Color', value: report.color),
-                                      DetailLine(label: 'Reporter', value: report.reporter),
-                                      DetailLine(label: 'Location', value: report.location),
-                                      DetailLine(label: 'Date', value: report.date),
-                                      DetailLine(label: 'Status', value: report.status),
-                                      DetailLine(
-                                        label: 'Description',
-                                        value: report.description.isEmpty
-                                            ? 'No description'
-                                            : report.description,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                actions: [
-                                  if (report.status != 'Solved')
-                                    FilledButton.icon(
-                                      style: FilledButton.styleFrom(
-                                        backgroundColor: forestGreen,
-                                      ),
-                                      onPressed: () {
-                                        setState(() => report.status = 'Solved');
-                                        logActivity(
-                                          'Resolved barangay support report',
-                                          report.id,
-                                        );
-                                        Navigator.pop(context);
-                                      },
-                                      icon: const Icon(Icons.task_alt),
-                                      label: const Text('Mark Solved'),
+                            ),
+                            content: SizedBox(
+                              width: 520,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    report.type == 'Stray'
+                                        ? 'Stray Animal Report'
+                                        : 'Animal Concern Report',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
                                     ),
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text('Close'),
+                                  ),
+                                  const SizedBox(height: 9),
+                                  Text(
+                                    report.description,
+                                    style: const TextStyle(
+                                        fontSize: 13, height: 1.5),
+                                  ),
+                                  const SizedBox(height: 18),
+                                  DetailLine(
+                                    icon: Icons.location_on_outlined,
+                                    label: 'Location',
+                                    value: report.location,
+                                  ),
+                                  DetailLine(
+                                    icon: Icons.schedule_outlined,
+                                    label: 'Reported',
+                                    value: report.date,
+                                  ),
+                                  DetailLine(
+                                    icon: Icons.person_outline,
+                                    label: 'Reported by',
+                                    value: report.reporter,
+                                  ),
+                                  DetailLine(
+                                    icon: Icons.verified_outlined,
+                                    label: 'Status',
+                                    value: report.status,
                                   ),
                                 ],
                               ),
-                            );
-                          },
-                        ),
-                      ],
+                            ),
+                            actions: [
+                              TextButton.icon(
+                                onPressed: () => Navigator.pop(context),
+                                icon: const Icon(Icons.close),
+                                label: const Text('Close'),
+                              ),
+                              if (report.status != 'Solved')
+                                FilledButton.icon(
+                                  style: FilledButton.styleFrom(
+                                    backgroundColor: forestGreen,
+                                  ),
+                                  onPressed: () async {
+                                    await adminDataProvider.reportService
+                                        .updateReportStatus(
+                                            report.id, 'Solved');
+
+                                    adminDataProvider.activityService.logActivity(
+                                      'Resolved barangay support report',
+                                      report.id,
+                                      currentAdminName,
+                                    );
+
+                                    if (context.mounted) {
+                                      Navigator.pop(context);
+                                      Navigator.pop(context);
+                                    }
+                                  },
+                                  icon: const Icon(Icons.task_alt),
+                                  label: const Text('Mark Solved'),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   ),
-                ),
-              ),
-        ],
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
-}
 
+  IconData iconFor(AnimalReport r) {
+    final type = r.type.toLowerCase();
+    if (type == 'stray') return Icons.pets_outlined;
+    if (type == 'found') return Icons.location_on_outlined;
+    if (type == 'missing' || type == 'lost') return Icons.search_rounded;
+    return Icons.warning_amber_rounded;
+  }
+}

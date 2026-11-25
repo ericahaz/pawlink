@@ -1,16 +1,5 @@
 part of pawlink_admin;
 
-void logActivity(String action, String target) {
-  activities.insert(
-    0,
-    AdminActivity(
-      action: action,
-      target: target,
-      time: DateTime.now(),
-    ),
-  );
-}
-
 String formatTime(DateTime time) {
   final hour = time.hour == 0
       ? 12
@@ -33,15 +22,6 @@ IconData petIcon(String type) {
     default:
       return Icons.pets;
   }
-}
-
-String generatePetId() {
-  return 'PET-${(pets.length + 1).toString().padLeft(3, '0')}';
-}
-
-String generateQrId() {
-  final number = 1600 + pets.length;
-  return 'QR-PL-$number';
 }
 
 String petQrUrl(PetRecord pet) {

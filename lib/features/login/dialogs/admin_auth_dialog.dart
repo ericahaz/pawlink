@@ -23,17 +23,17 @@ createMode = widget.startWithCreate;
 }
 
 void continueToAdmin() {
-if (!agreement) {
-ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please accept the privacy and responsible-use agreement first.')));
-return;
-}
-if (emailController.text.trim().isEmpty || passwordController.text.trim().isEmpty || (createMode && nameController.text.trim().isEmpty)) {
-ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please complete the required fields.')));
-return;
-}
-logActivity(createMode ? 'Administrator account created (prototype)' : 'Administrator signed in', emailController.text.trim());
-Navigator.pop(context);
-Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AdminShell()));
+  if (!agreement) {
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please accept the privacy and responsible-use agreement first.')));
+    return;
+  }
+  if (emailController.text.trim().isEmpty || passwordController.text.trim().isEmpty || (createMode && nameController.text.trim().isEmpty)) {
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please complete the required fields.')));
+    return;
+  }
+  adminDataProvider.activityService.logActivity(createMode ? 'Administrator account created (prototype)' : 'Administrator signed in', emailController.text.trim(), currentAdminName);
+  Navigator.pop(context);
+  Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AdminShell()));
 }
 
 @override

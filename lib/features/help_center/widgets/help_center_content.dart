@@ -181,7 +181,7 @@ class _HelpCenterContentState extends State<HelpCenterContent> {
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a subject and message.')));
                 return;
               }
-              logActivity('Help Center support request', subject.text.trim());
+              adminDataProvider.activityService.logActivity('Help Center support request', subject.text.trim(), currentAdminName);
               Navigator.pop(dialogContext);
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Support request recorded in the prototype.')));
             },

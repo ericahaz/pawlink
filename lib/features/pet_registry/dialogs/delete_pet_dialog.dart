@@ -41,17 +41,18 @@ class DeletePetDialog extends StatelessWidget {
             style: FilledButton.styleFrom(
               backgroundColor: dangerText,
             ),
-            onPressed: () {
-              pets.remove(pet);
+            onPressed: () async {
+              await adminDataProvider.petService.deletePet(pet.id);
 
-              logActivity(
+              adminDataProvider.activityService.logActivity(
                 'Deleted pet record',
                 '${pet.id} • ${pet.name}',
+                currentAdminName,
               );
 
               onChanged();
 
-              Navigator.pop(context);
+              if (context.mounted) Navigator.pop(context);
             },
             child: const Text(
               'Delete Record',

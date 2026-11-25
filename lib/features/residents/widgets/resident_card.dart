@@ -2,18 +2,20 @@ part of pawlink_admin;
 
 class ResidentCard extends StatelessWidget {
   final PawUser user;
+  final List<PetRecord> allPets;
   final VoidCallback onChanged;
 
   const ResidentCard({
     super.key,
     required this.user,
+    required this.allPets,
     required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
     final ownedPets =
-        pets.where((p) => p.owner == user.name).toList();
+        allPets.where((p) => p.owner == user.name).toList();
 
     final activePets =
         ownedPets.where((p) => !p.deceased).toList();

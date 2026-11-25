@@ -39,18 +39,21 @@ class MarkDeceasedDialog extends StatelessWidget {
           style: FilledButton.styleFrom(
             backgroundColor: forestGreen,
           ),
-          onPressed: () {
+          onPressed: () async {
             pet.deceased = true;
             pet.status = 'Deceased';
 
-            logActivity(
+            await adminDataProvider.petService.updatePet(pet);
+
+            adminDataProvider.activityService.logActivity(
               'Marked pet as deceased',
               '${pet.id} • ${pet.name}',
+              currentAdminName,
             );
 
             onChanged();
 
-            Navigator.pop(context);
+            if (context.mounted) Navigator.pop(context);
           },
           child: const Text(
             'Mark Deceased',

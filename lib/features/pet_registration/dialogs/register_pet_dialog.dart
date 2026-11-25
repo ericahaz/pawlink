@@ -39,21 +39,24 @@ class _RegisterPetDialogState
 
   @override
   Widget build(BuildContext context) {
-    final availableOwners = users.map((u) => u.name).toList();
+    return StreamBuilder<List<PawUser>>(
+      stream: adminDataProvider.userService.getUsersStream(),
+      builder: (context, snapshot) {
+        final availableOwners = (snapshot.data ?? []).map((u) => u.name).toList();
 
-    owner ??=
-        availableOwners.isEmpty ? null : availableOwners.first;
+        owner ??=
+            availableOwners.isEmpty ? null : availableOwners.first;
 
-    return AlertDialog(
-      backgroundColor: pageBackground,
-      title: const Text('Register New Pet'),
-      content: SizedBox(
-        width: 650,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
-            children: [
+        return AlertDialog(
+          backgroundColor: pageBackground,
+          title: const Text('Register New Pet'),
+          content: SizedBox(
+            width: 650,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+                children: [
               const FormLabel('Pet Type'),
               Wrap(
                 spacing: 8,
@@ -264,12 +267,10 @@ class _RegisterPetDialogState
               DropdownButtonFormField<String>(
                 initialValue: owner,
                 items: [
-                  for (final user in users)
+                  for (final ownerName in availableOwners)
                     DropdownMenuItem(
-                      value: user.name,
-                      child: Text(
-                        '${user.name} • ${user.userType}',
-                      ),
+                      value: ownerName,
+                      child: Text(ownerName),
                     ),
                 ],
                 onChanged: (value) {
@@ -351,7 +352,7 @@ class _RegisterPetDialogState
           style: FilledButton.styleFrom(
             backgroundColor: forestGreen,
           ),
-          onPressed: () {
+          onPressed: () async {
             if (nameController.text.trim().isEmpty ||
                 owner == null) {
               ScaffoldMessenger.of(context)
@@ -372,7 +373,7 @@ class _RegisterPetDialogState
                 : animalType;
 
             final pet = PetRecord(
-              id: generatePetId(),
+              id: '',
               name: nameController.text.trim(),
               category: ['Dog', 'Cat', 'Bird', 'Rabbit'].contains(animalType)
                   ? animalType
@@ -402,21 +403,23 @@ class _RegisterPetDialogState
                   marksController.text.trim().isEmpty
                       ? 'None recorded'
                       : marksController.text.trim(),
-              qrId: generateQrId(),
+              qrId: 'QR-PL-${DateTime.now().millisecondsSinceEpoch}',
               photoLabel:
                   '${nameController.text.trim().toUpperCase()} PHOTO',
               safetyLevel: safetyLevel,
             );
 
-            pets.add(pet);
+            await adminDataProvider.petService.updatePet(pet);
 
-            logActivity(
+            adminDataProvider.activityService.logActivity(
               'Registered new pet',
               '${pet.id} • ${pet.name}',
+              currentAdminName,
             );
 
             widget.onRegistered();
 
+            if (!mounted) return;
             Navigator.pop(context);
 
             showDialog(
@@ -433,6 +436,8 @@ class _RegisterPetDialogState
           ),
         ),
       ],
+    );
+      },
     );
   }
 }

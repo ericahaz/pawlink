@@ -65,9 +65,10 @@ class _ManageCoOwnerDialogState
                           .remove(coOwner);
                     });
 
-                    logActivity(
+                    adminDataProvider.activityService.logActivity(
                       'Removed pet co-owner',
                       '$coOwner • ${widget.pet.name}',
+                      currentAdminName,
                     );
 
                     widget.onChanged();
@@ -110,9 +111,10 @@ class _ManageCoOwnerDialogState
                     .contains(name)) {
               widget.pet.coOwners.add(name);
 
-              logActivity(
+              adminDataProvider.activityService.logActivity(
                 'Added pet co-owner',
                 '$name • ${widget.pet.name}',
+                currentAdminName,
               );
 
               widget.onChanged();

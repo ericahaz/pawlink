@@ -2,6 +2,7 @@ library pawlink_admin;
 
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -38,6 +39,15 @@ part 'models/co_owner_invitation.dart';
 part 'models/support_message.dart';
 part 'models/admin_notification.dart';
 part 'models/admin_activity.dart';
+
+// Admin Services
+part 'services/admin/admin_user_service.dart';
+part 'services/admin/admin_pet_service.dart';
+part 'services/admin/admin_report_service.dart';
+part 'services/admin/admin_invitation_service.dart';
+part 'services/admin/admin_support_service.dart';
+part 'services/admin/admin_activity_service.dart';
+part 'services/admin/admin_notification_service.dart';
 
 // Data and Utils
 part 'data/app_data.dart';
@@ -139,6 +149,7 @@ part 'shared/widgets/info_box.dart';
 part 'shared/widgets/detail_line.dart';
 part 'shared/widgets/empty_card.dart';
 part 'shared/widgets/status_chip.dart';
+part 'shared/widgets/multi_stream_builder.dart';
 
 // ============================================================
 // PAWLINK APP ENTRY POINT

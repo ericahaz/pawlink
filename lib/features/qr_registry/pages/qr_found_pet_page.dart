@@ -197,12 +197,12 @@ class _QrFoundPetPageState
                             child:
                                 FilledButton.icon(
                               style:
-                                  FilledButton
+FilledButton
                                       .styleFrom(
-                                backgroundColor:
-                                    forestGreen,
-                              ),
-                              onPressed: () {
+                                    backgroundColor:
+                                      forestGreen,
+                                  ),
+                                  onPressed: () async {
                                 if (locationController
                                     .text
                                     .trim()
@@ -266,24 +266,22 @@ class _QrFoundPetPageState
                                       'Pending',
                                   qrScanned:
                                       true,
-                                  petId: widget
+petId: widget
                                       .pet.id,
-                                );
+                                    );
 
-                                reports.insert(
-                                  0,
-                                  report,
-                                );
+                                    await adminDataProvider.reportService.addReport(report);
 
-                                logActivity(
-                                  'Received QR found-pet report',
-                                  '${widget.pet.qrId} • ${widget.pet.name}',
-                                );
+                                    adminDataProvider.activityService.logActivity(
+                                      'Received QR found-pet report',
+                                      '${widget.pet.qrId} • ${widget.pet.name}',
+                                      currentAdminName,
+                                    );
 
-                                setState(() {
-                                  submitted =
-                                      true;
-                                });
+                                    setState(() {
+                                      submitted =
+                                          true;
+                                    });
                               },
                               icon:
                                   const Icon(

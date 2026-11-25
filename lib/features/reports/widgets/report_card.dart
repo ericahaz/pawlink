@@ -160,12 +160,15 @@ class ReportCard extends StatelessWidget {
                 if (report.status != 'Solved') ...[
                   const SizedBox(height: 6),
                   TextButton(
-                    onPressed: () {
+                    onPressed: () async {
                       report.status = 'Solved';
 
-                      logActivity(
+                      await adminDataProvider.reportService.updateReportStatus(report.id, 'Solved');
+
+                      adminDataProvider.activityService.logActivity(
                         'Marked report as solved',
                         report.id,
+                        currentAdminName,
                       );
 
                       onChanged();

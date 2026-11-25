@@ -15,6 +15,8 @@ class PetRegistryPage extends StatefulWidget {
 
 class _PetRegistryPageState
     extends State<PetRegistryPage> {
+  final AdminPetService _petService = AdminPetService();
+
   void refresh() {
     setState(() {});
     widget.onRefresh();
@@ -22,43 +24,53 @@ class _PetRegistryPageState
 
   @override
   Widget build(BuildContext context) {
-    return AdminPage(
-      title: 'Pet Registry',
-      subtitle:
-          'Manage registered pets, QR profiles, vaccination and pet status.',
-      action: FilledButton.icon(
-        style: FilledButton.styleFrom(
-          backgroundColor: forestGreen,
-        ),
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (_) => RegisterPetDialog(
-              onRegistered: refresh,
+    return StreamBuilder<List<PetRecord>>(
+      stream: _petService.getPetsStream(),
+      builder: (context, snapshot) {
+        final pets = snapshot.data ?? [];
+
+        return AdminPage(
+          title: 'Pet Registry',
+          subtitle:
+              'Manage registered pets, QR profiles, vaccination and pet status.',
+          action: FilledButton.icon(
+            style: FilledButton.styleFrom(
+              backgroundColor: forestGreen,
             ),
-          );
-        },
-        icon: const Icon(Icons.add),
-        label: const Text('Register Pet'),
-      ),
-      child: Column(
-        children: [
-          const SearchField(
-            hint:
-                'Search pet, owner, QR ID, breed or animal type...',
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (_) => RegisterPetDialog(
+                  onRegistered: refresh,
+                ),
+              );
+            },
+            icon: const Icon(Icons.add),
+            label: const Text('Register Pet'),
           ),
-          const SizedBox(height: 20),
-          for (final pet in pets)
-            Padding(
-              padding:
-                  const EdgeInsets.only(bottom: 12),
-              child: PetCard(
-                pet: pet,
-                onChanged: refresh,
+          child: Column(
+            children: [
+              const SearchField(
+                hint:
+                    'Search pet, owner, QR ID, breed or animal type...',
               ),
-            ),
-        ],
-      ),
+              const SizedBox(height: 20),
+              if (snapshot.connectionState == ConnectionState.waiting)
+                const Center(child: CircularProgressIndicator())
+              else
+                for (final pet in pets)
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(bottom: 12),
+                    child: PetCard(
+                      pet: pet,
+                      onChanged: refresh,
+                    ),
+                  ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
