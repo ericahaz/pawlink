@@ -1,0 +1,62 @@
+name: pawlink
+description: "PawLink - Community Pet & Stray Management"
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  flutter_web_plugins:
+    sdk: flutter
+
+  # Firebase
+  firebase_core: ^4.1.0
+  firebase_auth: ^6.1.0
+  cloud_firestore: ^6.0.2
+  firebase_storage: ^13.0.2
+
+  # UI / Icons
+  cupertino_icons: ^1.0.8
+  
+  #Fonts
+  google_fonts: ^6.3.0
+
+  #Fonts
+  mobile_scanner: ^7.0.0
+
+  # Maps
+  flutter_map: ^8.3.2
+  latlong2: ^0.10.1
+
+  # Location search / reverse geocoding
+  http: ^1.6.0
+
+  # Device / browser location
+  geolocator: ^14.0.3
+
+  # QR
+  qr_flutter: ^4.1.0
+
+  # Links
+  url_launcher: ^6.3.2
+
+  # Image picking
+  image_picker: ^1.2.1
+  firebase_messaging: ^16.7.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
